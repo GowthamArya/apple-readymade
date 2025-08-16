@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Apple Readymade & more.",
-  description: "Mens ware ecommerce website.",
+  title: "Apple",
+  description: "Apple Readymade & more. - Mens ware ecommerce website.",
 };
 
 export default function RootLayout({

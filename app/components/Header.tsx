@@ -40,9 +40,9 @@ export default function Header() {
     }, [menuOpen]);
 
   return (
-    <header className="w-full p-4 border-b-2 border-b-emerald-50">
+    <header className="w-full p-4 border-b-gray-700 border-b-2">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <a className="flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
             Apple Readymade &amp; More
@@ -50,7 +50,7 @@ export default function Header() {
           <span className="text-xl font-bold md:hidden">
             Apple
           </span>
-        </div>
+        </a>
 
         {/* Hamburger Button (Mobile Only) */}
         <button
@@ -96,7 +96,7 @@ interface NavLinksProps {
 }
 
 function NavLinks({ isMobile }: NavLinksProps) {
-  const linkClass = "block py-2 px-3 font-medium transition rounded";
+  const linkClass = "block py-2 px-3 font-medium transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
   return (
     <>
       {navLinks.map(({ label, href }) => (
