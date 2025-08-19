@@ -2,11 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import SearchBar from "./Search";
+import { LuUserRound,LuShoppingBag } from 'react-icons/lu';
+import Link from 'next/link';
 
 const navLinks = [
-  { label: "Account", href: "#account" },
-  { label: "Category", href: "#category" },
-  { label: "Your Suggestions", href: "#suggestions" },
+  { label: "Home", href: "/" },
+  { label: "Collections", href: "/Collections" },
+  { label: "About", href: "#About" },
 ];
 
 export default function Header() {
@@ -40,8 +43,8 @@ export default function Header() {
     }, [menuOpen]);
 
   return (
-    <header className="w-full p-4 border-b-gray-700 border-b-2">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <header className="w-full fixed top-0 z-100">
+      <div className="max-w-7xl py-3 mx-auto flex items-center justify-between">
         <a className="flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
@@ -51,10 +54,10 @@ export default function Header() {
             Apple
           </span>
         </a>
-
+        
         {/* Hamburger Button (Mobile Only) */}
         <button
-          className="md:hidden ml-auto p-2 rounded focus:outline-none transition"
+          className="md:hidden p-2 rounded focus:outline-none transition"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Menu"
           aria-expanded={menuOpen}
@@ -76,7 +79,6 @@ export default function Header() {
           <NavLinks />
         </nav>
       </div>
-
       {/* Animated Mobile Navigation */}
       <div
         ref={mobileNavRef}
@@ -96,19 +98,22 @@ interface NavLinksProps {
 }
 
 function NavLinks({ isMobile }: NavLinksProps) {
-  const linkClass = "block py-2 px-3 font-medium transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
+  const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
   return (
-    <>
+    <div className="theme shadow-md rounded-lg p-1 w-full">
       {navLinks.map(({ label, href }) => (
-        <a
+        <Link 
           key={label}
           href={href}
-          className={isMobile ? linkClass : `${linkClass} inline-block`}
+          className={isMobile ? linkClass : `${linkClass} p-2 font-bold text-gray-900 inline-block`}
           tabIndex={isMobile ? 0 : undefined}
         >
           {label}
-        </a>
+        </Link >
       ))}
-    </>
+      <SearchBar />
+      <LuShoppingBag className={`inline mx-2 text-xl font-bold text-gray-700 cursor-pointer`}/>
+      <LuUserRound className={`inline mx-2 text-xl font-bold text-gray-700 cursor-pointer`}/>
+    </div>
   );
 }
