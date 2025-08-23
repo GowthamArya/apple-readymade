@@ -28,7 +28,7 @@ body {
   width: 100vw !important;
   height: 100vh !important;
   color: var(--foreground);
-  font-family: var(--font-ibm-plex-mono), Arial, Helvetica;
+  font-family: var(--font-sans), Arial, Helvetica;
 }
 @media (prefers-color-scheme: dark) {
   body {

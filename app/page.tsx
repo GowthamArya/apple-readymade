@@ -5,7 +5,7 @@ import ShopByCollection from "./components/Home/ShopByCollection";
 
 export default function () {
   return (
-    <div className="font-sans min-h-screen">
+    <div className="h-svh">
       <main>
         <HeroSection />
         <ShopByCollection />

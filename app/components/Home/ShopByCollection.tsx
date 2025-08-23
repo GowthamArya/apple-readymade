@@ -17,13 +17,13 @@ const collections = [
 
 export default function ShopByCollection() {
     return (
-        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 p-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2">
             {collections.map((collection) => (
                 <div key={collection.name} className="relative bg-white dark:bg-black p-5 rounded-lg shadow-sm flex h-96">
                     {collection.img && 
                         <img className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-70" src={collection.img} width="300" alt={collection.name} />
                     }
-                    <p className="absolute left-2 bottom-2 bg-white p-2 text-lg font-semibold text-black dark:text-white">{collection.name}</p>
+                    <p className="absolute left-2 bottom-2 bg-white dark:bg-black  p-2 text-lg font-semibold text-black dark:text-white">{collection.name}</p>
                 </div>
             ))}
         </div>

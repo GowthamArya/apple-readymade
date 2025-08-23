@@ -100,20 +100,20 @@ interface NavLinksProps {
 function NavLinks({ isMobile }: NavLinksProps) {
   const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
   return (
-    <div className="theme dark:theme-opp-background shadow-md rounded-lg p-1 w-full">
+    <div className="theme dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
       {navLinks.map(({ label, href }) => (
         <Link 
           key={label}
           href={href}
-          className={isMobile ? linkClass : `${linkClass} p-2 font-bold text-gray-900 inline-block`}
+          className={isMobile ? linkClass : `${linkClass} p-2 inline-block`}
           tabIndex={isMobile ? 0 : undefined}
         >
           {label}
         </Link >
       ))}
       <SearchBar />
-      <LuShoppingBag className={`inline mx-2 text-xl font-bold text-gray-700 cursor-pointer`}/>
-      <LuUserRound className={`inline mx-2 text-xl font-bold text-gray-700 cursor-pointer`}/>
+      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      <LuUserRound className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
     </div>
   );
 }
