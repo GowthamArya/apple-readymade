@@ -4,16 +4,18 @@ import bgImage from "../public/apple-bg.png";
 import Link from "next/link";
 import Shirts from "./components/Shirts";
 import { useLoading } from './context/LoadingContext'; // adjust path as needed
+import { useEffect } from "react";
 
 export default function () {
   const { loading, setLoading } = useLoading();
 
-  const doAsyncWork = async () => {
+  if (!loading){
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false); 
-  };
-  doAsyncWork();
+  }
+  useEffect(() => {
+      setLoading(false);
+  }, []);
+
   return (
     <div className="font-sans min-h-screen">
       <main>
