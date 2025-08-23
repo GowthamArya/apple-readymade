@@ -100,7 +100,7 @@ interface NavLinksProps {
 function NavLinks({ isMobile }: NavLinksProps) {
   const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
   return (
-    <div className="theme shadow-md rounded-lg p-1 w-full">
+    <div className="theme dark:theme-opp-background shadow-md rounded-lg p-1 w-full">
       {navLinks.map(({ label, href }) => (
         <Link 
           key={label}

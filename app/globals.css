@@ -11,13 +11,32 @@
     --foreground: #ededed;
   }
 }
+#childrenRoot{
+  width: 100% !important;
+  height: 100% !important;
+  /* scroll-behavior: smooth; */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
 body {
-  background: var(--background);
+  background-image: url('/apple-bg.png');
+  background-color: rgba(255, 255, 255, 0.9);
+  background-blend-mode: lighten; 
+  background-position: center;
+  background-size: cover;
+  width: 100vw !important;
+  height: 100vh !important;
   color: var(--foreground);
   font-family: var(--font-ibm-plex-mono), Arial, Helvetica;
 }
-
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: rgba(0, 0, 0, 0.9);
+    background-blend-mode: darken;
+    backdrop-filter: blur(2px);
+  }
+}
 .theme {
   background: var(--background);
   color: var(--foreground);

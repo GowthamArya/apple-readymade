@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
+import bgImage from "../public/apple-bg.png";
 
 import { LoadingProvider } from "./context/LoadingContext"; // no useLoading here
 import LoadingLayer from "./components/LoadingLayer"; // client component
@@ -40,7 +41,9 @@ export default function RootLayout({
             <Header />
           </div>
           <LoadingLayer /> {/* Client component can be safely rendered here */}
-          {children}
+          <div id="childrenRoot">
+            {children}
+          </div>
         </LoadingProvider>
       </body>
     </html>

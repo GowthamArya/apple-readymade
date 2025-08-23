@@ -1,6 +1,5 @@
 "use client";
 import Header from "./components/Header";
-import bgImage from "../public/apple-bg.png";
 import Link from "next/link";
 import Shirts from "./components/Shirts";
 import { useLoading } from './context/LoadingContext'; // adjust path as needed
@@ -20,12 +19,6 @@ export default function () {
     <div className="font-sans min-h-screen">
       <main>
         <div className="relative h-screen w-full">
-          {/* Light BG image with overlay */}
-          <div
-            className="absolute inset-0 bg-center bg-cover opacity-5"
-            style={{ backgroundImage: `url(${bgImage.src})` }}
-          /> {/* black overlay */}
-
           {/* Hero Content */}
           <div className="relative z-10 flex flex-col items-center justify-center text-center h-full px-4">
             <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white web">
@@ -44,7 +37,7 @@ export default function () {
             </div>
           </div>
         </div>
-        <Shirts />
+        {/* <Shirts /> */}
         
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
