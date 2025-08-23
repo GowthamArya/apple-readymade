@@ -6,6 +6,7 @@ import bgImage from "../public/apple-bg.png";
 
 import { LoadingProvider } from "./context/LoadingContext"; // no useLoading here
 import LoadingLayer from "./components/LoadingLayer"; // client component
+import Footer from "./components/Footer";
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
@@ -35,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased`}>
+      <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <LoadingProvider>
           <div className="relative">
             <Header />
@@ -44,6 +45,7 @@ export default function RootLayout({
           <div id="childrenRoot">
             {children}
           </div>
+          <Footer/>
         </LoadingProvider>
       </body>
     </html>
