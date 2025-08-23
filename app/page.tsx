@@ -1,12 +1,22 @@
+"use client";
 import Header from "./components/Header";
 import bgImage from "../public/apple-bg.png";
 import Link from "next/link";
+import Shirts from "./components/Shirts";
+import { useLoading } from './context/LoadingContext'; // adjust path as needed
 
-export default function Home() {
+export default function () {
+  const { loading, setLoading } = useLoading();
+
+  const doAsyncWork = async () => {
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setLoading(false); 
+  };
+  doAsyncWork();
   return (
     <div className="font-sans min-h-screen">
       <main>
-        
         <div className="relative h-screen w-full">
           {/* Light BG image with overlay */}
           <div
@@ -16,7 +26,7 @@ export default function Home() {
 
           {/* Hero Content */}
           <div className="relative z-10 flex flex-col items-center justify-center text-center h-full px-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white web">
               MAKE A MOVE
             </h1>
             <p className="mt-4 text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-xl">
@@ -32,7 +42,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-
+        <Shirts />
         
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
