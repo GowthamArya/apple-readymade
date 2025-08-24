@@ -82,7 +82,7 @@ export default function Header() {
       {/* Animated Mobile Navigation */}
       <div
         ref={mobileNavRef}
-        className={`md:hidden sm:py-3 transition-all duration-1000 flex flex-col items-end ease-in-out overflow-hidden ${
+        className={`md:hidden sm:py-3 transition-all duration-1000 flex flex-col items-end ease-in-out ${
           menuOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
         } rounded`}
         aria-label="Mobile Navigation"
@@ -98,14 +98,14 @@ interface NavLinksProps {
 }
 
 function NavLinks({ isMobile }: NavLinksProps) {
-  const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950";
+  const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
   return (
-    <div className="theme dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
+    <div className="theme text-center dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
       {navLinks.map(({ label, href }) => (
         <Link 
           key={label}
           href={href}
-          className={isMobile ? linkClass : `${linkClass} p-2 inline-block`}
+          className={isMobile ? `${linkClass} border-b-1 border-b-green-200` : `${linkClass} inline-block`}
           tabIndex={isMobile ? 0 : undefined}
         >
           {label}
