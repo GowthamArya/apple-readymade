@@ -1,53 +1,66 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 255, 255, 255;  /* white in RGB */
+  --foreground: 23, 23, 23;     /* #171717 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 10, 10, 10;   /* #0a0a0a */
+    --foreground: 237, 237, 237; /* #ededed */
   }
 }
 
 #childrenRoot{
-  width: 100% !important;
-  height: 100% !important;
-  /* scroll-behavior: smooth; */
-  overflow-x: hidden;
-  overflow-y: auto;
   scrollbar-width: thin;
 }
 
 body {
-  background-image: url('/apple-bg.png');
-  background-color: rgba(255, 255, 255, 0.9);
-  background-blend-mode: lighten; 
-  background-position: center;
-  background-size: cover;
-  width: 100vw !important;
-  height: 100vh !important;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica;
-  /* cursor: url(""), pointer; */
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: rgba(0, 0, 0, 0.9);
-    background-blend-mode: darken;
-    backdrop-filter: blur(2px);
-  }
 }
 
 .theme {
-  background: var(--background);
-  color: var(--foreground);
+  background: rgba(var(--background), 0.65);
+  color: rgb(var(--foreground));
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .theme-opp-background {
-  background: var(--foreground);
-  color: var(--background);
+  background: rgba(var(--foreground), 0.6);
+  color: rgb(var(--background));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-20%);
+  }
+}
+
+.animate-scroll {
+  display: flex;
+  width: max-content;
+  animation: scroll 10s linear infinite;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #315423 transparent;
 }

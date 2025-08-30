@@ -5,6 +5,8 @@ import Image from "next/image";
 import SearchBar from "./Search";
 import { LuUserRound,LuShoppingBag } from 'react-icons/lu';
 import Link from 'next/link';
+import { TiWeatherPartlySunny } from "react-icons/ti";
+import { IoMdPartlySunny } from "react-icons/io";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -114,6 +116,9 @@ function NavLinks({ isMobile }: NavLinksProps) {
       <SearchBar />
       <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
       <LuUserRound className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      
+        <TiWeatherPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+        <IoMdPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
     </div>
   );
 }

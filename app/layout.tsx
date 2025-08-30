@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
+import "locomotive-scroll/dist/locomotive-scroll.css";
 import "./globals.css";
 import Header from "./components/Header";
 import bgImage from "../public/apple-bg.png";
@@ -7,6 +8,8 @@ import bgImage from "../public/apple-bg.png";
 import { LoadingProvider } from "./context/LoadingContext"; // no useLoading here
 import LoadingLayer from "./components/LoadingLayer"; // client component
 import Footer from "./components/Footer";
+import LocomotiveScroll from "locomotive-scroll";
+
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
@@ -34,6 +37,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="en">
       <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>

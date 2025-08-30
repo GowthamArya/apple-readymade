@@ -19,7 +19,7 @@ const collections = [
 
 export default function ShopByCollection() {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2 mb-3">
+        <div data-scroll className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2 mb-3">
             {collections.map((collection) => (
                 <Link key={collection.name} href={`/Collections#${collection.name.toLowerCase()}`}>
                     <div key={collection.name} className="relative bg-white dark:bg-black p-5 shadow-sm flex h-96">
