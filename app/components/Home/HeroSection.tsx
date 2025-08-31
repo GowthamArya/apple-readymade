@@ -52,13 +52,12 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
         muted
         playsInline
         id="bgOverBlend2"
-        className="absolute top-0 left-0 w-screen h-full object-cover -z-10"
+        className="absolute top-0 left-0 w-screen h-full object-cover -z-10 filter grayscale"
       >
-        <source src="/hero.mp4" type="video/mp4" />
+        <source src="/hero3.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
-      <div className="absolute inset-0 bg-black/50 -z-5"></div>
 
       <div className="flex flex-col h-screen items-center justify-end relative z-10 text-end px-3 md:px-10">
         <div className="text-white mb-10 md:mb-20">
