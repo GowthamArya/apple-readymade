@@ -54,7 +54,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
         id="bgOverBlend2"
         className="absolute top-0 left-0 w-screen h-full object-cover -z-10 filter grayscale"
       >
-        <source src="/hero3.mp4" type="video/mp4" />
+        <source src="/hero4.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
