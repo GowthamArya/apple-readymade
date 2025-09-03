@@ -8,7 +8,7 @@ import { FcMissedCall } from "react-icons/fc";
 const trustData = [
   { icon: LiaShippingFastSolid, text: "Free Shipping" },
   { icon: BiArrowBack, text: "Easy Returns" },
-  { icon: MdOutlinePayments, text: "100% Secure Payments" },
+  { icon: MdOutlinePayments, text: "100% Secure" },
   { icon: PiShirtFoldedLight, text: "Quality Products" },
   { icon: FcMissedCall, text: "24/7 Support" }
 ];
@@ -16,8 +16,8 @@ const trustData = [
 export default function TrustBuilding() {
   return (
     <div className="relative w-full overflow-hidden bg-white dark:bg-black">
-      <div className="flex animate-scroll gap-6 p-6">
-        {[...trustData, ...trustData].map((item, index) => {
+      <div className="flex md:justify-evenly gap-3 md:p-5 p-2 py-3">
+        {[...trustData].map((item, index) => {
           const Icon = item.icon;
           return (
             <div
