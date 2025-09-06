@@ -116,10 +116,10 @@ function NavLinks({ isMobile }: NavLinksProps) {
       ))}
       <SearchBar />
       <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
-      <LuUserRound className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      <Link href='/Auth'><LuUserRound className={`inline mx-2 text-xl font-bold cursor-pointer`}/></Link>
       
-        <TiWeatherPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
-        <IoMdPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      <TiWeatherPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      <IoMdPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
     </div>
   );
 }

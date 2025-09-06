@@ -1,13 +1,14 @@
 import React from 'react'
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { MdOutlinePayments } from "react-icons/md";
-import { BiArrowBack } from "react-icons/bi";
 import { PiShirtFoldedLight } from "react-icons/pi";
 import { MdSupportAgent  } from "react-icons/md";
+import { RiArrowGoBackLine } from "react-icons/ri";
+
 
 const trustData = [
   { icon: LiaShippingFastSolid, text: "Free Shipping" },
-  { icon: BiArrowBack, text: "Easy Returns" },
+  { icon: RiArrowGoBackLine, text: "Easy Returns" },
   { icon: MdOutlinePayments, text: "100% Secure" },
   { icon: PiShirtFoldedLight, text: "Quality Products" },
   { icon: MdSupportAgent , text: "24/7 Support" }
