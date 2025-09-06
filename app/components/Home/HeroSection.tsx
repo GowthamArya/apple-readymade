@@ -5,6 +5,7 @@ import { CiLocationArrow1 } from "react-icons/ci";
 import { Climate_Crisis as Herofont } from "next/font/google";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { LiaAppleAltSolid } from "react-icons/lia";
 
 const herofont = Herofont({
   subsets: ["latin"],
@@ -53,7 +54,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
         muted
         playsInline
         id="bgOverBlend2"
-        className="absolute top-0 left-0 w-screen h-full object-cover -z-10 filter grayscale"
+        className="absolute top-0 left-0 w-screen h-full object-cover -z-10 "//filter grayscale
       >
         <source src="/hero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
@@ -74,7 +75,14 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
             >
               <CiLocationArrow1 className="text-white -rotate-45 hover:text-green-400 transition-all duration-700 ease-in-out hover:scale-95 hover:rotate-0" />
             </span>{" "}
-            MOVE
+            M{" "}
+            <span
+              className="inline-block text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl"
+              style={{ transform: "scale(1.5,1.2)" }}
+            >
+              <LiaAppleAltSolid  className="bg-black dark:bg-white md:-mb-2 mx-2 dark:text-green-200"/>
+            </span>
+            {" "}VE
           </h1>
         </div>
       </div>

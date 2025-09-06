@@ -7,6 +7,7 @@ import ShopByCollection from "./components/Home/ShopByCollection";
 import TrustBuilding from "./components/Home/TrustBuilding";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Footer from "./components/Footer";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Page() {
@@ -77,6 +78,7 @@ export default function Page() {
           <HeroSection locomotiveReady={locomotiveReady} />
           <ShopByCollection />
           <TrustBuilding />
+          <Footer />
         </main>
       </div>
     </div>

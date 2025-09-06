@@ -46,8 +46,8 @@ export default function Header() {
 
   return (
     <header className="w-full fixed top-0 z-100">
-      <div className="max-w-7xl py-3 mx-auto flex items-center justify-between">
-        <a className="flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
+      <div className="max-w-7xl py-3 mx-auto flex items-center justify-between md:justify-center">
+        <a className="md:hidden flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
             Apple Readymade &amp; More
@@ -103,9 +103,10 @@ function NavLinks({ isMobile }: NavLinksProps) {
   const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
   return (
     <div className="theme text-center dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
+      <Image src="/logo.png" className={`inline `} alt="Logo" width={50} height={50} priority />
       {navLinks.map(({ label, href }) => (
         <Link 
-          key={label}
+          key={label}   
           href={href}
           className={isMobile ? `${linkClass} border-b-1 border-b-green-200` : `${linkClass} inline-block`}
           tabIndex={isMobile ? 0 : undefined}

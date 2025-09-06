@@ -3,14 +3,14 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { MdOutlinePayments } from "react-icons/md";
 import { BiArrowBack } from "react-icons/bi";
 import { PiShirtFoldedLight } from "react-icons/pi";
-import { FcMissedCall } from "react-icons/fc";
+import { MdSupportAgent  } from "react-icons/md";
 
 const trustData = [
   { icon: LiaShippingFastSolid, text: "Free Shipping" },
   { icon: BiArrowBack, text: "Easy Returns" },
   { icon: MdOutlinePayments, text: "100% Secure" },
   { icon: PiShirtFoldedLight, text: "Quality Products" },
-  { icon: FcMissedCall, text: "24/7 Support" }
+  { icon: MdSupportAgent , text: "24/7 Support" }
 ];
 
 export default function TrustBuilding() {
@@ -22,7 +22,7 @@ export default function TrustBuilding() {
           return (
             <div
               key={index}
-              className="flex flex-col items-center text-green-900 font-extralight md:min-w-[150px]  "
+              className="flex flex-col items-center text-green-950 font-extralight md:min-w-[150px]  "
             >
               <Icon className="md:text-2xl text-xl lg:text-3xl" />
               <span className="text-center mt-2 md:text-md text-xs lg:text-lg">
