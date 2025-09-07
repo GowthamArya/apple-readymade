@@ -83,7 +83,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
               className="inline-block text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl"
               style={{ transform: "scale(1.5,1.2)" }}
             >
-              <LiaAppleAltSolid  className="icon md:-mb-2 mx-2 dark:text-green-200"/>
+              <LiaAppleAltSolid  className="icon md:-mb-2 mx-2 text-green-200"/>
             </Link>
             {" "}VE
           </h1>
