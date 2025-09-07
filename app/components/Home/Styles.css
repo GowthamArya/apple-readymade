@@ -1,0 +1,14 @@
+#appleIcon:hover .icon {
+  background-image: url('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnRxN25rMDZsM29hMDk0a2U4MDRhdG44eWF5bGg5cGJkMzRoZjg4bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xUOrw4vslaW2a8SaZ2/giphy.gif');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 10;
+  scale: 1.5;
+  cursor: pointer;
+}
+
+#appleIcon .icon {
+  transition-duration: 1000ms;
+  background-color: white;
+}

@@ -6,6 +6,8 @@ import { Climate_Crisis as Herofont } from "next/font/google";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LiaAppleAltSolid } from "react-icons/lia";
+import "./Styles.css";
+import Link from "next/link";
 
 const herofont = Herofont({
   subsets: ["latin"],
@@ -76,12 +78,13 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
               <CiLocationArrow1 className="text-white -rotate-45 hover:text-green-400 transition-all duration-700 ease-in-out hover:scale-95 hover:rotate-0" />
             </span>{" "}
             M{" "}
-            <span
+            <Link href="/Collections" 
+              id="appleIcon"
               className="inline-block text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl"
               style={{ transform: "scale(1.5,1.2)" }}
             >
-              <LiaAppleAltSolid  className="bg-black dark:bg-white md:-mb-2 mx-2 dark:text-green-200"/>
-            </span>
+              <LiaAppleAltSolid  className="icon md:-mb-2 mx-2 dark:text-green-200"/>
+            </Link>
             {" "}VE
           </h1>
         </div>
