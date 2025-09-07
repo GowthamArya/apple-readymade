@@ -89,6 +89,12 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
           </h1>
         </div>
       </div>
+      <img
+        src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnRxN25rMDZsM29hMDk0a2U4MDRhdG44eWF5bGg5cGJkMzRoZjg4bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xUOrw4vslaW2a8SaZ2/giphy.gif"
+        alt="Preload Background"
+        fetchPriority="high"
+        className="hidden"
+      />
     </div>
   );
 }
