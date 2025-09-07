@@ -19,17 +19,30 @@ const collections = [
 
 export default function ShopByCollection() {
     return (
-        <div data-scroll className="grid grid-cols-2 md:grid-cols-4 gap-2 p-2 mb-3">
-            {collections.map((collection) => (
-                <Link key={collection.name} href={`/Collections#${collection.name.toLowerCase()}`}>
-                    <div key={collection.name} className="relative bg-white dark:bg-black p-5 shadow-sm flex h-96">
-                        {collection.img && 
-                            <img className="absolute inset-0 w-full h-full object-cover opacity-70" src={collection.img} width="300" alt={collection.name} />
-                        }
-                        <p className="absolute shadow-sm left-2 bottom-2 bg-white dark:bg-black  p-2 text-lg font-semibold text-black dark:text-white">{collection.name}</p>
-                    </div>
-                </Link>
-            ))}
-        </div>
-    )
+        <div
+  data-scroll
+  className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 px-4 dark:bg-black bg-gray-50"
+>
+  {collections.map((collection) => (
+    <Link
+      key={collection.name}
+      href={`/Collections#${collection.name.toLowerCase()}`}
+      className="group"
+    >
+      <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-zinc-900 h-64 md:h-80">
+        {collection.img && (
+          <img
+            src={collection.img}
+            alt={collection.name}
+            className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-900 ease-in-out"
+          />
+        )}
+        {/* Label */}
+        <p className="absolute bottom-4 left-4 text-white dark:text-white text-lg font-semibold bg-black/60 dark:bg-black/70 px-3 py-1 rounded-md shadow-sm">
+          {collection.name}
+        </p>
+      </div>
+    </Link>
+    ))}
+    </div>)
 }

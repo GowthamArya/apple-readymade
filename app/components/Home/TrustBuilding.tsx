@@ -16,14 +16,14 @@ const trustData = [
 
 export default function TrustBuilding() {
   return (
-    <div className="relative w-full overflow-hidden bg-white dark:bg-black">
+    <div className="relative w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex md:justify-evenly gap-3 md:p-5 p-2 py-3">
         {[...trustData].map((item, index) => {
           const Icon = item.icon;
           return (
             <div
               key={index}
-              className="flex flex-col items-center text-green-950 font-extralight md:min-w-[150px]  "
+              className="flex flex-col items-center text-green-950 dark:text-green-100 font-extralight md:min-w-[150px]  "
             >
               <Icon className="md:text-2xl text-xl lg:text-3xl" />
               <span className="text-center mt-2 md:text-md text-xs lg:text-lg">

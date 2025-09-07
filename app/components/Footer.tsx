@@ -6,14 +6,23 @@ import { FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white p-4">
+    <footer data-scroll className="bg-gray-950 text-white p-4">
       <div className="mx-auto grid grid-cols-1 md:grid-cols-4 gap-y-8">
-        {/* Logo + Tagline */}
         <div>
-          <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
-          <h2 className="text-2xl font-bold mb-2">Apple Readymade & More.</h2>
-          <p className="text-sm text-gray-400">
-            Classic style. Modern fit. Quality that lasts.
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/logo.png" // Replace with your actual logo path
+              alt="Apple Logo"
+              width={36}
+              height={36}
+              priority
+            />
+            <h2 className="text-lg font-semibold text-white">
+              Apple Readymade & More
+            </h2>
+          </div>
+          <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
+            Where tradition meets trend — quality readymade wear with a fresh twist.
           </p>
         </div>
 
@@ -66,7 +75,7 @@ export default function Footer() {
 
       {/* Bottom line */}
       <div className="mt-10 border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} Apple Menswear Co. All rights reserved.
+        Copyright &copy; {new Date().getFullYear()} Apple Menswear Co. All rights reserved.
       </div>
     </footer>
   );
