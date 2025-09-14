@@ -5,8 +5,10 @@ import Image from "next/image";
 import SearchBar from "./Search";
 import { LuUserRound,LuShoppingBag } from 'react-icons/lu';
 import Link from 'next/link';
-import { TiWeatherPartlySunny } from "react-icons/ti";
-import { IoMdPartlySunny } from "react-icons/io";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { IoMdLogOut } from "react-icons/io";
+import { RiMenuSearchLine } from "react-icons/ri";
+import { FaWindowClose } from "react-icons/fa";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -15,38 +17,41 @@ const navLinks = [
 ];
 
 export default function Header() {
+  const { data: session } = useSession();
+  const [user, setUser] = useState(session?.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
 
-  // Handle click-away and ESC to close menu
+  useEffect(() => {
+    setUser(session?.user);
+  }, [session]);
+
   useEffect(() => {
     if (!menuOpen) return;
 
-    const handleClick = (event: MouseEvent) => {
-        if (
-        mobileNavRef.current &&
-        !mobileNavRef.current.contains(event.target as Node)
-        ) {
+    const handleClick = (event:any) => {
+      if (mobileNavRef.current && !mobileNavRef.current.contains(event.target)) {
         setMenuOpen(false);
-        }
-  };
-
-    const handleEsc = (event: KeyboardEvent) => {
-        if (event.key === "Escape") setMenuOpen(false);
+      }
     };
 
-    document.addEventListener("click", handleClick);
+    const handleEsc = (event:any) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
     document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClick);
 
     return () => {
-        document.removeEventListener("click", handleClick);
-        document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClick);
+      document.addEventListener("keydown", handleEsc);
     };
-    }, [menuOpen]);
+  }, [menuOpen]);
+
 
   return (
     <header className="w-full fixed top-0 z-100">
-      <div className="max-w-7xl py-3 mx-auto flex items-center justify-between md:justify-center">
+      <div className="py-3 mx-auto flex items-center justify-between md:justify-center">
         <a className="md:hidden flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
@@ -58,52 +63,55 @@ export default function Header() {
         </a>
         
         {/* Hamburger Button (Mobile Only) */}
-        <button
-          className="md:hidden p-2 rounded focus:outline-none transition"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Menu"
-          aria-expanded={menuOpen}
-          type="button"
-        >
-          <svg
-            className="w-7 h-7 transition-transform duration-300"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-          >
-          <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? "M6 18L18 6M6 6l12 12": "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
+        <div className="flex md:hidden items-center">
+          <NavIcons user={user}/>
+          <button
+            className="md:hidden p-2 rounded focus:outline-none transition"
+            aria-label="Menu"
+            id="hamburgerBtn"
+            onClick={e => {
+              e.stopPropagation();
+              setMenuOpen(!menuOpen);
+            }}
+            aria-expanded={menuOpen}
+            type="button"
+            >
+            {!menuOpen ? <RiMenuSearchLine size={30} className="text-green-200"/> : <FaWindowClose size={30} className="text-green-200"/>}
+          </button>
+        </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6 items-center">
-          <NavLinks />
+          <NavLinks user={user}/>
         </nav>
       </div>
       {/* Animated Mobile Navigation */}
       <div
         ref={mobileNavRef}
-        className={`md:hidden sm:py-3 transition-all duration-1000 flex flex-col items-end ease-in-out ${
-          menuOpen ? "max-h-44 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
-        } rounded`}
+        className={`
+          md:hidden overflow-hidden transition-all duration-500 flex flex-col justify-end
+          rounded
+          ${menuOpen ? "max-h-full bg-amber-50 opacity-100" : "max-h-0 opacity-0"}
+        `}
         aria-label="Mobile Navigation"
       >
-        <NavLinks isMobile />
+        <NavLinks isMobile user={user}/>
       </div>
+
     </header>
   );
 }
 
 interface NavLinksProps {
   isMobile?: boolean;
+  user?: any;
 }
 
-function NavLinks({ isMobile }: NavLinksProps) {
+function NavLinks({ isMobile,user }: NavLinksProps) {
   const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
   return (
     <div className="theme text-center dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
-      <Image src="/logo.png" className={`inline `} alt="Logo" width={50} height={50} priority />
+      <Image src="/logo.png" className={`md:inline hidden`} alt="Logo" width={50} height={50} priority />
       {navLinks.map(({ label, href }) => (
         <Link 
           key={label}   
@@ -114,12 +122,22 @@ function NavLinks({ isMobile }: NavLinksProps) {
           {label}
         </Link >
       ))}
-      <SearchBar />
-      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
-      <Link href='/Auth'><LuUserRound className={`inline mx-2 text-xl font-bold cursor-pointer`}/></Link>
-      
-      <TiWeatherPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
-      <IoMdPartlySunny className={`inline mx-2 text-xl font-bold cursor-pointer`}/>
+      {!isMobile && <NavIcons user={user} />}
     </div>
   );
+}
+
+function NavIcons({user}:any) {
+  return (<>
+    <SearchBar />
+      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`}/>
+      {user ? 
+          <>
+            <LuUserRound className={`text-green-200 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+            <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`} title="Logout"/>
+          </>
+          : 
+          <Link href={"/Auth"} className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-95 duration-300 border-b-2 border-r-2 rounded-sm hover:cursor-pointer bg-black text-white"> Login </Link>
+      }
+  </>)
 }

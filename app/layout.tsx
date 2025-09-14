@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
 import "locomotive-scroll/dist/locomotive-scroll.css";
 import "./globals.css";
-
-import { LoadingProvider } from "./context/LoadingContext"; // no useLoading here
-import Header from "./components/Header";
-import LoadingLayer from "./components/LoadingLayer"; // client component
-import Footer from "./components/Footer";
+import ClientLayout from "./components/ClientLayout";
 
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -30,24 +26,11 @@ export const metadata: Metadata = {
   description: "Mens wear ecommerce website.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  
+export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
   return (
     <html lang="en">
       <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
-        <LoadingProvider>
-          <div className="relative">
-            <Header />
-          </div>
-          <LoadingLayer /> {/* Client component can be safely rendered here */}
-          <div id="childrenRoot">
-            {children}
-          </div>
-        </LoadingProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

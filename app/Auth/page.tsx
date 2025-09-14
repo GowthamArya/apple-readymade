@@ -1,84 +1,89 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
 
-export default function Auth() {
-    const [mode, setMode] = useState<"login" | "signup">("login");
+import { FcGoogle } from "react-icons/fc";
+import { IoLogoApple } from "react-icons/io5";
+import { signIn, signOut, useSession } from "next-auth/react";
+import IconButton, { ButtonProps } from "../components/IconButton";
+import { useState } from "react";
 
-    useEffect(() => {
-        document.title = `${mode === "login" ? "Login" : "Sign Up"} - Apple Readymade & More.`;
-    }, [mode]);
+const buttonProps: ButtonProps[] = [
+    {
+        classNames: "text-4xl cursor-pointer hover:scale-105 transition duration-200 hover:bg-white border-green-800 border-2 p-2 rounded",
+        icon: IoLogoApple,
+        onClickFunction: signIn,
+        functionProps: "apple"
+    },
+    {
+        classNames: "text-4xl cursor-pointer hover:scale-105 transition duration-200 hover:bg-white border-green-800 border-2 p-2 rounded",
+        icon: FcGoogle,
+        onClickFunction: signIn,
+        functionProps: "google"
+    }
+];
 
-    const formFields = {
-        login: [
-            { label: "Email", type: "email", name: "email" },
-            { label: "Password", type: "password", name: "password" },
-        ],
-        signup: [
-            { label: "Full Name", type: "text", name: "name" },
-            { label: "Email", type: "email", name: "email" },
-            { label: "Password", type: "password", name: "password" },
-        ],
-    };
+
+export default function AuthPage() {
+
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSignIn = async (e : any) => {
+        e.preventDefault();
+        setLoading(true);
+        await signIn("email", {
+            email,
+            callbackUrl: "/",
+            redirect: true,
+        })
+        setLoading(false)
+    }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-                <div className="flex justify-around mb-6">
-                    {["login", "signup"].map((type) => (
-                        <button
-                            key={type}
-                            onClick={() => setMode(type as "login" | "signup")}
-                            className={`px-4 py-2 font-semibold capitalize ${
-                                mode === type
-                                    ? "text-blue-600 border-b-2 border-blue-600"
-                                    : "text-gray-500"
-                            }`}
-                        >
-                            {type}
-                        </button>
+        <div className="min-h-screen flex items-center justify-center">
+            <div
+                className="fixed top-0 left-0 w-full h-full -z-10 bg-cover bg-center"
+                style={{
+                backgroundImage: "url('/apple-bg.png')",
+                }}
+            >
+                <div
+                id="bgOverBlend"
+                className="absolute top-0 left-0 w-full h-full bg-white/90 mix-blend-lighten"
+                ></div>
+            </div>
+            <form className="py-8 px-2 m-2 rounded shadow-md md:w-1/3 hover:bg-green-100/50 bg-green-100/10 text-center" onSubmit={handleSignIn}>
+                <h1 className="text-2xl font-semibold">Login/Sign up Now and get the Link</h1>
+                <input 
+                    placeholder="Username" 
+                    className="bg-white border-0 p-2 rounded w-full mt-4" 
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                />
+                <button 
+                    className="bg-green-900 hover:scale-99 hover:opacity-95 duration-200 hover:cursor-pointer font-bold w-full text-white px-4 py-2 rounded mt-4"
+                    type="submit"
+                    disabled={loading}
+                >
+                    {loading ? "Sending..." : "Get Link"}
+                </button>
+                <div className="flex items-center gap-4 my-5">
+                    <div className="flex-1 h-px bg-gray-400"></div>
+                    <span className="text-gray-600 text-sm">Other signin options</span>
+                    <div className="flex-1 h-px bg-gray-400"></div>
+                </div>
+                <div className="justify-center w-full flex gap-8 items-center">
+                    {buttonProps.map((btn, index) => (
+                        <IconButton 
+                            key={index}
+                            classNames={btn.classNames}
+                            icon={btn.icon}
+                            onClickFunction={()=>btn.onClickFunction(btn.functionProps)}
+                        />
                     ))}
                 </div>
-                <AuthForm fields={formFields[mode]} mode={mode} />
-            </div>
+            </form>
         </div>
-    );
-}
-
-function AuthForm({
-    fields,
-    mode,
-}: {
-    fields: { label: string; type: string; name: string }[];
-    mode: "login" | "signup";
-}) {
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // TODO: Add logic to handle submit
-        alert(`${mode === "login" ? "Logging in" : "Signing up"}...`);
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            {fields.map((field) => (
-                <div key={field.name}>
-                    <label className="block text-gray-700">{field.label}</label>
-                    <input
-                        type={field.type}
-                        name={field.name}
-                        required
-                        className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder={field.label}
-                    />
-                </div>
-            ))}
-            <button
-                type="submit"
-                className={`w-full ${
-                    mode === "login" ? "bg-blue-600" : "bg-green-600"
-                } text-white py-2 rounded-md hover:opacity-90 transition`}
-            >
-                {mode === "login" ? "Login" : "Sign Up"}
-            </button>
-        </form>
     );
 }
