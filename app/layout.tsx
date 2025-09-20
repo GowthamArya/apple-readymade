@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
 import "locomotive-scroll/dist/locomotive-scroll.css";
 import "./globals.css";
 import ClientLayout from "./components/ClientLayout";
-
+import { Analytics } from "@vercel/analytics/next"
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
@@ -31,6 +31,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     <html lang="en">
       <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
+        <Analytics/>
       </body>
     </html>
   );

@@ -41,15 +41,16 @@ export default function AuthPage() {
                 }}
             >
                 <div
-                id="bgOverBlend"
-                className="absolute top-0 left-0 w-full h-full bg-white/90 mix-blend-lighten"
+                    id="bgOverBlend"
+                    className="absolute top-0 left-0 w-full h-full bg-white/70 mix-blend-lighten"
                 ></div>
             </div>
-            <form className="py-8 px-2 m-2 rounded shadow-md md:w-1/3 hover:bg-green-100/50 bg-green-100/10 text-center" onSubmit={handleSignIn}>
-                <h1 className="text-2xl font-semibold">Login/Sign up Now and get the Link</h1>
+            <form className="p-6 m-2 rounded shadow-md md:w-1/3 bg-white/90 text-center" onSubmit={handleSignIn}>
+                <h1 className="text-xl text-green-800 font-bold">Sign in to Apple Mes wear</h1>
+                {/* <h1 className="text-2xl font-semibold">Get the Link to Login</h1> */}
                 <input 
-                    placeholder="Username" 
-                    className="bg-white border-0 p-2 rounded w-full mt-4" 
+                    placeholder="Enter your email" 
+                    className="bg-white shadow-2xl rounded border border-green-700 focus:outline-none p-2 w-full mt-6" 
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -68,9 +69,9 @@ export default function AuthPage() {
                     <span className="text-gray-600 text-sm">Other signin options</span>
                     <div className="flex-1 h-px bg-gray-400"></div>
                 </div>
-                <div className="justify-center w-full flex gap-8 items-center">
+                <div className="w-full flex gap-8 items-center">
                     {buttonProps.map((btn, index) => (
-                         <div className={btn.classNames + " flex items-center gap-2"} key={index}>
+                         <div className={btn.classNames + " justify-center py-2 w-full flex items-center gap-2"} key={index}>
                             <span className="text-sm"> Continue with </span>
                             <IconButton 
                                 key={index}
