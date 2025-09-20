@@ -8,13 +8,7 @@ import { useState } from "react";
 
 const buttonProps: ButtonProps[] = [
     {
-        classNames: "text-4xl cursor-pointer hover:scale-105 transition duration-200 hover:bg-white border-green-800 border-2 p-2 rounded",
-        icon: IoLogoApple,
-        onClickFunction: signIn,
-        functionProps: "apple"
-    },
-    {
-        classNames: "text-4xl cursor-pointer hover:scale-105 transition duration-200 hover:bg-white border-green-800 border-2 p-2 rounded",
+        classNames: "text-2xl cursor-pointer hover:scale-101 transition duration-200 bg-white border-green-800 border-2 px-2 rounded hover:shadow-lg",
         icon: FcGoogle,
         onClickFunction: signIn,
         functionProps: "google"
@@ -60,6 +54,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                 />
                 <button 
                     className="bg-green-900 hover:scale-99 hover:opacity-95 duration-200 hover:cursor-pointer font-bold w-full text-white px-4 py-2 rounded mt-4"
@@ -75,12 +70,15 @@ export default function AuthPage() {
                 </div>
                 <div className="justify-center w-full flex gap-8 items-center">
                     {buttonProps.map((btn, index) => (
-                        <IconButton 
-                            key={index}
-                            classNames={btn.classNames}
-                            icon={btn.icon}
-                            onClickFunction={()=>btn.onClickFunction(btn.functionProps)}
-                        />
+                         <div className={btn.classNames + " flex items-center gap-2"} key={index}>
+                            <span className="text-sm"> Continue with </span>
+                            <IconButton 
+                                key={index}
+                                classNames={""}
+                                icon={btn.icon}
+                                onClickFunction={()=>btn.onClickFunction(btn.functionProps)}
+                            />
+                        </div>
                     ))}
                 </div>
             </form>

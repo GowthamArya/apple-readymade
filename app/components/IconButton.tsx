@@ -15,5 +15,5 @@ export default function IconButton(buttonProps: ButtonProps) {
         onClick={() => buttonProps.onClickFunction(buttonProps.functionProps)} 
         className={buttonProps.classNames}>
     </buttonProps.icon >
-  );
+);
 }
