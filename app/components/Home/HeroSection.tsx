@@ -64,7 +64,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
 
 
       <div className="flex flex-col h-screen items-center justify-end relative z-10 text-end px-3 md:px-10">
-        <div className="text-white mb-10 md:mb-20">
+        <div className="text-white mb-20">
           <h1
             ref={titleRef}
             className={`font-extrabold text-end leading-none ${herofont.className} text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl`}

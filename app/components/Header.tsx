@@ -5,7 +5,7 @@ import Image from "next/image";
 import SearchBar from "./Search";
 import { LuUserRound,LuShoppingBag } from 'react-icons/lu';
 import Link from 'next/link';
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { IoMdLogOut } from "react-icons/io";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { FaWindowClose } from "react-icons/fa";
@@ -122,22 +122,23 @@ function NavLinks({ isMobile,user }: NavLinksProps) {
           {label}
         </Link >
       ))}
-      {!isMobile && <NavIcons user={user} />}
+      {!isMobile && <NavIcons user={user} isMobile={isMobile} />}
+      {isMobile && <SearchBar />}
     </div>
   );
 }
 
-function NavIcons({user}:any) {
+function NavIcons({user,isMobile}:any) {
   return (<>
-    <SearchBar />
+      {!isMobile && <SearchBar />}
       <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`}/>
       {user ? 
-          <>
-            <LuUserRound className={`text-green-200 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
-            <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`} title="Logout"/>
-          </>
-          : 
-          <Link href={"/Auth"} className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-95 duration-300 border-b-2 border-r-2 rounded-sm hover:cursor-pointer bg-black text-white"> Login </Link>
+        <>
+          <LuUserRound className={`text-green-200 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+          <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`} title="Logout"/>
+        </>
+        : 
+        <Link href={"/Auth"} className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-95 duration-300 border-b-2 border-r-2 rounded-sm hover:cursor-pointer bg-black text-white"> Login </Link>
       }
   </>)
 }
