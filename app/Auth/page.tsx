@@ -1,20 +1,7 @@
 'use client';
-
 import { FcGoogle } from "react-icons/fc";
-import { IoLogoApple } from "react-icons/io5";
 import { signIn, signOut, useSession } from "next-auth/react";
-import IconButton, { ButtonProps } from "../components/IconButton";
 import { useState } from "react";
-
-const buttonProps: ButtonProps[] = [
-    {
-        classNames: "text-2xl cursor-pointer hover:scale-101 transition duration-200 bg-white border-green-800 border-2 px-2 rounded hover:shadow-lg",
-        icon: FcGoogle,
-        onClickFunction: signIn,
-        functionProps: "google"
-    }
-];
-
 
 export default function AuthPage() {
 
@@ -70,17 +57,13 @@ export default function AuthPage() {
                     <div className="flex-1 h-px bg-gray-400"></div>
                 </div>
                 <div className="w-full flex gap-8 items-center">
-                    {buttonProps.map((btn, index) => (
-                         <div className={btn.classNames + " justify-center py-2 w-full flex items-center gap-2"} key={index}>
-                            <span className="text-sm"> Continue with </span>
-                            <IconButton 
-                                key={index}
-                                classNames={""}
-                                icon={btn.icon}
-                                onClickFunction={()=>btn.onClickFunction(btn.functionProps)}
-                            />
-                        </div>
-                    ))}
+                    <div 
+                        className="text-2xl cursor-pointer hover:scale-101 transition duration-200 bg-white border-green-800 border-2 px-2 rounded hover:shadow-lg justify-center py-2 w-full flex items-center gap-2"
+                        onClick={()=>signIn("google",{ callbackUrl: "/" })}
+                    >
+                        <span className="text-sm"> Continue with </span>
+                        <FcGoogle />
+                    </div>
                 </div>
             </form>
         </div>

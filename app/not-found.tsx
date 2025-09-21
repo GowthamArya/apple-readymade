@@ -3,8 +3,25 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useEffect } from "react";
-import { BiHomeSmile } from "react-icons/bi";
 import { useRouter } from "next/navigation";
+import { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+}
+
+export const metadata: Metadata = {
+  title: "Apple",
+  description: "Mens wear ecommerce website.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/Icons/logo-192x192.png",
+    apple: "/Icons/logo-192x192.png",
+  },
+};
 
 export default function NotFound() {
     const [seconds, setSeconds] = useState<number>(5);

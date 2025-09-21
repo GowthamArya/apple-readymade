@@ -28,6 +28,11 @@ const handler = NextAuth({
     signIn: '/Auth',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
