@@ -70,7 +70,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
             className={`font-extrabold text-end leading-none ${herofont.className} text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl`}
             style={{ transform: "scale(1.2, 1.5)" }}
           >
-            MAKE{" "}
+            MKE{" "}
             <span
               className="inline-block  text-2xl md:text-5xl"
               style={{ transform: "scale(1.5,1.2)" }}
