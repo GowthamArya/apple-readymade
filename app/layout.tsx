@@ -25,11 +25,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Apple",
   description: "Mens wear ecommerce website.",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  icons: {
+    icon: "/Icons/logo-192x192.png",
+    apple: "/Icons/logo-192x192.png",
+  },
 };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
   return (
     <html lang="en">
+      <head>
+        {/* For older browsers that don't read metadata */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
+      </head>
       <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
         <Analytics/>

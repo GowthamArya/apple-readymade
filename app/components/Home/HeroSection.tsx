@@ -49,7 +49,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
   }, [locomotiveReady]);
 
   return (
-    <div data-scroll className="relative min-h-screen w-full overflow-hidden">
+    <div data-scroll className="relative min-h-screen w-full overflow-hidden z-2">
       <video
         autoPlay
         loop
