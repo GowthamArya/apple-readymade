@@ -24,18 +24,6 @@ export async function GET(req: Request) {
   return NextResponse.json(allDefaultVariants.data);
 }
 
-export async function getProduct() {
-  const allDefaultVariants = await fetchWithRelations('variant', ['product.category'])
-      .eq('is_default', true)
-      .range(0, 10)
-      .order("created_on", { ascending: false });
-
-  if (allDefaultVariants.error) {
-    return NextResponse.json({ error: allDefaultVariants.error.message }, { status: 500 });
-  }
-  return NextResponse.json(allDefaultVariants.data);
-}
-
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
