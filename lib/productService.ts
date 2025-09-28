@@ -7,7 +7,9 @@ export async function getProduct() {
     .order("created_on", { ascending: false });
 
   if (allDefaultVariants.error) {
-    throw new Error(allDefaultVariants.error.message);
+    console.error(allDefaultVariants.error.message);
+    return []; // return empty array instead of failing
   }
-  return allDefaultVariants.data;
+
+  return allDefaultVariants.data || [];
 }
