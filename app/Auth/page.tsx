@@ -1,13 +1,14 @@
 'use client';
 import { FcGoogle } from "react-icons/fc";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useLoading } from "../context/LoadingContext";
 
 export default function AuthPage() {
 
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
-
+    const pageLoading = useLoading();
     const handleSignIn = async (e : any) => {
         e.preventDefault();
         setLoading(true);
@@ -18,6 +19,10 @@ export default function AuthPage() {
         })
         setLoading(false)
     }
+    const handleGoogleSignIn = () => {
+        pageLoading.setLoading(true);
+        signIn("google", { callbackUrl: "/" });
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -59,7 +64,7 @@ export default function AuthPage() {
                 <div className="w-full flex gap-8 items-center">
                     <div 
                         className="text-2xl cursor-pointer hover:scale-101 transition duration-200 bg-white border-green-800 border-2 px-2 rounded hover:shadow-lg justify-center py-2 w-full flex items-center gap-2"
-                        onClick={()=>signIn("google",{ callbackUrl: "/" })}
+                        onClick={handleGoogleSignIn}
                     >
                         <span className="text-sm"> Continue with </span>
                         <FcGoogle />

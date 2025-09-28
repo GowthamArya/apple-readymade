@@ -30,9 +30,7 @@ export default function Header() {
     if (!menuOpen) return;
 
     const handleClick = (event:any) => {
-      if (mobileNavRef.current && !mobileNavRef.current.contains(event.target)) {
-        setMenuOpen(false);
-      }
+      if (mobileNavRef.current && !mobileNavRef.current.contains(event.target)) setMenuOpen(false);
     };
 
     const handleEsc = (event:any) => {
@@ -51,18 +49,14 @@ export default function Header() {
 
   return (
     <header className="w-full fixed top-0 z-100">
-      <div className="py-3 mx-auto flex items-center justify-between md:justify-center">
+      <div className="pb-3 mx-auto flex items-center justify-between md:justify-center">
         <a className="md:hidden flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
             Apple Readymade &amp; More
           </span>
-          <span className="text-xl font-bold md:hidden">
-            Apple
-          </span>
         </a>
         
-        {/* Hamburger Button (Mobile Only) */}
         <div className="flex md:hidden items-center">
           <NavIcons user={user}/>
           <button
@@ -76,7 +70,7 @@ export default function Header() {
             aria-expanded={menuOpen}
             type="button"
             >
-            {!menuOpen ? <RiMenuSearchLine size={30} className="text-green-200"/> : <FaWindowClose size={30} className="text-green-200"/>}
+            {!menuOpen ? <RiMenuSearchLine size={30} className="text-green-700"/> : <FaWindowClose size={30} className="text-green-700"/>}
           </button>
         </div>
 
@@ -97,7 +91,6 @@ export default function Header() {
       >
         <NavLinks isMobile user={user}/>
       </div>
-
     </header>
   );
 }
@@ -108,9 +101,9 @@ interface NavLinksProps {
 }
 
 function NavLinks({ isMobile,user }: NavLinksProps) {
-  const linkClass = "block py-3 px-4 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
+  const linkClass = "block py-3 px-5 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
   return (
-    <div className="theme text-center dark:theme-opp-background shadow-md rounded-lg p-1 w-full font-semibold">
+    <div className="theme text-center dark:theme-opp-background shadow-md rounded-b-lg p-1 w-full font-semibold">
       <Image src="/logo.png" className={`md:inline hidden`} alt="Logo" width={50} height={50} priority />
       {navLinks.map(({ label, href }) => (
         <Link 
@@ -123,22 +116,29 @@ function NavLinks({ isMobile,user }: NavLinksProps) {
         </Link >
       ))}
       {!isMobile && <NavIcons user={user} isMobile={isMobile} />}
-      {isMobile && <SearchBar />}
     </div>
   );
 }
 
 function NavIcons({user,isMobile}:any) {
-  return (<>
+  return (
+    <>
       {!isMobile && <SearchBar />}
-      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`}/>
+      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
       {user ? 
         <>
-          <LuUserRound className={`text-green-200 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
-          <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-200 md:text-gray-700`} title="Logout"/>
+          <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+          <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
-        <Link href={"/Auth"} className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-95 duration-300 border-b-2 border-r-2 rounded-sm hover:cursor-pointer bg-black text-white"> Login </Link>
+        <Link 
+          href={"/Auth"} 
+          className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-90 duration-400 border-b-3 border-r-3 rounded-sm hover:cursor-pointer bg-green-800 text-white hover:bg-black"
+          title="Login"
+        > 
+          Login 
+        </Link>
       }
-  </>)
+    </>
+  );
 }

@@ -12,9 +12,9 @@ const SearchBar = () => {
           onClick={() => setShowInput(true)}
         >
           {/* Inline hourglass SVG icon */}
-          <BsSearch className='inline mx-2 text-green-200 text-xl font-bold md:text-gray-700 cursor-pointer'/>
+          <BsSearch className='inline mx-2 text-green-700 text-xl font-bold md:text-gray-700 cursor-pointer'/>
         </button>
-      )}
+        )}
       {showInput && (
         <input
           type="text"

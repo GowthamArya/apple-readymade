@@ -1,18 +1,12 @@
 'use client';
-
 import { SessionProvider } from "next-auth/react";
 import { LoadingProvider } from "../context/LoadingContext";
 
 import Header from "./Header";
 import LoadingLayer from "./LoadingLayer";
-import Footer from "./Footer";
 import InstallPrompt from "./InstallPrompt";
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ClientLayout({ children } : { children: React.ReactNode}) {
   return (
     <SessionProvider>
       <LoadingProvider>

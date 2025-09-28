@@ -25,13 +25,6 @@ export default function InstallPrompt() {
 
     (deferredPrompt as any).prompt();
     const choiceResult = await (deferredPrompt as any).userChoice;
-
-    if (choiceResult.outcome === "accepted") {
-      console.log("User accepted A2HS prompt");
-    } else {
-      console.log("User dismissed A2HS prompt");
-    }
-
     setDeferredPrompt(null);
     setShowButton(false);
   };

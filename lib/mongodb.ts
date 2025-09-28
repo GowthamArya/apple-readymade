@@ -25,8 +25,6 @@ if (process.env.NODE_ENV === "development") {
 } else {
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
-  clientPromise.then(() => console.log("Connected to mongodb succeesfully.."))
-              .catch(err => console.error(err));
 }
 
 export default clientPromise;
