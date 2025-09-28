@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { uiData } from "@/lib/config/uiData";
 import ProductList from "./List";
+import { useLoading } from "../context/LoadingContext";
 
 interface FilterProps {
   initialProducts: any[];
@@ -52,10 +53,12 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("created_on");
   const [sortOrder, setSortOrder] = useState("desc");
+  const pageLoading = useLoading();
 
   if (!currentPopupType) return <></>;
-
+  
   const handleApply = () => {
+    pageLoading.setLoading(true);
     const query = new URLSearchParams({
       search,
       category,
@@ -64,11 +67,11 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
       skip: "0",
       pageSize: "20"
     }).toString();
-
     fetch(`/api/collections?${query}`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);
+        pageLoading.setLoading(false);
       });
 
     onClose();
