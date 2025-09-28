@@ -1,16 +1,12 @@
 import ProductList from "./List";
 import Filters from "./Filters";
-import Repository from "@/lib/repository";
+import { getProduct } from "../api/collections/route";
 
 export default async function ProductsPage() {
-  //const products = await fetch(`${apiBaseUrl}/api/collections`).then(res => res.json());
-
-  const db = new Repository('product');
-  const products = await db.getAll();
-
+  const productsData = await (await getProduct()).json();
   return (
-    <div className="relative p-6 min-h-screen bg-gray-50">
-      <ProductList products={products} />
+    <div className="relative py-6 px-2 md:px-4 min-h-screen bg-gray-50">
+      <ProductList products={productsData} />
       <Filters />
     </div>
   );

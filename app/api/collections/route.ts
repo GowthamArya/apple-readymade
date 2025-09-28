@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchWithRelations } from "@/lib/supabase";
+import supabase, { fetchWithRelations, uploadVariantFileToStorage } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -9,16 +9,48 @@ export async function GET(req: Request) {
   const search = searchParams.get('search') || '';
   const sortBy = searchParams.get('sortBy') || 'created_on';
   const sortOrder = searchParams.get('sortOrder') || 'desc';
-  
+
   const allDefaultVariants = await fetchWithRelations('variant', ['product.category'])
-      .eq('is_default', true)
-      .ilike('product.name', `%${search}%`)
-      .ilike('product.category.name', `%${category}%`)
-      .range(parseInt(skip), parseInt(skip) + parseInt(pageSize) - 1)
-      .order(sortBy as string, { ascending: sortOrder === 'asc' });
+  .eq('is_default', true)
+  .ilike('product.name', `%${search}%`)  
+  .ilike('product.category.name', `%${category}%`) 
+  .range(parseInt(skip), parseInt(skip) + parseInt(pageSize) - 1)
+  .order(sortBy, { ascending: sortOrder === 'asc' });
+
 
   if (allDefaultVariants.error) {
     return NextResponse.json({ error: allDefaultVariants.error.message }, { status: 500 });
   }
   return NextResponse.json(allDefaultVariants.data);
+}
+
+export async function getProduct() {
+  const allDefaultVariants = await fetchWithRelations('variant', ['product.category'])
+      .eq('is_default', true)
+      .range(0, 10)
+      .order("created_on", { ascending: false });
+
+  if (allDefaultVariants.error) {
+    return NextResponse.json({ error: allDefaultVariants.error.message }, { status: 500 });
+  }
+  return NextResponse.json(allDefaultVariants.data);
+}
+
+export async function POST(req: Request) {
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    const productId = formData.get("productId") as string || "1";
+    const variantId = formData.get("variantId") as string || "1";
+
+    if (!file || !productId || !variantId) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
+
+    const publicUrl = uploadVariantFileToStorage(productId, variantId, file);
+
+    return NextResponse.json({ url: publicUrl });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }

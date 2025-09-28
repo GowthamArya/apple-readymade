@@ -30,7 +30,7 @@ export default function Header() {
     if (!menuOpen) return;
 
     const handleClick = (event:any) => {
-      if (mobileNavRef.current && !mobileNavRef.current.contains(event.target)) setMenuOpen(false);
+      setMenuOpen(false);
     };
 
     const handleEsc = (event:any) => {

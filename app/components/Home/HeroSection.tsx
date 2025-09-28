@@ -11,10 +11,10 @@ import Link from "next/link";
 
 const herofont = Herofont({
   subsets: ["latin"],
-  display: "auto",
   weight: "400",
+  display: "swap",
+  fallback: ["Impact", "Arial Black", "sans-serif"],
 });
-
 interface HeroSectionProps {
   locomotiveReady: boolean;
 }
