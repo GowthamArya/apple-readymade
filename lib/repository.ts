@@ -1,9 +1,7 @@
 import supabase from "./supabase";
-import { Database } from './database.types';
 
-type TableName = keyof Database['public']['Tables'];
 
-export default class Repository<T extends TableName> {
+export default class Repository<T> {
   constructor(private tableName: string) {}
 
   async getAll(relations: string[] = []): Promise<any> {
