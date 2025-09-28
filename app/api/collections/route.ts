@@ -9,7 +9,6 @@ export async function GET(req: Request) {
   const search = searchParams.get('search') || '';
   const sortBy = searchParams.get('sortBy') || 'created_on';
   const sortOrder = searchParams.get('sortOrder') || 'desc';
-  console.log({ skip, pageSize, category, search, sortBy, sortOrder });
   
   const allDefaultVariants = await fetchWithRelations('variant', ['product.category'])
       .eq('is_default', true)

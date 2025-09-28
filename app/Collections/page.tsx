@@ -3,6 +3,8 @@ import Filters from "./Filters";
 import Repository from "@/lib/repository";
 
 export default async function ProductsPage() {
+  //const products = await fetch(`${apiBaseUrl}/api/collections`).then(res => res.json());
+
   const db = new Repository('product');
   const products = await db.getAll();
 

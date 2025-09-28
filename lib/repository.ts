@@ -6,15 +6,11 @@ export default class Repository<T> {
 
   async getAll(relations: string[] = []): Promise<any> {
     let selectString = "*";
-    if (relations.length > 0) {
-      const relationsSelect = relations.map(r => `${r}(*)`).join(",");
-      selectString = `*,${relationsSelect}`;
-    }
 
     const { data, error } = await supabase
       .from(this.tableName)
       .select(selectString);
-
+    console.log(data, error);
     if (error) {
       throw error;
     }
