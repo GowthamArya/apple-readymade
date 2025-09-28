@@ -3,6 +3,11 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 export default function ProductCarousel({ product }: { product: any }) {
+    if (!product || !product.image_urls || product.image_urls.length === 0) {
+        return <div className="w-full h-48 md:h-64 bg-gray-200 flex items-center justify-center rounded-md">
+            <span className="text-gray-500">No Image Available</span>
+        </div>;
+    }
     return <Carousel
             showThumbs={false}
             showStatus={false}
