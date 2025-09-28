@@ -1,8 +1,14 @@
 "use client";
 import { useState } from "react";
 import { uiData } from "@/lib/config/uiData";
+import ProductList from "./List";
 
-export default function Filters() {
+interface FilterProps {
+  initialProducts: any[];
+}
+
+export default function Filters({ initialProducts }: FilterProps) {
+  const [products, setProducts] = useState(initialProducts);
   const [currentPopup, setCurrentPopup] = useState("");
 
   const showPopup = (key: string) => {
@@ -14,6 +20,8 @@ export default function Filters() {
   };
 
   return (
+    <>
+    <ProductList products={products} />
     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
       <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white rounded-t-xl shadow-3xl overflow-hidden">
         {uiData.map((item, index) => {
@@ -34,12 +42,12 @@ export default function Filters() {
         })}
       </div>
 
-      <PopUp currentPopupType={currentPopup} onClose={() => setCurrentPopup("")}/>
+      <PopUp currentPopupType={currentPopup} onClose={() => setCurrentPopup("")} setProducts={setProducts}/>
     </div>
-  );
+  </>);
 }
 
-const PopUp = function({ currentPopupType, onClose }: { currentPopupType: string, onClose: () => void }) {
+const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopupType: string, onClose: () => void , setProducts: any}) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("created_on");
@@ -60,7 +68,7 @@ const PopUp = function({ currentPopupType, onClose }: { currentPopupType: string
     fetch(`/api/collections?${query}`)
       .then(res => res.json())
       .then(data => {
-        console.log("Filtered Data:", data);
+        setProducts(data);
       });
 
     onClose();
@@ -88,7 +96,7 @@ const PopUp = function({ currentPopupType, onClose }: { currentPopupType: string
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search product..."
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
             />
           </div>
 
@@ -99,7 +107,7 @@ const PopUp = function({ currentPopupType, onClose }: { currentPopupType: string
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Category name..."
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
             />
           </div>
 
@@ -129,7 +137,7 @@ const PopUp = function({ currentPopupType, onClose }: { currentPopupType: string
             onChange={(e) => setSortBy(e.target.value)}
             className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
           >
-            <option value="created_on">Created On</option>
+            <option value="created_on">Most Recent</option>
             <option value="product.name">Product Name</option>
             <option value="product.category.name">Category</option>
           </select>
