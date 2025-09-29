@@ -34,9 +34,9 @@ export default function Filters({ initialProducts }: FilterProps) {
                 ${currentPopup == item.key && item.showBgOnClick ? "bg-green-100 font-bold": "text-gray-200 dark:text-green-100"}`} 
               onClick={() => showPopup(item.key || "")}
             >
-              {item.icon && <item.icon className={`${currentPopup == item.key ? " text-black" : "dark:text-green-100 text-green-700 "}`}/>}
+              {item.icon && <item.icon className={`${currentPopup == item.key ? "dark:text-green-50 text-black" : "dark:text-green-100 text-green-800 "}`}/>}
               {item.label && (
-                <div className={`font-medium text-sm ${currentPopup == item.key ? "text-black" : "md:block dark:text-green-100 text-green-700"}`}
+                <div className={`font-medium text-sm ${currentPopup == item.key ? "dark:text-green-500 text-black" : "md:block dark:text-green-100 text-green-800"}`}
                 >{item.label}</div>
               )}
             </div>
@@ -158,7 +158,7 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
           </div>
 
           <div className="flex justify-end pt-2">
-            <button onClick={handleApply} className="px-3 py-1 text-sm bg-green-700 text-white rounded-md hover:bg-green-900">
+            <button onClick={handleApply} className="px-3 py-1 text-sm bg-green-800 text-white rounded-md hover:bg-green-900">
               Apply
             </button>
           </div>
