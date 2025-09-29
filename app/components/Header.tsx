@@ -124,16 +124,16 @@ function NavIcons({user,isMobile}:any) {
   return (
     <>
       {!isMobile && <SearchBar />}
-      <LuShoppingBag className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
+      <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
       {user ? 
         <>
-          <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-2 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+          <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-1 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
           <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
         <Link 
           href={"/Auth"} 
-          className="mx-3 p-2 hover:border-amber-50 border-transparent hover:scale-90 duration-400 border-b-3 border-r-3 rounded-sm hover:cursor-pointer bg-green-800 text-white hover:bg-black"
+          className="mx-1 p-1 hover:border-amber-50 border-transparent hover:scale-90 duration-400 border-b-3 border-r-3 rounded-sm hover:cursor-pointer bg-green-800 text-white hover:bg-black"
           title="Login"
         > 
           Login 

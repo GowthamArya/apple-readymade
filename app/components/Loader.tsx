@@ -31,7 +31,7 @@ export default function Loader(): any {
     const IconComponent = icons[index];
 
     return (
-        <div className="fixed inset-0 bg-white dart:bg-black bg-opacity-50 flex flex-col justify-center items-center z-100 dark:text-green-50">
+        <div className="fixed inset-0 bg-white dart:bg-black bg-opacity-50 flex flex-col justify-center items-center z-100 dark:text-green-100 text-green-800">
             <IconComponent size={50} />
             <p className='font-bold text-xs'>Please wait</p>
         </div>
