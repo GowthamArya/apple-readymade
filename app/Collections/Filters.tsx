@@ -23,20 +23,21 @@ export default function Filters({ initialProducts }: FilterProps) {
   return (
     <>
     <ProductList products={products} />
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
-      <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white rounded-t-xl shadow-3xl overflow-hidden">
+    <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2">
+      <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white dark:bg-black rounded-t-xl shadow-3xl overflow-hidden">
         {uiData.map((item, index) => {
           return (
             <div
               key={index}
               className={`flex items-center duration-500 
                 hover:bg-green-100 cursor-pointer md:p-4 p-1 py-4 sm:p-2
-                ${currentPopup == item.key && item.showBgOnClick ? "bg-green-100": ""}`} 
+                ${currentPopup == item.key && item.showBgOnClick ? "bg-green-100 font-bold": ""}`} 
               onClick={() => showPopup(item.key || "")}
             >
-              {item.icon && <item.icon />}
+              {item.icon && <item.icon className={`${currentPopup == item.key ? " text-black" : "dark:text-green-100 text-green-700 "}`}/>}
               {item.label && (
-                <div className="text-sm md:block font-medium">{item.label}</div>
+                <div className={`font-medium ${currentPopup == item.key ? "text-black" : "text-sm md:block dark:text-green-100 text-green-700"}`}
+                >{item.label}</div>
               )}
             </div>
           );

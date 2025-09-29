@@ -56,7 +56,9 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
         muted
         playsInline
         id="bgOverBlend2"
-        className="absolute bg-black top-0 left-0 w-screen h-full object-cover -z-10 "//filter grayscale
+        webkit-playsinline="true"
+        preload="auto"
+        className="absolute bg-black top-0 left-0 w-screen h-full object-cover -z-10"
       >
         <source src="/hero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
