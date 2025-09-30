@@ -13,8 +13,9 @@ export default function ProductCarousel({ product }: { product: any }) {
             showStatus={false}
             infiniteLoop
             autoPlay
-            interval={3000}
-            showArrows={false}
+            interval={2500}
+            showArrows={true}
+            showIndicators={false}
             className="rounded-md"
         >
             {product.image_urls.map((url: string, idx: number) => (
