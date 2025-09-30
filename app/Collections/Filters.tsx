@@ -24,7 +24,7 @@ export default function Filters({ initialProducts }: FilterProps) {
     <>
     <ProductList products={products} />
     <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2">
-      <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white dark:bg-black rounded-t-xl shadow-3xl overflow-hidden dark:shadow-gray-700">
+      <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white dark:bg-black rounded-t-xl shadow-3xl overflow-hidden dark:shadow-gray-700 pb-2">
         {uiData.map((item, index) => {
           return (
             <div
