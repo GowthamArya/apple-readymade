@@ -30,7 +30,7 @@ export default function Filters({ initialProducts }: FilterProps) {
             <div
               key={index}
               className={`flex items-center duration-500 
-                hover:bg-green-100 cursor-pointer md:p-4 p-1 py-4 sm:p-2
+                hover:bg-green-100 cursor-pointer md:p-4 p-1 py-3 sm:p-2
                 ${currentPopup == item.key && item.showBgOnClick ? "bg-green-100 font-bold": "text-gray-200 dark:text-green-100"}`} 
               onClick={() => showPopup(item.key || "")}
             >
