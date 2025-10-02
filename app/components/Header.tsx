@@ -132,7 +132,7 @@ function NavIcons({user,isMobile}:any) {
           <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
-        <Button type="primary" shape="default" size="middle">
+        <Button type="primary" className="!mx-2" shape="default" size="middle">
           <Link href={"/Auth"} title="Login"> Login </Link>
         </Button>
       }
