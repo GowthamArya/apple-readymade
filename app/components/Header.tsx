@@ -10,6 +10,7 @@ import { IoMdLogOut } from "react-icons/io";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { FaWindowClose } from "react-icons/fa";
 import { Button } from "antd";
+import { useCart } from "../context/CartContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -22,6 +23,13 @@ export default function Header() {
   const [user, setUser] = useState(session?.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const [cartCount,setCartCount] = useState(0);
+  const { cart } = useCart();
+
+  useEffect(() => {
+    setCartCount(cart.length);
+  }, [cart]);
+
 
   useEffect(() => {
     setUser(session?.user);
@@ -77,7 +85,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-6 items-center">
-          <NavLinks user={user}/>
+          <NavLinks user={user} cartCount={cartCount}/>
         </nav>
       </div>
       {/* Animated Mobile Navigation */}
@@ -90,7 +98,7 @@ export default function Header() {
         `}
         aria-label="Mobile Navigation"
       >
-        <NavLinks isMobile user={user}/>
+        <NavLinks isMobile user={user} cartCount={cartCount}/>
       </div>
     </header>
   );
@@ -99,10 +107,11 @@ export default function Header() {
 interface NavLinksProps {
   isMobile?: boolean;
   user?: any;
+  cartCount?: number;
 }
 
-function NavLinks({ isMobile,user }: NavLinksProps) {
-  const linkClass = "block py-3 px-5 transition duration-500 ease-in-out hover:bg-green-100 hover:text-stone-950 p-2";
+function NavLinks({ isMobile,user,cartCount }: NavLinksProps) {
+  const linkClass = "block py-3 px-5 transition duration-500 ease-in-out !hover:bg-green-100 !hover:text-stone-950 p-2";
   return (
     <div className="theme text-center dark:theme-opp-background shadow-md rounded-b-lg p-1 w-full font-semibold">
       <Image src="/logo.png" className={`md:inline hidden`} alt="Logo" width={50} height={50} priority />
@@ -116,16 +125,23 @@ function NavLinks({ isMobile,user }: NavLinksProps) {
           {label}
         </Link >
       ))}
-      {!isMobile && <NavIcons user={user} isMobile={isMobile} />}
+      {!isMobile && <NavIcons user={user} isMobile={isMobile} cartCount={cartCount}/>}
     </div>
   );
 }
 
-function NavIcons({user,isMobile}:any) {
+function NavIcons({user,isMobile,cartCount}:any) {
   return (
     <>
       {!isMobile && <SearchBar />}
-      <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
+      <Link href={"/Cart"} className="relative" title="Cart">
+        {cartCount > 0 && (
+          <span className="absolute -top-2 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+            {cartCount}
+          </span>
+        )}
+        <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
+      </Link>
       {user ? 
         <>
           <Link href={"/Account"} title="Account">

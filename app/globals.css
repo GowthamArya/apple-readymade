@@ -18,15 +18,15 @@ body {
 }
 
 .theme {
-  background: rgba(var(--background), 0.65);
-  color: rgb(var(--foreground));
+  background: rgba(var(--background), 0.65) !important;
+  color: rgb(var(--foreground)) !important;
   backdrop-filter: blur(10px); 
   -webkit-backdrop-filter: blur(12px);
 }
 
 .theme-opp-background {
-  background: rgba(var(--foreground), 0.6);
-  color: rgb(var(--background));
+  background: rgba(var(--foreground), 0.6) !important;
+  color: rgb(var(--background)) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;

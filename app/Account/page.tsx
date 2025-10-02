@@ -14,7 +14,15 @@ export default async function AccountPage() {
     const user = await getUser();
     return (
         <div className="min-h-screen bg-green-50 flex items-center justify-center flex-col">
-            <img src={session.user?.image || "/default-profile.png"} alt="Profile Picture" width={75} height={75} className="rounded-full mt-4"/>
+            {session.user?.image && 
+            <img 
+                src={session.user?.image} 
+                alt="Profile" 
+                width={75} 
+                height={75} 
+                loading="lazy"
+                className="rounded-full mt-4"
+            />}
             <h1 className="text-xl font-bold">Welcome, {session.user?.name}!</h1>
             <p className="text-gray-500">{session.user?.email}</p>
             <Account user={user} />

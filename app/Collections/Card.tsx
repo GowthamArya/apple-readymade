@@ -1,12 +1,15 @@
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 import ProductCarousel from "../components/Carousel";
 import { GrFavorite } from "react-icons/gr";
-import { Button } from "antd";
-
+import { App, Button } from "antd";
+import { useCart } from '../context/CartContext';
 
 export default function ProductCard({ product }: { product: any }) {
-  const handleAddToCart = () => {
-    console.log("Added to cart:", product);
+  const { addToCart } = useCart();
+  const { message } = App.useApp();
+  const handleAdd = () => {
+    addToCart({...product, quantity: 1});
+    message.success(`${product.product?.name || 'Product'} added to cart!`);
   };
 
   return (
@@ -38,7 +41,7 @@ export default function ProductCard({ product }: { product: any }) {
           </span>
         </p>
         <MdOutlineAddShoppingCart
-          onClick={handleAddToCart}
+          onClick={handleAdd}
           className="text-xl cursor-pointer hover:text-green-700 transition-colors"
         />
       </div>
