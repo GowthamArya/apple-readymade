@@ -9,6 +9,7 @@ import { signOut, useSession } from "next-auth/react";
 import { IoMdLogOut } from "react-icons/io";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { FaWindowClose } from "react-icons/fa";
+import { Button } from "antd";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -131,13 +132,9 @@ function NavIcons({user,isMobile}:any) {
           <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
-        <Link 
-          href={"/Auth"} 
-          className="mx-1 p-1 hover:border-amber-50 border-transparent hover:scale-90 duration-400 border-b-3 border-r-3 rounded-sm hover:cursor-pointer bg-green-800 text-white hover:bg-black"
-          title="Login"
-        > 
-          Login 
-        </Link>
+        <Button type="primary" shape="default" size="middle">
+          <Link href={"/Auth"} title="Login"> Login </Link>
+        </Button>
       }
     </>
   );

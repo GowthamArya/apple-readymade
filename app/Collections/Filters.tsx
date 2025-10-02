@@ -3,10 +3,17 @@ import { useState } from "react";
 import { uiData } from "@/lib/config/uiData";
 import ProductList from "./List";
 import { useLoading } from "../context/LoadingContext";
+import { Button, Input, Select, Radio } from 'antd';
 
 interface FilterProps {
   initialProducts: any[];
 }
+
+const sortOptions = [
+  { value: 'created_on', label: 'Most Recent' },
+  { value: 'price', label: 'Price' },
+  { value: 'mrp', label: 'MRP - Original Price' },
+];
 
 export default function Filters({ initialProducts }: FilterProps) {
   const [products, setProducts] = useState(initialProducts);
@@ -88,40 +95,26 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
   if (currentPopupType === "filter") {
     return (
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72">
-        <h3 className="font-semibold mb-3 text-gray-700 flex justify-between">
-          Filters 
-          <button onClick={onClose} className="text-gray-500 hover:text-black">✕</button>
-        </h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-gray-800 font-semibold text-base">Filters</h3>
+          <Button
+            type="default"
+            aria-label="Close sort popup"
+            onClick={onClose}
+            className="mt-4"
+          >
+           ✕
+          </Button>
+        </div>
         <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Search</label>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search product..."
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
-            />
+          <div className="flex flex-col gap-2">
+            <Input placeholder="Search product..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Category name..." value={category} onChange={(e) => setCategory(e.target.value)} />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Category</label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Category name..."
-              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
-            />
-          </div>
-
+          
           <div className="flex justify-between pt-2">
-            <button onClick={handleReset} className="px-3 py-1 text-sm border rounded-md hover:bg-gray-100">
-              Reset
-            </button>
-            <button onClick={handleApply} className="px-3 py-1 text-sm bg-green-900 text-white rounded-md hover:bg-green-800">
-              Apply
-            </button>
+            <Button type="default" onClick={handleReset}>Reset</Button>
+            <Button type="primary" onClick={handleApply}>Apply</Button>
           </div>
         </div>
       </div>
@@ -130,42 +123,42 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
 
   if (currentPopupType === "sort") {
     return (
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-64">
-        <h3 className="font-semibold mb-3 text-gray-700 flex justify-between">
-          Sort By 
-          <button onClick={onClose} className="text-gray-500 hover:text-black">✕</button>
-        </h3>
-        <div className="space-y-2">
-          <select 
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-800"
-          >
-            <option value="created_on">Most Recent</option>
-            <option value="product.name">Product Name</option>
-            <option value="product.category.name">Category</option>
-          </select>
-
-          <div className="flex items-center space-x-3">
-            <label className="flex items-center space-x-1 text-sm">
-              <input type="radio" checked={sortOrder === "asc"} onChange={() => setSortOrder("asc")} />
-              <span>Ascending</span>
-            </label>
-            <label className="flex items-center space-x-1 text-sm">
-              <input type="radio" checked={sortOrder === "desc"} onChange={() => setSortOrder("desc")} />
-              <span>Descending</span>
-            </label>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <button onClick={handleApply} className="px-3 py-1 text-sm bg-green-800 text-white rounded-md hover:bg-green-900">
-              Apply
-            </button>
-          </div>
+      <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72 animate-fade-in border border-gray-200">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-gray-800 font-semibold text-base">Sort By</h3>
+          <Button type="default" aria-label="Close sort popup" onClick={onClose} className="mt-4" > ✕ </Button>
         </div>
+
+        <Select
+          value={sortBy}
+          onChange={(value) => setSortBy(value)}
+          options={sortOptions}
+          style={{ width: '100%' }}
+          placeholder="Select sorting option"
+          size="middle"
+          className="!my-2"
+        />
+        <div className="my-2 flex justify-between items-center">
+          <Radio.Group
+            onChange={(e) => setSortOrder(e.target.value)}
+            value={sortOrder}
+            optionType="default"
+            buttonStyle="solid"
+          >
+            <Radio.Button value="asc">Ascending</Radio.Button>
+            <Radio.Button value="desc">Descending</Radio.Button>
+          </Radio.Group>
+
+          <Button
+            type="primary"
+            onClick={handleApply}
+          >
+            Apply
+          </Button>
+        </div>
+        
       </div>
     );
   }
-
   return <></>;
 };

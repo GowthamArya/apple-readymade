@@ -14,11 +14,10 @@ export default function ProductCarousel({ product }: { product: any }) {
             infiniteLoop
             autoPlay
             interval={2500}
-            showArrows={true}
+            showArrows={false}
             showIndicators={false}
             className="rounded-md"
             stopOnHover={true}
-            swipeable
             emulateTouch
             dynamicHeight={false}
             centerMode={false}
@@ -30,7 +29,7 @@ export default function ProductCarousel({ product }: { product: any }) {
                 <img
                 src={url}
                 alt={`${product.product.name} image ${idx + 1}`}
-                className="w-full h-36 md:h-56 object-cover rounded-md"
+                className="w-full h-36 md:h-56 object-cover rounded-md select-none"
                 />
             </div>
             ))}
