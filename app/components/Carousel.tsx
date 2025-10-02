@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
@@ -13,24 +14,18 @@ export default function ProductCarousel({ product }: { product: any }) {
             showStatus={false}
             infiniteLoop
             autoPlay
-            interval={2500}
-            showArrows={false}
+            interval={3500}
+            showArrows
             showIndicators={false}
             className="rounded-md"
-            stopOnHover={true}
+            stopOnHover
             emulateTouch
             dynamicHeight={false}
-            centerMode={false}
-            centerSlidePercentage={100}
-            transitionTime={500}
+            transitionTime={1000}
         >
             {product.image_urls.map((url: string, idx: number) => (
             <div key={url}>
-                <img
-                src={url}
-                alt={`${product.product.name} image ${idx + 1}`}
-                className="w-full h-36 md:h-56 object-cover rounded-md select-none"
-                />
+                <Image src={url} alt={`${product.product.name} image ${idx + 1}`} width={400} height={300} className="w-full h-36 md:h-56 object-cover rounded-md select-none"/>
             </div>
             ))}
         </Carousel>
