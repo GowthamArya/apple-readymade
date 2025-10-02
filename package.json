@@ -16,7 +16,6 @@
     "@next-auth/supabase-adapter": "^0.2.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
-    "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "antd": "^5.27.4",
     "gsap": "^3.13.0",

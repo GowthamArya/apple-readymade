@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
 import "locomotive-scroll/dist/locomotive-scroll.css";
 import ClientLayout from "./components/ClientLayout";
-import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Viewport } from 'next'
 
@@ -52,7 +51,6 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       </head>
       <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
-        <Analytics/>
         <SpeedInsights/>
       </body>
     </html>

@@ -128,7 +128,9 @@ function NavIcons({user,isMobile}:any) {
       <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
       {user ? 
         <>
-          <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-1 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+          <Link href={"/Account"} title="Account">
+            <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-1 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
+          </Link>
           <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
