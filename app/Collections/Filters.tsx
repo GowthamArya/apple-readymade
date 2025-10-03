@@ -94,7 +94,7 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
 
   if (currentPopupType === "filter") {
     return (
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72">
+      <div className="absolute z-100 bottom-full left-1/2 transform -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-gray-800 font-semibold text-base">Filters</h3>
           <Button
@@ -123,7 +123,7 @@ const PopUp = function({ currentPopupType, onClose, setProducts }: { currentPopu
 
   if (currentPopupType === "sort") {
     return (
-      <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72 animate-fade-in border border-gray-200">
+      <div className="absolute z-100 bottom-full left-1/2 -translate-x-1/2 mb-4 bg-white shadow-2xl rounded-md p-4 w-72 animate-fade-in border border-gray-200">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-gray-800 font-semibold text-base">Sort By</h3>
           <Button type="default" aria-label="Close sort popup" onClick={onClose} className="mt-4" > ✕ </Button>
