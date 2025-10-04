@@ -14,7 +14,7 @@ import { useCart } from "../context/CartContext";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Collections", href: "/Collections" },
+  { label: "Collections", href: "/collections" },
   { label: "About", href: "#About" },
 ];
 
@@ -141,7 +141,7 @@ function NavIcons({user,isMobile,cartCount}:any) {
   return (
     <>
       {!isMobile && <SearchBar />}
-      <Link href={"/Cart"} className="relative" title="Cart">
+      <Link href={"/cart"} className="relative" title="Cart">
         {cartCount > 0 && (
           <span className="absolute -top-2 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
             {cartCount}
@@ -151,14 +151,14 @@ function NavIcons({user,isMobile,cartCount}:any) {
       </Link>
       {user ? 
         <>
-          <Link href={"/Account"} title="Account">
+          <Link href={"/account"} title="Account">
             <LuUserRound className={`text-green-700 md:text-gray-700 inline mx-1 text-xl font-bold cursor-pointer`} title={user?.name || user?.email}/>
           </Link>
           <IoMdLogOut onClick={()=> signOut()} className={`inline mx-2 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`} title="Logout"/>
         </>
         : 
         <Button type="primary" className="!mx-2" shape="default" size="middle">
-          <Link href={"/Auth"} title="Login"> Login </Link>
+          <Link href={"/auth"} title="Login"> Login </Link>
         </Button>
       }
     </>

@@ -26,7 +26,7 @@ export default function ShopByCollection() {
             {collections.map((collection) => (
                 <Link
                 key={collection.name}
-                href={`/Collections#${collection.name.toLowerCase()}`}
+                href={`/collections#${collection.name.toLowerCase()}`}
                 className="group"
                 >
                 <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-zinc-900 h-64 md:h-80">

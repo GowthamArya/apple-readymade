@@ -9,7 +9,7 @@ import Account from "../components/Account";
 export default async function AccountPage() {
     const session = await getServerSession(authOptions);
     if (!session) {
-        redirect("/Auth");
+        redirect("/auth");
     }
     const user = await getUser();
     return (

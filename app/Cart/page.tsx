@@ -28,7 +28,7 @@ export default function CartPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center p-4">
         <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
-        <Link href="/Collections">
+        <Link href="/collections">
           <Button type="primary">Browse Products</Button>
         </Link>
       </div>

@@ -80,7 +80,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
               <CiLocationArrow1 className="text-white -rotate-45 hover:text-green-400 transition-all duration-700 ease-in-out hover:scale-95 hover:rotate-0" />
             </span>{" "}
             M{" "}
-            <Link href="/Collections" 
+            <Link href="/collections" 
               id="appleIcon"
               className="inline-block text-2xl md:text-4xl xl:text-[6rem] lg:text-7xl"
               style={{ transform: "scale(1.5,1.2)" }}

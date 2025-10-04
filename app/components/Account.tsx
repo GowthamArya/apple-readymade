@@ -69,7 +69,7 @@ export default function Account({ user }: { user: any }) {
 
         <div className="mt-4 space-x-2">
             <Link href="/"><Button>Go to Home</Button></Link>
-            <Link href="/Auth"><Button danger className="ml-2">Logout</Button></Link>
+            <Link href="/auth"><Button danger className="ml-2">Logout</Button></Link>
         </div>
         </Form>
     );

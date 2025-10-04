@@ -3,7 +3,8 @@ import Image from 'next/image';
 import { FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
-import { Button, Form, Input, message, Typography, Row, Col } from 'antd';
+import { Typography, Row, Col } from 'antd';
+import SubscribeForm from './Home/SubscribeForm';
 
 const { Title, Text } = Typography;
 
@@ -73,41 +74,7 @@ export default function Footer() {
         {/* Social & Newsletter */}
         <Col xs={24} md={6}>
           <Title level={5} className="text-white mb-3">Stay Connected</Title>
-          <Form
-            layout="vertical"
-            className="mb-4"
-            onFinish={(values) => { 
-              console.log('Subscribed with email:', values.email); 
-              message.success('Thank you for subscribing!');
-            }}
-          >
-            <Form.Item
-              name="email"
-              rules={[
-                { required: true, message: 'Please enter your email!' },
-                { type: 'email', message: 'Please enter a valid email!' },
-              ]}
-              className="mb-2"
-            >
-              <Input
-                type="email"
-                placeholder="Your email"
-                className="bg-gray-800 text-white text-sm"
-                style={{ borderRadius: 8 }}
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-              >
-                Subscribe
-              </Button>
-            </Form.Item>
-          </Form>
-
+          <SubscribeForm />
           <div className="flex space-x-6 text-gray-400 text-xl">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebookF /></a>
