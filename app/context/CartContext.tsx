@@ -1,7 +1,5 @@
-// context/CartContext.tsx
 'use client';
 import { VariantCartItem } from '@/Entities/Variant';
-import { App } from 'antd';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 interface CartContextType {

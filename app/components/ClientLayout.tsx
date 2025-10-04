@@ -7,36 +7,29 @@ import LoadingLayer from "./LoadingLayer";
 import InstallPrompt from "./InstallPrompt";
 import AntdRegister from "./AntdRegister";
 import { CartProvider } from "../context/CartContext";
+import { FavoritesProvider } from "../context/FavoriteContext";
 
 export default function ClientLayout({ children } : { children: React.ReactNode}) {
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorLink: 'inherit',
-          colorLinkHover: '#15803d',
-          colorLinkActive: '#166534',
-        },
-      }}
-    >
+    <AntdRegister>
       <App>
         <SessionProvider>
           <CartProvider>
-            <AntdRegister>
-                <LoadingProvider>
-                  <div className="relative">
-                    <Header />
-                    <InstallPrompt />
-                  </div>
-                  <LoadingLayer />
-                  <main id="childrenRoot">
-                    {children}
-                  </main>
-                </LoadingProvider>
-            </AntdRegister>
+            <FavoritesProvider>
+              <LoadingProvider>
+                <div className="relative">
+                  <Header />
+                  <InstallPrompt />
+                </div>
+                <LoadingLayer />
+                <main id="childrenRoot">
+                  {children}
+                </main>
+              </LoadingProvider>
+            </FavoritesProvider>
           </CartProvider>
         </SessionProvider>
       </App>
-    </ConfigProvider>
+    </AntdRegister>
   );
 }

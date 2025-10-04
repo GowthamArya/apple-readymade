@@ -25,6 +25,13 @@ export default function Header() {
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const [cartCount,setCartCount] = useState(0);
   const { cart } = useCart();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     setCartCount(cart.length);
@@ -58,7 +65,7 @@ export default function Header() {
 
   return (
     <header className="w-full fixed top-0 z-100">
-      <div className="pb-3 mx-auto flex items-center justify-between md:justify-center">
+      <div className={"pb-2 mx-auto flex items-center justify-between md:justify-center duration-200 transition ease-in-out" + (scrolled ? " bg-white dark:bg-black shadow-md" : " bg-transparent")}>
         <a className="md:hidden flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
           <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
           <span className="text-xl font-bold hidden md:block">
@@ -66,7 +73,7 @@ export default function Header() {
           </span>
         </a>
         
-        <div className="flex md:hidden items-center">
+        <div className={`flex md:hidden items-center`} >
           <NavIcons user={user}/>
           <button
             className="md:hidden p-2 rounded focus:outline-none transition"

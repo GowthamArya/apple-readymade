@@ -9,6 +9,9 @@ export default function AntdRegister({ children } : { children: React.ReactNode}
             algorithm: theme.compactAlgorithm,
             token: {
               colorPrimary: '#3A6F43',
+              colorLink: '#000',
+              colorLinkHover: '#000',
+              colorLinkActive: 'green'
             },
           }}
         >

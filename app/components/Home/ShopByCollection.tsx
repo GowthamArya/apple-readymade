@@ -21,7 +21,7 @@ export default function ShopByCollection() {
     return (
         <div
             data-scroll
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 px-4 dark:bg-black bg-gray-50"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 px-4 dark:bg-black bg-gray-50/50"
             >
             {collections.map((collection) => (
                 <Link

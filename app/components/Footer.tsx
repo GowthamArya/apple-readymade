@@ -3,79 +3,122 @@ import Image from 'next/image';
 import { FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
+import { Button, Form, Input, message, Typography, Row, Col } from 'antd';
+
+const { Title, Text } = Typography;
+
+const footerLinkClass = "text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out";
 
 export default function Footer() {
   return (
-    <footer data-scroll className="bg-gray-950 text-white p-4">
-      <div className="mx-auto grid grid-cols-1 md:grid-cols-4 gap-y-8">
-        <div>
-          <div className="flex items-center space-x-2">
+    <footer data-scroll className="bg-green-50/75 text-white p-6">
+      <Row gutter={[32, 32]} justify="center" className="max-w-7xl mx-auto">
+        <Col xs={24} md={6}>
+          <div className="flex items-center space-x-3 mb-4">
             <Image
-              src="/logo.png" // Replace with your actual logo path
+              src="/logo.png"
               alt="Apple Logo"
               width={36}
               height={36}
               priority
             />
-            <h2 className="text-lg font-semibold text-white">
+            <Title level={4} className="text-white m-0">
               Apple Readymade & More
-            </h2>
+            </Title>
           </div>
-          <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
+          <Text type="secondary" className="max-w-xs leading-relaxed">
             Where tradition meets trend — quality readymade wear with a fresh twist.
-          </p>
-        </div>
+          </Text>
+        </Col>
 
         {/* Shop Links */}
-        <div className='md:pl-30 '>
-          <h3 className="text-lg font-semibold mb-3">Shop</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li><Link href="/collections/new-arrivals">New Arrivals</Link></li>
-            <li><Link href="/collections/shirts">Shirts</Link></li>
-            <li><Link href="/collections/accessories">Accessories</Link></li>
-            <li><Link href="/collections/sale">Sale</Link></li>
+        <Col xs={24} sm={12} md={6}>
+          <Title level={5} className="text-white mb-3">Shop</Title>
+          <ul className="space-y-2 text-sm">
+            {[
+              { href: "/collections/new-arrivals", label: "New Arrivals" },
+              { href: "/collections/shirts", label: "Shirts" },
+              { href: "/collections/accessories", label: "Accessories" },
+              { href: "/collections/sale", label: "Sale" },
+            ].map(({ href, label }) => (
+              <li key={href}>
+                <Link href={href} className={footerLinkClass}>
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
-        </div>
+        </Col>
 
         {/* Customer Service */}
-        <div className='md:pl-20'>
-          <h3 className="text-lg font-semibold mb-3">Customer Service</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li><Link href="/support/contact">Contact Us</Link></li>
-            <li><Link href="/support/shipping">Shipping</Link></li>
-            <li><Link href="/support/returns">Returns</Link></li>
-            <li><Link href="/support/faq">FAQ</Link></li>
-            <li><Link href="/support/size-guide">Size Guide</Link></li>
+        <Col xs={24} sm={12} md={6}>
+          <Title level={5} className="text-white mb-3">Customer Service</Title>
+          <ul className="space-y-2 text-sm">
+            {[
+              { href: "/support/contact", label: "Contact Us" },
+              { href: "/support/shipping", label: "Shipping" },
+              { href: "/support/returns", label: "Returns" },
+              { href: "/support/faq", label: "FAQ" },
+              { href: "/support/size-guide", label: "Size Guide" },
+            ].map(({ href, label }) => (
+              <li key={href}>
+                <Link href={href} className={footerLinkClass}>
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
-        </div>
+        </Col>
 
         {/* Social & Newsletter */}
-        <div>
-          <h3 className="text-lg font-semibold mb-3">Stay Connected</h3>
-          <form className="mb-4">
-            <input
-              type="email"
-              placeholder="Your email"
-              className="w-full px-3 py-2 rounded bg-gray-800 text-white text-sm"
-            />
-            <button
-              type="submit"
-              className="mt-2 w-full bg-white text-black py-2 text-sm font-semibold hover:bg-gray-300"
+        <Col xs={24} md={6}>
+          <Title level={5} className="text-white mb-3">Stay Connected</Title>
+          <Form
+            layout="vertical"
+            className="mb-4"
+            onFinish={(values) => { 
+              console.log('Subscribed with email:', values.email); 
+              message.success('Thank you for subscribing!');
+            }}
+          >
+            <Form.Item
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter your email!' },
+                { type: 'email', message: 'Please enter a valid email!' },
+              ]}
+              className="mb-2"
             >
-              Subscribe
-            </button>
-          </form>
-          <div className="flex space-x-4 text-gray-400 text-xl">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaXTwitter /></a>
+              <Input
+                type="email"
+                placeholder="Your email"
+                className="bg-gray-800 text-white text-sm"
+                style={{ borderRadius: 8 }}
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+              >
+                Subscribe
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div className="flex space-x-6 text-gray-400 text-xl">
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebookF /></a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><FaXTwitter /></a>
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       {/* Bottom line */}
       <div className="mt-10 border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
-        Copyright &copy; {new Date().getFullYear()} Apple Menswear Co. All rights reserved.
+        Copyright &copy;  2025 Apple Menswear Co. All rights reserved.
       </div>
     </footer>
   );

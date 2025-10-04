@@ -17,7 +17,7 @@ const trustData = [
 export default function TrustBuilding() {
   return (
     <div className="relative w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm">
-      <div className="flex md:justify-evenly gap-3 md:p-5 p-2 py-3">
+      <div className="flex md:justify-evenly gap-4 md:p-5 p-2">
         {[...trustData].map((item, index) => {
           const Icon = item.icon;
           return (

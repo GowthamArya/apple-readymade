@@ -1,12 +1,35 @@
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 import ProductCarousel from "../components/Carousel";
 import { GrFavorite } from "react-icons/gr";
-import { App, Button } from "antd";
+import { App, Button, Popover } from "antd";
 import { useCart } from '../context/CartContext';
+import { MdFavorite } from "react-icons/md";
+import { useFavorites } from "../context/FavoriteContext";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function ProductCard({ product }: { product: any }) {
+  const { data:session } = useSession();
+  const [user, setUser] = useState(session?.user);
+  useEffect(() => {
+    setUser(session?.user);
+  }, [session]);
+
   const { addToCart } = useCart();
+  const { addToFavorites, favorites,removeFromFavorites } = useFavorites();
   const { message } = App.useApp();
+  const handleFavorite = (action:string) => {
+    if(action === 'remove' && favorites.some((fav) => fav.id === product.id)) {
+      removeFromFavorites(product.id);
+      message.warning(`${product.product?.name || 'Product'} removed from favorites!`);
+      return;
+    }else if(action === 'add' && !favorites.some((fav) => fav.id === product.id)) {
+      addToFavorites(product);
+      message.success(`${product.product?.name || 'Product'} added to favorites!`);
+      return;
+    }
+  }
+
   const handleAdd = () => {
     addToCart({...product, quantity: 1});
     message.success(`${product.product?.name || 'Product'} added to cart!`);
@@ -14,18 +37,24 @@ export default function ProductCard({ product }: { product: any }) {
 
   return (
     <div className="relative p-2 col-span-1 rounded-md shadow-md dark:shadow-gray-800 hover:shadow-lg transition-shadow duration-300 dark:border dark:border-gray-700">
-      <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
+      {user && <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
         <Button
-          type="text"
-          shape="circle"
-          size="large"
+          shape="round"
+          size="middle"
           aria-label="Add to wishlist"
           tabIndex={-1}
-          className="hover:bg-red-100 dark:hover:bg-gray-800 !hover:text-red-500 transition-colors"
+          type="text"
+          onClick={()=>handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')}
         >
-          <GrFavorite className="text-xl cursor-pointer"  tabIndex={-1}/>
+          
+          {favorites.some((fav) => fav.id === product.id) ?
+            <MdFavorite className="text-xl cursor-pointer text-red-600" />
+            :
+            <GrFavorite className="text-xl cursor-pointer" />
+          }
         </Button>
-      </div>
+      </div>} 
+
 
       <ProductCarousel product={product} />
 

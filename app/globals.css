@@ -31,19 +31,3 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
 }
-
-@media (max-width: 768px) {
-    @keyframes scroll {
-      0% {
-        transform: translateX(0);
-      }
-      100% {
-        transform: translateX(-20%);
-      }
-    }
-  .animate-scroll {
-    display: flex;
-    width: max-content;
-    animation: scroll 10s linear infinite;
-  }
-}
