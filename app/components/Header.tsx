@@ -9,7 +9,7 @@ import { signOut, useSession } from "next-auth/react";
 import { IoMdLogOut } from "react-icons/io";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { FaWindowClose } from "react-icons/fa";
-import { Button } from "antd";
+import { Avatar, Badge, Button } from "antd";
 import { useCart } from "../context/CartContext";
 
 const navLinks = [
@@ -34,6 +34,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    console.log(cart.length);
     setCartCount(cart.length);
   }, [cart]);
 
@@ -74,7 +75,7 @@ export default function Header() {
         </a>
         
         <div className={`flex md:hidden items-center`} >
-          <NavIcons user={user}/>
+          <NavIcons user={user} cartCount={cartCount}/>
           <button
             className="md:hidden p-2 rounded focus:outline-none transition"
             aria-label="Menu"
@@ -114,7 +115,7 @@ export default function Header() {
 interface NavLinksProps {
   isMobile?: boolean;
   user?: any;
-  cartCount?: number;
+  cartCount: number;
 }
 
 function NavLinks({ isMobile,user,cartCount }: NavLinksProps) {
@@ -141,13 +142,10 @@ function NavIcons({user,isMobile,cartCount}:any) {
   return (
     <>
       {!isMobile && <SearchBar />}
-      <Link href={"/cart"} className="relative" title="Cart">
-        {cartCount > 0 && (
-          <span className="absolute -top-2 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-            {cartCount}
-          </span>
-        )}
-        <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
+      <Link href={"/cart"} className="mx-2" title="Cart">
+        <Badge count={cartCount} color="green">
+          <LuShoppingBag className={`inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700`}/>
+        </Badge>
       </Link>
       {user ? 
         <>

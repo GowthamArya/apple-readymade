@@ -23,8 +23,9 @@ export default function ProductCard({ product }: { product: any }) {
       removeFromFavorites(product.id);
       message.warning(`${product.product?.name || 'Product'} removed from favorites!`);
       return;
-    }else if(action === 'add' && !favorites.some((fav) => fav.id === product.id)) {
+    }else if(action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
       addToFavorites(product);
+      console.log(favorites);
       message.success(`${product.product?.name || 'Product'} added to favorites!`);
       return;
     }
@@ -36,7 +37,7 @@ export default function ProductCard({ product }: { product: any }) {
   };
 
   return (
-    <div className="relative p-2 col-span-1 rounded-md shadow-md dark:shadow-gray-800 hover:shadow-lg transition-shadow duration-300 dark:border dark:border-gray-700">
+    <div className="relative p-2 col-span-1 rounded-md shadow-md dark:shadow-green-50/25 hover:shadow-lg transition-shadow duration-300 dark:border dark:border-gray-700">
       {user && <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
         <Button
           shape="round"
@@ -71,7 +72,7 @@ export default function ProductCard({ product }: { product: any }) {
         </p>
         <MdOutlineAddShoppingCart
           onClick={handleAdd}
-          className="text-xl cursor-pointer hover:text-green-700 transition-colors"
+          className="text-xl cursor-pointer hover:text-green-700 transition-colors dark:text-green-50"
         />
       </div>
     </div>

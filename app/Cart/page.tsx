@@ -1,11 +1,16 @@
 'use client';
-import { Button, InputNumber } from 'antd';
+import { Tabs, Button, InputNumber, Card } from 'antd';
 import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoriteContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
+
+const { Meta } = Card;
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
+  const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -17,69 +22,155 @@ export default function CartPage() {
     const item = cart.find((item) => item.id === id);
     if (!item) return;
     if (value <= 0) {
-        removeFromCart(id);
+      removeFromCart(id);
     } else {
-        console.log(value, id, item);
-        addToCart({ ...item, quantity: value - item.quantity }); 
+      addToCart({ ...item, quantity: value - item.quantity });
     }
   };
 
-  if (cart.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center p-4">
-        <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
-        <Link href="/collections">
-          <Button type="primary">Browse Products</Button>
-        </Link>
-      </div>
-    );
-  }
+  const CartTab = () => (
+    <>
+      {cart.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center mt-20 p-4">
+          <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
+          <Link href="/collections">
+            <Button type="primary">Browse Products</Button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap pt-3">
+            {cart.map((item) => (
+              <Card
+                key={item.id}
+                className="!p-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
+                hoverable
+                cover={
+                  <img
+                    alt={item.product?.name}
+                    src={item.image_urls?.[0]}
+                    className="h-48 w-full object-cover"
+                  />
+                }
+                actions={[
+                  <InputNumber
+                    min={1}
+                    value={item.quantity}
+                    onChange={(value) => handleQuantityChange(value || 1, item.id)}
+                    key="quantity"
+                  />,
+                  <Button danger type="dashed" onClick={() => removeFromCart(item.id)} key="remove">
+                    Remove
+                  </Button>,
+                  <Button block type='primary' 
+                    onClick={() => {
+                      removeFromCart(item.id);
+                      addToFavorites(item);
+                    }}>
+                      Move to Wishlist
+                    </Button>,
+                ]}
+                >
+                <Meta
+                  title={item.product?.name}
+                  description={`₹${item.price} x ${item.quantity}`}
+                />
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-lg font-semibold">
+              Total: <span className="text-green-700 dark:text-green-300">₹{total}</span>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={clearCart}>Clear Cart</Button>
+              <Button type="primary">Proceed to Checkout</Button>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+
+
+  const WishlistTab = () => (
+    <>
+      {favorites.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center mt-20 p-4">
+          <h1 className="text-2xl font-semibold mb-2">Your wishlist is empty</h1>
+          <Link href="/collections">
+            <Button type="primary">Browse Products</Button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap pt-3">
+            {favorites.map((item) => (
+              <Card
+                key={item.id}
+                className="!p-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
+                hoverable
+                cover={
+                  <img
+                    alt={item.product?.name}
+                    src={item.image_urls?.[0]}
+                    className="h-48 w-full object-cover"
+                  />
+                }
+                actions={[
+                  <Button type="link" danger onClick={() => removeFromFavorites(item.id)} key="remove">
+                    Remove
+                  </Button>,
+                  <Button type="primary" onClick={() => {
+                    removeFromFavorites(item.id);
+                    addToCart(item);
+                  }} key="remove">
+                    Move To Cart
+                  </Button>,
+                ]}
+              >
+                <Meta
+                  title={item.product?.name}
+                  description={`₹${item.price}`}
+                />
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 flex justify-end">
+            <Button onClick={clearFavorites}>Clear Wishlist</Button>
+          </div>
+        </>
+      )}
+    </>
+  );
+
 
   return (
     <div className="min-h-screen px-4 py-20 md:px-20 bg-green-50/50">
-      <div className="space-y-4">
-        {cart.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-gray-800 shadow-md p-4 rounded-lg"
-          >
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-2/3">
-              <img
-                src={item.image_urls?.[0]}
-                alt={item.product?.name}
-                className="w-20 h-20 object-cover rounded"
-              />
-              <div>
-                <h2 className="font-semibold text-lg dark:text-white">{item.product?.name}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-300">
-                  ₹{item.price} x {item.quantity}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center mt-2 md:mt-0 gap-2">
-              <InputNumber
-                min={1}
-                value={item.quantity}
-                onChange={(value) => handleQuantityChange(value || 1, item.id)}
-              />
-              <Button danger onClick={() => removeFromCart(item.id)}>
-                Remove
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="text-lg font-semibold">
-          Total: <span className="text-green-700 dark:text-green-300">₹{total}</span>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={clearCart}>Clear Cart</Button>
-          <Button type="primary">Proceed to Checkout</Button>
-        </div>
-      </div>
+      <Tabs defaultActiveKey="cart" centered items={[
+        {
+          key: 'cart',
+          label: (
+            <span className="flex items-center gap-1">
+              <ShoppingCartOutlined />
+              Your Bag ({cart.length})
+            </span>
+          ),
+          children: <CartTab />,
+        },
+        {
+          key: 'wishlist',
+          label: (
+            <span className="flex items-center gap-1">
+              <HeartOutlined />
+              Your Wishlist ({favorites.length})
+            </span>
+          ),
+          children: <WishlistTab />,
+        }
+      ]} />
     </div>
   );
 }
