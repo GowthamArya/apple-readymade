@@ -189,7 +189,6 @@ function PopUp({
           />
           <div className="flex justify-between pt-2">
             <Button type="default" onClick={handleReset}>Reset</Button>
-            <Button type="primary" onClick={onClose}>Apply</Button>
           </div>
         </div>
       </div>
