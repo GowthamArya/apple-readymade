@@ -76,7 +76,7 @@ export default function Filters({ initialProducts }: FilterProps) {
                   aria-label="Previous Page"
                   title={`Current page no. ${page}`}
                   onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                  className="flex items-center gap-2 font-medium"
+                  className="flex items-center gap-2 font-medium dark:!text-green-50"
                 >
                   <item.icon className="text-xl" /> {`${page - 1} ` + item.label}
                 </Button>
@@ -92,7 +92,7 @@ export default function Filters({ initialProducts }: FilterProps) {
                   aria-label="Next Page"
                   title={`Current page no. ${page}`}
                   onClick={() => setPage(prev => prev + 1)}
-                  className="flex items-center gap-2 font-medium"
+                  className="flex items-center gap-2 font-medium dark:!text-green-50"
                 >
                   <item.icon className="text-xl" title={`Current page no. ${page}`}/> {`${page + 1} ` + item.label}
                 </Button>
