@@ -1,0 +1,22 @@
+create table public.variant (
+  id serial not null,
+  product_id integer null,
+  sku character varying(100) null,
+  size character varying(20) null,
+  color character varying(50) null,
+  price numeric(12, 2) null,
+  mrp numeric(12, 2) null,
+  gst integer null,
+  stock integer null,
+  status_id integer null,
+  created_by integer null,
+  updated_by integer null,
+  created_on timestamp without time zone null default CURRENT_TIMESTAMP,
+  updated_on timestamp without time zone null default CURRENT_TIMESTAMP,
+  is_default boolean not null default false,
+  image_urls text[] null,
+  constraint variant_pkey primary key (id),
+  constraint variant_gst_fkey foreign KEY (gst) references gst (id),
+  constraint variant_product_id_fkey foreign KEY (product_id) references product (id),
+  constraint variant_status_id_fkey foreign KEY (status_id) references status (id)
+) TABLESPACE pg_default;
