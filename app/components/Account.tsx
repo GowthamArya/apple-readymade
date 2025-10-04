@@ -1,9 +1,10 @@
 "use client";
-import { Button, Form, Input, message } from 'antd';
+import { App, Button, Form, Input } from 'antd';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 
 export default function Account({ user }: { user: any }) {
+    const { message } = App.useApp(); 
     const [form] = Form.useForm();
     useEffect(() => {
         if (user) {
@@ -19,14 +20,18 @@ export default function Account({ user }: { user: any }) {
         const res = await fetch('/api/account', {
             method: 'PUT',
             headers: {
-            'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(values),
         });
 
         const data = await res.json();
         if (res.ok) {
-            message.success('Profile updated successfully');
+            message.success({
+                content: 'Profile updated successfully',
+                duration: 2,
+                style: { marginTop: 80 },
+            });
         } else {
             message.error(data.message || 'Failed to update profile');
         }

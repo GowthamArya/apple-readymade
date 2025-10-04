@@ -1,5 +1,5 @@
 'use client'
-import { App, Button, Form, Input, message } from 'antd';
+import { App, Button, Form, Input } from 'antd';
 import React from 'react'
 
 export default function SubscribeForm() {

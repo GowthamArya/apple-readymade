@@ -1,5 +1,5 @@
 'use client';
-import { Tabs, Button, InputNumber, Card } from 'antd';
+import { Tabs, Button, InputNumber, Card, Col, Row } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoriteContext';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,11 @@ export default function CartPage() {
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
   const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
   const [total, setTotal] = useState(0);
+  const [isLoading,setIsLoading] = useState(true);
+  
+  useEffect(()=>{
+    setIsLoading(false);
+  },[]);
 
   useEffect(() => {
     const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -39,45 +44,56 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap pt-3">
-            {cart.map((item) => (
-              <Card
-                key={item.id}
-                className="!p-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
-                hoverable
-                cover={
-                  <img
-                    alt={item.product?.name}
-                    src={item.image_urls?.[0]}
-                    className="h-48 w-full object-cover"
-                  />
-                }
-                actions={[
-                  <InputNumber
-                    min={1}
-                    value={item.quantity}
-                    onChange={(value) => handleQuantityChange(value || 1, item.id)}
-                    key="quantity"
-                  />,
-                  <Button danger type="dashed" onClick={() => removeFromCart(item.id)} key="remove">
-                    Remove
-                  </Button>,
-                  <Button block type='primary' 
-                    onClick={() => {
-                      removeFromCart(item.id);
-                      addToFavorites(item);
-                    }}>
-                      Move to Wishlist
-                    </Button>,
-                ]}
+            <Row gutter={16 } justify="start">
+              {cart.map((item) => (
+                <Col 
+                  xs={{ flex: '100%' }}
+                  sm={{ flex: '50%' }}
+                  md={{ flex: '50%' }}
+                  lg={{ flex: '25%' }}
+                  xl={{ flex: '25%' }}
                 >
-                <Meta
-                  title={item.product?.name}
-                  description={`₹${item.price} x ${item.quantity}`}
-                />
-              </Card>
-            ))}
-          </div>
+                  <Card
+                    key={item.id}
+                    className="!m-2 w-full"
+                    hoverable
+                    loading={isLoading}
+                    cover={
+                      <img
+                        alt={item.product?.name}
+                        src={item.image_urls?.[0]}
+                        className="h-48 w-full object-cover"
+                      />
+                    }
+                  >
+                    <Meta
+                      title={item.product?.name}
+                      description={`₹${item.price} x ${item.quantity}`}
+                    />
+
+                    {/* Custom Action Buttons */}
+                    <div className="mt-4 flex flex-wrap flex-row gap-2">
+                      <InputNumber
+                        min={1}
+                        value={item.quantity}
+                        onChange={(value) => handleQuantityChange(value || 1, item.id)}
+                      />
+
+                        <Button danger type="dashed" onClick={() => removeFromCart(item.id)}>
+                          Remove
+                        </Button>
+
+                        <Button  type="primary" onClick={() => {
+                          removeFromCart(item.id);
+                          addToFavorites({...item, quantity:1});
+                        }}>
+                          Move to Wishlist
+                        </Button>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
 
           <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-lg font-semibold">
@@ -105,39 +121,47 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap pt-3">
+          <Row gutter={16 } justify="center">
             {favorites.map((item) => (
-              <Card
-                key={item.id}
-                className="!p-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4"
-                hoverable
-                cover={
-                  <img
-                    alt={item.product?.name}
-                    src={item.image_urls?.[0]}
-                    className="h-48 w-full object-cover"
-                  />
-                }
-                actions={[
-                  <Button type="link" danger onClick={() => removeFromFavorites(item.id)} key="remove">
-                    Remove
-                  </Button>,
-                  <Button type="primary" onClick={() => {
-                    removeFromFavorites(item.id);
-                    addToCart(item);
-                  }} key="remove">
-                    Move To Cart
-                  </Button>,
-                ]}
-              >
-                <Meta
-                  title={item.product?.name}
-                  description={`₹${item.price}`}
-                />
-              </Card>
+              <Col 
+                  xs={{ flex: '100%' }}
+                  sm={{ flex: '50%' }}
+                  md={{ flex: '50%' }}
+                  lg={{ flex: '25%' }}
+                  xl={{ flex: '25%' }}
+                >
+                  <Card
+                    key={item.id}
+                    className="!p-2"
+                    style={{ flex: '1 0 calc(25% - 1rem)', maxWidth: '350px' }}
+                    hoverable
+                    cover={
+                      <img
+                        alt={item.product?.name}
+                        src={item.image_urls?.[0]}
+                        className="h-48 w-full object-cover"
+                      />
+                    }
+                    actions={[
+                      <Button type="link" danger onClick={() => removeFromFavorites(item.id)} key="remove">
+                        Remove
+                      </Button>,
+                      <Button type="primary" onClick={() => {
+                        removeFromFavorites(item.id);
+                        addToCart(item);
+                      }} key="remove">
+                        Move To Cart
+                      </Button>,
+                    ]}
+                  >
+                    <Meta
+                      title={item.product?.name}
+                      description={`₹${item.price}`}
+                    />
+                  </Card>
+              </Col>
             ))}
-          </div>
-
+          </Row>
           <div className="mt-8 flex justify-end">
             <Button onClick={clearFavorites}>Clear Wishlist</Button>
           </div>
