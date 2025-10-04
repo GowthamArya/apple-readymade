@@ -220,7 +220,6 @@ function PopUp({
             <Radio.Button value="asc">Ascending</Radio.Button>
             <Radio.Button value="desc">Descending</Radio.Button>
           </Radio.Group>
-          <Button type="primary" onClick={onClose}>Apply</Button>
         </div>
       </div>
     );
