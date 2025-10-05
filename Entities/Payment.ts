@@ -1,7 +1,7 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Payment extends BaseEntity {
-    method: string;
-    amount: number;
-    status_id: number;
+export class Payment extends BaseEntity<Payment,number> {
+    method!: string;
+    amount!: number;
+    status_id!: number;
 }

@@ -1,7 +1,7 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Cart extends BaseEntity {
-    variant_id: number;
-    customer_id: number;
-    status_id: number;
+export class Cart extends BaseEntity<Cart,number>  {
+    variant_id?: number;
+    customer_id?: number;
+    status_id?: number;
 }

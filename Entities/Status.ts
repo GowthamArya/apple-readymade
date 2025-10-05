@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Status extends BaseEntity {
-  name: string;
-  description: string;
+export class Status extends BaseEntity<Status,number> {
+  name!: string;
+  description!: string;
 }

@@ -1,12 +1,21 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Product extends BaseEntity {
+export class Product extends BaseEntity<Product,number> {
+  name!: string;
+  description?: string;
+  category_id!: number;
+  status_id?: number;
+}
+
+export interface ProductCartItem {
+  id: number;
+  quantity: number;
   name: string;
   description?: string;
   category_id?: number;
   status_id?: number;
-}
-
-export interface ProductCartItem extends Product {
-  quantity: number;
+  createdOn?: Date;
+  updatedOn?: Date;
+  createdBy?: number;
+  updatedBy?: number;
 }

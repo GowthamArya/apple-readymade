@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Shipment extends BaseEntity {
-    address_id: number;
-    status_id: number;
+export class Shipment extends BaseEntity<Shipment,number> {
+    address_id!: number;
+    status_id!: number;
 }

@@ -50,3 +50,13 @@ create table next_auth.verification_tokens (
 ) TABLESPACE pg_default;
 
 create policy "Allow all" on next_auth.users for all using (true);
+
+-- Replace 'anon' with your PostgREST role (default is 'anon' for client)
+grant usage on schema next_auth to anon;
+
+grant select, insert, update, delete on all tables in schema next_auth to anon;
+
+-- Also grant for future tables (optional but good practice)
+alter default privileges in schema next_auth
+grant select, insert, update, delete on tables to anon;
+

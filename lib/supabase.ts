@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.APPLE_DB_SUPABASE_URL!,
-  process.env.APPLE_DB_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export async function uploadVariantFileToStorage(productId: string, variantId: string, file: File) {

@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Invoice extends BaseEntity {
-    invoice_no: string;
-    status_id: number;
+export class Invoice extends BaseEntity<Invoice,number> {
+    invoice_no!: string;
+    status_id?: number;
 }

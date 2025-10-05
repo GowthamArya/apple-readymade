@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export interface Role extends BaseEntity {
-  name: string;
-  description: string;
+export class Role extends BaseEntity<Role,number> {
+  name!: string;
+  description!: string;
 }
