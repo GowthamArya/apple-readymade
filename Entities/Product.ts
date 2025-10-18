@@ -1,6 +1,15 @@
 import { BaseEntity } from "./BaseEntity";
 
 export class Product extends BaseEntity {
+  static propertyKeys = [
+    "id",
+    "name",
+    "description",
+    "price",
+    "category_id",
+    "status_id",
+    "image_url",
+  ];
   name!: string;
   description?: string;
   category_id!: number;

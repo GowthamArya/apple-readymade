@@ -1,5 +1,8 @@
 export class BaseEntity {
-  id?: number;
+  static propertyKeys = [
+    "id",
+  ];
+  id!: number;
   created_on?: string;
   updated_on?: string;
   created_by?: number;

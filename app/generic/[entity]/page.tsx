@@ -97,8 +97,7 @@ function generateColumns(entityname: string) {
     throw new Error("Invalid entity name");
   }
   const EntityClass = EntityMapping[entityname];
-  const instance = new EntityClass();
-  const keys = Object.keys(instance);
+  const keys = EntityClass.propertyKeys;
   console.log("ckeys----",keys);
 
   const columns = keys

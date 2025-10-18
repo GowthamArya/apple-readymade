@@ -2,6 +2,20 @@ import { BaseEntity } from "./BaseEntity";
 import { Product } from "./Product";
 
 export class Variant extends BaseEntity {
+    static propertyKeys = [
+        "id",
+        "product_id",
+        "sku",
+        "size",
+        "color",
+        "price",
+        "mrp",
+        "is_default",
+        "stock",
+        "gst",
+        "status_id",
+        "image_urls",
+    ];
     product_id!: number;
     sku?: string;
     size?: string;
