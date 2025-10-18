@@ -55,7 +55,7 @@ export default function Listing(props: PageProps<"/generic/[entity]">) {
     return <Loading />
   }
   return <>
-  <Layout className='pt-15'>
+    <Layout className='pt-15'>
       <Sider
         breakpoint="md"
         collapsedWidth="0"
@@ -83,7 +83,7 @@ export default function Listing(props: PageProps<"/generic/[entity]">) {
       </Layout>
     </Layout>
     {/* <Footer /> */}
-    </>
+  </>
 }
 
 type EntityName = keyof typeof EntityMapping;
@@ -101,7 +101,7 @@ function generateColumns(entityname: string) {
   const instance = new EntityClass();
   const keys = Object.keys(instance);
   const columns = keys
-    .filter((key) => !["status_id","created_by","updated_by","created_on",].includes(key))
+    .filter((key) => !["status_id","created_by","updated_by"].includes(key))
     .map((key) => ({
       title: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "), 
       dataIndex: key,

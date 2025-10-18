@@ -29,7 +29,7 @@ export async function POST(req: Request, { params }: Params) {
   }
 }
 
-export async function GET(req: Request, { params }: Params) {
+export async function GET(req: Request, { params }: {params: { entityname: string }} ) {
   try {
     const { entityname } = await params;
     if (!(entityname in EntityMapping)) {
