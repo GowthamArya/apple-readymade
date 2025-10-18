@@ -7,7 +7,6 @@ import Loading from '@/app/loading';
 import Sider from 'antd/es/layout/Sider';
 import { Content , Footer as AntFooter} from 'antd/es/layout/layout';
 import Link from 'next/link';
-import Footer from '@/app/components/Footer';
 
 const items = Object.entries(EntityMapping).map(([name, EntityClass], index) => ({
   key: name,
@@ -136,5 +135,6 @@ function generateColumns(entityname: string) {
         return value?.toString() ?? "";
       },
     }));
+  console.log("columns----",columns);
   return columns;
 }
