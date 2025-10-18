@@ -1,5 +1,6 @@
 // import VariantCrud from './varientcrud';
 
-// export default function Page() {
+export default function Page() {
 //   return <VariantCrud />;
-// }
+   return <></>;
+}
