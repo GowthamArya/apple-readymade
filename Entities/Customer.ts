@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class Customer extends BaseEntity<Customer,number> {
+export class Customer extends BaseEntity {
   name!: string;
   email!: string;
   phone?: string;

@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class PromoCode extends BaseEntity<PromoCode,number> {
+export class PromoCode extends BaseEntity {
     name!: string;
     code!: string;
     discount!: number;

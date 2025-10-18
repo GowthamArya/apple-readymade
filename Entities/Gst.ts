@@ -1,5 +1,5 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class Gst extends BaseEntity<Gst,number> {
+export class Gst extends BaseEntity {
     percentage!: number;
 }

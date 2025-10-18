@@ -1,6 +1,6 @@
 // app/variants/VariantCrud.tsx (Client Component)
 "use client";
-import GenericCrud, { Column } from './crud';
+import { Column } from './crud';
 import { Variant } from '@/Entities/Variant';
 
 const variantColumns: Column<Variant>[] = [
@@ -14,15 +14,16 @@ const variantColumns: Column<Variant>[] = [
   { key: 'stock', label: 'Stock', editable: true, inputType: 'number' },
   { key: 'gst', label: 'GST ID', editable: true, inputType: 'number' },
   { key: 'status_id', label: 'Status ID', editable: true, inputType: 'number' },
-  { key: 'created_on', label: 'created_on', editable: true, inputType: 'datetime' },
 ];
 
 const variantCRUDPage = () => (
-  <GenericCrud<Variant>
-    modelClass={Variant}
-    columns={variantColumns}
-    relations={[]}
-  />
+  // <GenericCrud<Variant>
+  //   modelClass={Variant}
+  //   columns={variantColumns}
+  //   relations={[]}
+  // />
+  <>
+  </>
 );
 
 export default variantCRUDPage;

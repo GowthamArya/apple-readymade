@@ -1,3 +1,5 @@
+import { NextConfig } from "next";
+
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -34,7 +36,7 @@ const withPWA = require('next-pwa')({
 });
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
       remotePatterns: [
@@ -48,6 +50,8 @@ const nextConfig = {
     'http://localhost:3000',
     'http://127.0.0.1:3000',
   ],
+  turbopack: {
+  },
 };
 
 module.exports = withPWA(nextConfig);

@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class Address extends BaseEntity<Address,number> {
+export class Address extends BaseEntity {
   customer_id!: number;
   line1?: string;
   line2?: string;

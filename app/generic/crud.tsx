@@ -1,10 +1,10 @@
 "use client";
-
-import moment from 'moment';
+import moment, { isDate } from 'moment';
 import { ICrudEntity } from '@/Entities/BaseEntity';
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Form, Input, InputNumber, Modal, Space, Checkbox, DatePicker } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import { useLoading } from '../context/LoadingContext';
 
 export interface Column<T> {
   key: keyof T;
@@ -32,12 +32,12 @@ function GenericCrud<T extends ICrudEntity>({
   relations = [],
 }: GenericCrudProps<T>) {
   const [items, setItems] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
+  const pageLoading =  useLoading();
   const [editingItem, setEditingItem] = useState<T | null>(null);
   const [form] = Form.useForm();
 
   const loadItems = async () => {
-    setLoading(true);
+    pageLoading.setLoading(true);
     try {
       const fetched = await modelClass.fetchAll();
       setItems(fetched);
@@ -45,7 +45,7 @@ function GenericCrud<T extends ICrudEntity>({
     } catch (e) {
       console.error(e);
     }
-    setLoading(false);
+    pageLoading.setLoading(false);
   };
 
   useEffect(() => {
@@ -58,7 +58,7 @@ function GenericCrud<T extends ICrudEntity>({
 
       columns.forEach(col => {
         if (col.inputType === 'datetime' && editingItem[col.key]) {
-          //normalized[col.key] = moment(editingItem[col.key]);
+          //normalized[col.key] = moment(col.inputType)
         }
       });
 
@@ -69,11 +69,14 @@ function GenericCrud<T extends ICrudEntity>({
   }, [editingItem, form, columns]);
 
 
-  const columnsAntd: ColumnsType<T> = columns.map(({ key, label, editable }) => ({
+  const columnsAntd: ColumnsType<T> = columns.map(({ key, label, editable, inputType}) => ({
     title: label,
     dataIndex: key as string,
     key: key as string,
-    render: (text) => text ?? '',
+    render: (value)=>{
+      if (inputType === 'checkbox') return value ? 'Yes' : 'No';
+      return value ? String(value) : '';
+    },
   }));
 
   columnsAntd.push({
@@ -171,7 +174,7 @@ function GenericCrud<T extends ICrudEntity>({
         columns={columnsAntd}
         dataSource={items}
         rowKey="id"
-        loading={loading}
+        loading={pageLoading.loading}
         pagination={{ pageSize: 10 }}
       />
 
@@ -182,7 +185,7 @@ function GenericCrud<T extends ICrudEntity>({
         onCancel={() => setEditingItem(null)}
         okText="Save"
       >
-        <Form form={form} layout="vertical" >
+        <Form form={form}>
           {formItems}
         </Form>
       </Modal>

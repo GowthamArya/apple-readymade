@@ -31,3 +31,29 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
 }
+
+html, body, #__next, .ant-layout {
+  height: 100%;
+}
+
+.ant-layout {
+  display: flex;
+  flex-direction: row;
+}
+
+.ant-layout > .ant-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-layout-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.ant-layout-footer {
+  background: #001529;
+  color: white;
+  text-align: center;
+}

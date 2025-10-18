@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class Order extends BaseEntity<Order,number> {
+export class Order extends BaseEntity {
     customer_id!: number;
     payment_id?: number;
     shipment_id?: number;
