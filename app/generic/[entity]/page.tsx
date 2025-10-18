@@ -99,6 +99,8 @@ function generateColumns(entityname: string) {
   const EntityClass = EntityMapping[entityname];
   const instance = new EntityClass();
   const keys = Object.keys(instance);
+  console.log("ckeys----",keys);
+
   const columns = keys
     .filter((key) => !["status_id","created_by","updated_by"].includes(key))
     .map((key) => ({
