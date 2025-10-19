@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, InputNumber, Button, Checkbox } from 'antd';
+import DynamicDropdown from './DynamicDropdown';
 
 export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit, id ,entityName}: any) {
     const [initialData,setInitialData] = useState<any>({});
@@ -25,11 +26,23 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
     const label = field.value.charAt(0).toUpperCase() + field.value.slice(1).replace(/_/g, ' ');
     const name = field.value;
 
+
     if (field.type === 'number') {
       return (
         <Form.Item key={name} label={label} name={name} rules={[{ required: field.required }]}>
           <InputNumber min={1} />
         </Form.Item>
+      );
+    }
+
+    if (field.type === 'entity') {
+      const entity = field.value
+        .replace(/_id$/, '')                
+        .replace(/_/g, ' ')                 
+        .replace(/^./, (str: string) => str.toLowerCase());
+
+      return (
+        <DynamicDropdown key={name} name={name} label={label} apiUrl={`/api/generic/${entity}`} />
       );
     }
 
@@ -62,7 +75,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
     (async function updateEntity() {
       const url = `/api/generic/${entityName}?id=${id}`;
       const response = await fetch(url, {
-        method: "PUT",
+        method: id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
@@ -74,7 +87,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
   return (
     <Modal
-      title="Edit Record"
+      title= {id ? "Edit Record":"Add Record"}
       open={visible}
       onCancel={onCancel}
       footer={null}

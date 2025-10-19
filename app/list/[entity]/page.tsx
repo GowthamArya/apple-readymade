@@ -1,6 +1,6 @@
 "use client";
 import { Table, Layout, Menu, Button, Drawer } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
+import { MenuOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
 import Link from 'next/link';
@@ -26,6 +26,18 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
     setEditRecord(record);
     setModalVisible(true);
   };
+
+  async function deleteData({id}:any){
+    (async function updateEntity() {
+      const url = `/api/generic/${entityName}?id=${id}`;
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      setLoading(false);
+      return response.json();
+    })();
+  }
 
   async function fetchData(){
     const data = await fetch(`/api/generic/${entityName}`);
@@ -130,20 +142,28 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
             transition: 'margin-left 1s',
           }}
         >
-          <div className='flex md:!justify-center'>
+          <div className='flex !justify-between'>
             <Button
-              type="text"
-              icon={<MenuOutlined className='!text-green-700 p-3' style={{ fontSize: 20}} />}
-              className='bg-green-600 md:!hidden'
+              type="primary"
+              icon={<MenuOutlined className='!text-white p-3' style={{ fontSize: 20}} />}
+              className='md:!hidden'
               onClick={() => setDrawerOpen(true)}
             />
             <h1 className="text-center m-4 text-2xl font-bold">
               {entityName.toUpperCase()} DATA
             </h1>
+            <Button
+              icon={<PlusCircleOutlined style={{ fontSize: 20, verticalAlign: 'middle'}} />}
+              type='primary' 
+              onClick={() => {
+                setEditRecord({id:0});
+                setModalVisible(true);
+              }}
+            >Add</Button>
           </div>
             <Table
               bordered
-              columns={generateMetadataColumns(columnsMetadata,handleEditClick,()=>setModalVisible(false))}
+              columns={generateMetadataColumns(columnsMetadata,handleEditClick,deleteData)}
               dataSource={entities}
               rowKey="id"
               loading={loading}
@@ -152,15 +172,16 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
                 return {
                   onDoubleClick: (event) => {
                     handleEditClick(record);
-                    console.log(record);
                   },
                 };
               }}
               pagination={{ 
-                pageSize: 10, 
+                defaultPageSize:10,
                 hideOnSinglePage: true,
+                showSizeChanger: true,
+                pageSizeOptions: ['10', '20', '50', '100'],
               }}
-              scroll={{ y: 55 * 5, x: true }}
+              scroll={{ y: 100 * 5, x: true }}
             />
             <DynamicFormModal
               visible={modalVisible}

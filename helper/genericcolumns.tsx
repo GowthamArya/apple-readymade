@@ -1,5 +1,5 @@
 import { Button, Space, Popconfirm, Carousel, Image } from 'antd';
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
 
 export function generateMetadataColumns(entityMetadata: any, onEdit: (record: any) => void, onDelete: (record: any) => void, onView?: (record: any) => void) {
   entityMetadata = [{ value: "id", sortable: true }, ...entityMetadata];
@@ -52,7 +52,7 @@ export function generateMetadataColumns(entityMetadata: any, onEdit: (record: an
         {onView && (
           <Button icon={<EyeOutlined />} onClick={() => onView(record)} type="link" />
         )}
-        <Button icon={<EditOutlined />} onClick={() => onEdit(record)} type="link" />
+        <Button icon={<EditTwoTone />} onClick={() => onEdit(record)} type="link" />
         <Popconfirm title="Are you sure to delete?" onConfirm={() => onDelete(record)} okText="Yes" cancelText="No">
           <Button icon={<DeleteOutlined />} type="link" danger />
         </Popconfirm>
