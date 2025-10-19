@@ -7,7 +7,6 @@ export async function POST(
 ) {
   try {
     const { entityname } = await params;
-
     const requestData = await req.json();
     const genericRepo = new GenericRepo<typeof requestData>(entityname);
     const createdEntity = await genericRepo.create(requestData);
@@ -25,7 +24,7 @@ export async function GET(
 ) {
   try {
     const { entityname } = await params;
-    const allEntities = await GenericRepo.fetchAll(entityname);
+    const allEntities = await GenericRepo.fetchMetaData(entityname);
     return NextResponse.json({ data: allEntities });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed to fetch data' }, { status: 500 });
@@ -39,6 +38,7 @@ export async function PUT(
 ) {
   try {
     const { entityname, id } = await params;
+
     if (!id) throw new Error("ID parameter required for update");
 
     const partialData = await req.json();

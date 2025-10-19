@@ -2,19 +2,14 @@
 import { Table, Layout, Menu, Button, Drawer } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
-import { EntityMapping } from "@/utils/supabase/entitymapping";
 import Loading from '@/app/loading';
 import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
-import generateColumns from '@/helper/genericcolumns';
+import { generateMetadataColumns } from '@/helper/genericcolumns';
 
 const { Content } = Layout;
 const HEADER_HEIGHT = 64;
 
-const items = Object.entries(EntityMapping).map(([name]) => ({
-  key: name,
-  label: <Link href={`/list/${name}`}>{name.toUpperCase()}</Link>,
-}));
 
 export default function Listing(props: PageProps<"/list/[entity]">) {
   const [entityName, setEntityName] = useState("");
@@ -22,6 +17,13 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   const [loading,setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [columnsMetadata,setColumnsMetadata] = useState<any[]>([]);
+  const [allEntities,setAllEntities] = useState<any[]>([]);
+  
+  const items = allEntities.map(({EntityName} : any) => ({
+    key: EntityName,
+    label: <Link href={`/list/${EntityName}`}>{EntityName.toUpperCase()}</Link>,
+  }));
 
   useEffect(() => {
     (async function setParams(){
@@ -36,7 +38,13 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
     async function fetchData() {
       try {
         const data = await fetch(`/api/generic/${entityName}`);
+        const metaData = await fetch(`/api/metadata/${entityName}`);
+        const entities = await fetch(`/api/generic/entity`);
         const response = await data.json();
+        const metaDataResponse = await metaData.json();
+        const entitiesResponse = await entities.json();
+        setColumnsMetadata(metaDataResponse);
+        setAllEntities(entitiesResponse.data);
         setEntities(response ? response.data : []);
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
@@ -123,12 +131,13 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
           </div>
           <div style={{ overflowX: 'auto' }}>
             <Table
-              columns={generateColumns(entityName)}
+              columns={generateMetadataColumns(columnsMetadata)}
               dataSource={entities}
               rowKey="id"
               loading={loading}
+              sticky
               pagination={{ pageSize: 10 }}
-              scroll={{ x: true }}
+              scroll={{ y: 55 * 5, x: true }}
             />
           </div>
         </Content>

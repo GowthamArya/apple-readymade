@@ -47,4 +47,11 @@ export default class GenericRepo<T extends { id?: number | string }> {
     if (error) throw error;
     return data ?? [];
   }
+
+  static async fetchMetaData<T>(tableName: string): Promise<T[]> {
+    const { data, error } = await supabase.from("vwtablecolumnsmetadata")
+      .select("*").eq("EntityName", tableName);
+    if (error) throw error;
+    return data ?? [];
+  }
 }

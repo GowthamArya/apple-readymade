@@ -1,33 +1,29 @@
-import { EntityMapping } from "@/utils/supabase/entitymapping";
-import { Carousel, Image } from 'antd';
+import { Carousel, Image, TableColumnsType } from 'antd';
 
+export function generateMetadataColumns(entityMetadata: any) {
+  entityMetadata = entityMetadata?.data ? entityMetadata.data : [];
+  entityMetadata = [{value:"id",sortable:true},...entityMetadata]
+  entityMetadata.sort((a:any,b:any) => a.displayOrder-b.displayOrder);
 
-type EntityName = keyof typeof EntityMapping;
-
-function isEntityName(key: string): key is EntityName {
-  return key in EntityMapping;
-}
-
-export default function generateColumns(entityname: string) {
-  if (!isEntityName(entityname)) {
-    throw new Error("Invalid entity name");
-  }
-  const EntityClass = EntityMapping[entityname];
-  const keys = EntityClass.propertyKeys;
-  return keys
-    .filter((key) => !["status_id", "created_by", "updated_by"].includes(key))
-    .map((key) => ({
-      title: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "),
-      dataIndex: key,
-      key: key,
-      sorter: (a: any, b: any) => {
-        if (typeof a[key] === "number" && typeof b[key] === "number") {
-          return a[key] - b[key];
+  let filters: { text: string, value: any }[] = [];
+  return entityMetadata
+    .map((columnMetaData:any) => ({
+      hidden:["status_id", "created_by", "updated_by"].includes(columnMetaData.value),
+      title: columnMetaData.value.charAt(0).toUpperCase() + columnMetaData.value.slice(1).replace(/_/g, " "),
+      dataIndex: columnMetaData.value,
+      key: columnMetaData.id,
+      value: columnMetaData.value,
+      filters: filters.length > 0 ? filters : undefined,
+      filterSearch: filters.length > 8,
+      sorter: columnMetaData.sortable ? (a: any, b: any) => {
+        if (typeof a[columnMetaData.value] === "number" && typeof b[columnMetaData.value] === "number") {
+          return a[columnMetaData.value] - b[columnMetaData.value];
         }
-        return String(a[key]).localeCompare(String(b[key]));
-      },
+        return String(a[columnMetaData.value]).localeCompare(String(b[columnMetaData.value]));
+      } : undefined,
       render: (value: any) => {
-        if (key === "image_urls" && Array.isArray(value) && value.length > 0) {
+        console.log(columnMetaData.value);
+        if (columnMetaData.value === "image_urls" && Array.isArray(value) && value.length > 0) {
           return (
             <Carousel
               dots={false}
@@ -40,7 +36,7 @@ export default function generateColumns(entityname: string) {
                 <Image
                   key={idx}
                   src={src}
-                  alt={key}
+                  alt={columnMetaData.value}
                   preview={false}
                   style={{ maxWidth: 60, maxHeight: 60, objectFit: "contain" }}
                   loading="lazy"
