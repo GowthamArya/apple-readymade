@@ -22,26 +22,25 @@ create table public.metadata (
 ) TABLESPACE pg_default;
 
 
-INSERT INTO "public"."entity" ("id", "EntityName", "created_on", "updated_on", "created_by", "updated_by") VALUES 
-    ('1', 'address', '2025-10-19 08:11:34.293335+00', '2025-10-19 08:11:34.293335', '2025-10-19 08:11:34.293335', '2025-10-19 08:11:34.293335'), 
-    ('2', 'cart', '2025-10-19 08:11:58.394537+00', '2025-10-19 08:11:58.394537', '2025-10-19 08:11:58.394537', '2025-10-19 08:11:58.394537'), 
-    ('3', 'category', '2025-10-19 08:12:15.552916+00', '2025-10-19 08:12:15.552916', '2025-10-19 08:12:15.552916', '2025-10-19 08:12:15.552916'), 
-    ('4', 'customer', '2025-10-19 08:12:32.327918+00', '2025-10-19 08:12:32.327918', '2025-10-19 08:12:32.327918', '2025-10-19 08:12:32.327918'), 
-    ('5', 'favourite', '2025-10-19 08:12:41.515835+00', '2025-10-19 08:12:41.515835', '2025-10-19 08:12:41.515835', '2025-10-19 08:12:41.515835'), 
-    ('6', 'gst', '2025-10-19 08:12:50.577596+00', '2025-10-19 08:12:50.577596', '2025-10-19 08:12:50.577596', '2025-10-19 08:12:50.577596'), 
-    ('7', 'invoice', '2025-10-19 08:13:00.211384+00', '2025-10-19 08:13:00.211384', '2025-10-19 08:13:00.211384', '2025-10-19 08:13:00.211384'), 
-    ('8', 'order', '2025-10-19 08:13:08.661541+00', '2025-10-19 08:13:08.661541', '2025-10-19 08:13:08.661541', '2025-10-19 08:13:08.661541'), 
-    ('9', 'orderitem', '2025-10-19 08:13:16.997892+00', '2025-10-19 08:13:16.997892', '2025-10-19 08:13:16.997892', '2025-10-19 08:13:16.997892'), 
-    ('10', 'payment', '2025-10-19 08:13:25.721664+00', '2025-10-19 08:13:25.721664', '2025-10-19 08:13:25.721664', '2025-10-19 08:13:25.721664'), 
-    ('11', 'product', '2025-10-19 08:13:37.352569+00', '2025-10-19 08:13:37.352569', '2025-10-19 08:13:37.352569', '2025-10-19 08:13:37.352569'), 
-    ('12', 'promo_code', '2025-10-19 08:13:50.186483+00', '2025-10-19 08:13:50.186483', '2025-10-19 08:13:50.186483', '2025-10-19 08:13:50.186483'), 
-    ('13', 'role', '2025-10-19 08:14:00.00729+00', '2025-10-19 08:14:00.00729', '2025-10-19 08:14:00.00729', '2025-10-19 08:14:00.00729'), 
-    ('14', 'shipment', '2025-10-19 08:14:06.67762+00', '2025-10-19 08:14:06.67762', '2025-10-19 08:14:06.67762', '2025-10-19 08:14:06.67762'), 
-    ('15', 'status', '2025-10-19 08:14:13.473418+00', '2025-10-19 08:14:13.473418', '2025-10-19 08:14:13.473418', '2025-10-19 08:14:13.473418'), 
-    ('16', 'variant', '2025-10-19 08:14:23.064667+00', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667');
-    ('17', 'entity', '2025-10-19 08:14:23.064667+00', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667');
-    ('18', 'metadata', '2025-10-19 08:14:23.064667+00', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667', '2025-10-19 08:14:23.064667');
-
+INSERT INTO "public"."entity" ("EntityName") VALUES 
+('address'), 
+('cart'), 
+('category'), 
+('customer'), 
+('favourite'), 
+('gst'), 
+('invoice'), 
+('order'), 
+('orderitem'), 
+('payment'), 
+('product'), 
+('promo_code'), 
+('role'), 
+('shipment'), 
+('status'), 
+('variant'), 
+('entity'), 
+('metadata');
 
 INSERT INTO public.metadata ("entityId", filterable, sortable, type, value) VALUES
   -- address (id: 1)
@@ -112,3 +111,45 @@ INSERT INTO public.metadata ("entityId", filterable, sortable, type, value) VALU
   (16, true, true, 'string', 'color'),
   (16, true, true, 'number', 'price'),
   (16, true, true, 'boolean', 'is_default');
+
+
+
+INSERT INTO "public"."metadata" ("entityId", "filterable", "sortable", "type", "value") VALUES 
+('1', 'true', 'true', 'string', 'street'), 
+('1', 'true', 'true', 'string', 'city'),
+('1', 'true', 'true', 'string', 'state'), 
+('1', 'true', 'true', 'string', 'zip'), 
+('2', 'false', 'false', 'string', 'cart_id'), 
+('2', 'true', 'false', 'number', 'quantity'), 
+('3', 'true', 'true', 'string', 'name'), 
+('3', 'true', 'false', 'string', 'description'), 
+('4', 'true', 'true', 'string', 'first_name'), 
+('4', 'true', 'true', 'string', 'last_name'), 
+('4', 'true', 'false', 'string', 'email'), 
+('5', 'false', 'false', 'string', 'user_id'), 
+('5', 'false', 'false', 'string', 'product_id'), 
+('6', 'true', 'false', 'number', 'percentage'), 
+('7', 'true', 'true', 'string', 'invoice_number'), 
+('7', 'true', 'true', 'timestamp', 'date'), 
+('8', 'true', 'true', 'string', 'order_number'), 
+('8', 'true', 'true', 'timestamp', 'order_date'), 
+('8', 'true', 'true', 'string', 'status'), 
+('9', 'false', 'true', 'string', 'product_id'), 
+('9', 'true', 'true', 'number', 'quantity'), 
+('10', 'true', 'true', 'string', 'payment_method'), 
+('10', 'true', 'true', 'number', 'payment_amount'), 
+('11', 'true', 'true', 'string', 'name'), 
+('11', 'true', 'true', 'number', 'price'), 
+('11', 'true', 'false', 'string', 'category'), 
+('12', 'true', 'true', 'string', 'code'), 
+('12', 'true', 'true', 'number', 'discount'), 
+('13', 'true', 'true', 'string', 'role_name'), 
+('14', 'true', 'true', 'string', 'shipment_type'), 
+('14', 'true', 'true', 'string', 'provider'), 
+('15', 'true', 'true', 'string', 'status_name'), 
+('16', 'true', 'true', 'string', 'sku'), 
+('16', 'true', 'true', 'string', 'size'), 
+('16', 'true', 'true', 'string', 'color'), 
+('16', 'true', 'true', 'number', 'price'), 
+('16', 'true', 'true', 'boolean', 'is_default'), 
+('11', 'true', 'true', 'string', 'description');
