@@ -26,6 +26,9 @@ export default function generateColumns(entityname: string) {
         }
         return String(a[key]).localeCompare(String(b[key]));
       },
+      filters: [],
+      filterSearch: true,
+      filterMode: 'tree',
       render: (value: any) => {
         if (key === "image_urls" && Array.isArray(value) && value.length > 0) {
           return (
