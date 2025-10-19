@@ -19,7 +19,7 @@ const items = Object.entries(EntityMapping).map(([name]) => ({
 export default function Listing(props: PageProps<"/list/[entity]">) {
   const [entityName, setEntityName] = useState("");
   const [entities, setEntities] = useState<any[]>([]);
-  const pageLoading = useLoading();
+  const [loading,setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -31,7 +31,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   }, [props.params]);
 
   useEffect(() => {
-    pageLoading.setLoading(true);
+    setLoading(true);
     if (!entityName) return;
     async function fetchData() {
       try {
@@ -41,7 +41,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
       } finally {
-        pageLoading.setLoading(false);
+        setLoading(false);
       }
     }
     fetchData();
@@ -84,13 +84,14 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
           height: `calc(100vh - ${HEADER_HEIGHT}px)`,
           overflowY: "auto",
           background: "#001529",
+          scrollBehavior: "smooth",
           zIndex: 10,
         }}
       >
-        <div className="bg-green-500 text-white font-extrabold py-3 text-xl text-center sticky top-0 z-10">
-          Tables
+        <div className="bg-green-500 text-white font-bold p-3 text-xl text-start sticky top-0 z-10">
+          Master Tables
         </div>
-        <Menu theme="dark" mode="inline" selectedKeys={[entityName]} items={items} />
+        <Menu theme="dark" mode="inline" className='!pb-10' selectedKeys={[entityName]} items={items} />
       </Sider>
 
       <Layout
@@ -117,7 +118,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
               onClick={() => setDrawerOpen(true)}
             />
             <h1 className="text-center m-4 text-2xl font-bold">
-              {entityName.toUpperCase()} LISTING
+              {entityName.toUpperCase()} DATA
             </h1>
           </div>
           <div style={{ overflowX: 'auto' }}>
@@ -125,7 +126,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
               columns={generateColumns(entityName)}
               dataSource={entities}
               rowKey="id"
-              loading={pageLoading.loading}
+              loading={loading}
               pagination={{ pageSize: 10 }}
               scroll={{ x: true }}
             />
