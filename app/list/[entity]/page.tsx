@@ -6,10 +6,10 @@ import Loading from '@/app/loading';
 import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
+import DynamicFormModal from '@/app/components/DynamicFormModel';
 
 const { Content } = Layout;
 const HEADER_HEIGHT = 64;
-
 
 export default function Listing(props: PageProps<"/list/[entity]">) {
   const [entityName, setEntityName] = useState("");
@@ -19,7 +19,20 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [columnsMetadata,setColumnsMetadata] = useState<any[]>([]);
   const [allEntities,setAllEntities] = useState<any[]>([]);
-  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editRecord, setEditRecord] = useState<any>({id:0});
+
+  const handleEditClick = (record:any) => {
+    setEditRecord(record);
+    setModalVisible(true);
+  };
+
+  async function fetchData(){
+    const data = await fetch(`/api/generic/${entityName}`);
+    const response = await data.json();
+    setEntities(response ? response.data : []);
+  }
+
   const items = allEntities.map(({EntityName} : any) => ({
     key: EntityName,
     label: <Link href={`/list/${EntityName}`}>{EntityName.toUpperCase()}</Link>,
@@ -35,24 +48,23 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   useEffect(() => {
     setLoading(true);
     if (!entityName) return;
-    async function fetchData() {
+    async function loadData() {
       try {
         const data = await fetch(`/api/generic/${entityName}`);
         const metaData = await fetch(`/api/metadata/${entityName}`);
         const entities = await fetch(`/api/generic/entity`);
-        const response = await data.json();
         const metaDataResponse = await metaData.json();
         const entitiesResponse = await entities.json();
-        setColumnsMetadata(metaDataResponse);
-        setAllEntities(entitiesResponse.data);
-        setEntities(response ? response.data : []);
+        fetchData()
+        setColumnsMetadata(metaDataResponse.data ? metaDataResponse.data : []);
+        setAllEntities(entitiesResponse.data? entitiesResponse.data : []);
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    loadData();
   }, [entityName]);
 
   if (!entityName) return <Loading />;
@@ -129,17 +141,38 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
               {entityName.toUpperCase()} DATA
             </h1>
           </div>
-          <div style={{ overflowX: 'auto' }}>
             <Table
-              columns={generateMetadataColumns(columnsMetadata)}
+              bordered
+              columns={generateMetadataColumns(columnsMetadata,handleEditClick,()=>setModalVisible(false))}
               dataSource={entities}
               rowKey="id"
               loading={loading}
               sticky
-              pagination={{ pageSize: 10 }}
+              onRow={(record) => {
+                return {
+                  onDoubleClick: (event) => {
+                    handleEditClick(record);
+                    console.log(record);
+                  },
+                };
+              }}
+              pagination={{ 
+                pageSize: 10, 
+                hideOnSinglePage: true,
+              }}
               scroll={{ y: 55 * 5, x: true }}
             />
-          </div>
+            <DynamicFormModal
+              visible={modalVisible}
+              metadata={columnsMetadata}
+              onCancel={()=>setModalVisible(false)}
+              onSubmit={()=>{
+                fetchData();
+                setModalVisible(false);
+              }}
+              id={editRecord?.id}
+              entityName={entityName}
+            />
         </Content>
       </Layout>
     </Layout>

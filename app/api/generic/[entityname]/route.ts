@@ -21,11 +21,13 @@ export async function POST(
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ entityname: string }> }
+  { params }: { params: Promise<{ entityname: string; }> }
 ) {
   try {
     const { entityname } = await params;
-    const allEntities = await GenericRepo.fetchAll(entityname);
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id") || undefined;
+    const allEntities = await GenericRepo.fetchAll(entityname,id);
     return NextResponse.json({ data: allEntities });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed to fetch data' }, { status: 500 });
@@ -35,10 +37,12 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ entityname: string; id?: string }> }
+  { params }: { params: Promise<{ entityname: string; }> }
 ) {
   try {
-    const { entityname, id } = await params;
+    const { entityname } = await params;
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id") || undefined;
     if (!id) throw new Error("ID parameter required for update");
 
     const partialData = await req.json();

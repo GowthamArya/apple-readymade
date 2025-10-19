@@ -42,8 +42,14 @@ export default class GenericRepo<T extends { id?: number | string }> {
     if (error) throw error;
   }
 
-  static async fetchAll<T>(tableName: string): Promise<T[]> {
-    const { data, error } = await supabase.from(tableName).select("*");
+  static async fetchAll<T>(tableName: string,id?:any): Promise<T[]> {
+    let query = supabase.from(tableName).select("*");
+
+    if(id){
+      query = query.eq("id", id);
+    }
+    
+    const { data, error } = await query;
     if (error) throw error;
     return data ?? [];
   }
