@@ -42,16 +42,55 @@ export default class GenericRepo<T extends { id?: number | string }> {
     if (error) throw error;
   }
 
-  static async fetchAll<T>(tableName: string,id?:any): Promise<T[]> {
-    let query = supabase.from(tableName).select("*");
+  static async fetchAll(tableName: string,id?:any,requestData?:{
+    filters?: Record<string, any>;
+    search?: { column: string; query: string };
+    pagination?: { page: number; limit: number };
+    orderBy?: { column: string; ascending?: boolean };
+  }) {
+    let query = supabase.from(tableName).select("*", { count: "exact" });
 
     if(id){
       query = query.eq("id", id);
     }
     
-    const { data, error } = await query;
+    if (requestData?.filters) {
+      for (const [key, value] of Object.entries(requestData.filters)) {
+        if (Array.isArray(value)) {
+          query = query.in(key, value);
+        } else {
+          query = query.eq(key, value);
+        }
+      }
+    }
+
+    if (requestData?.orderBy) {
+      const { column, ascending = true } = requestData.orderBy;
+      query = query.order(column, { ascending });
+    } else {
+      query = query.order("created_on", {ascending:false});
+    }
+
+    if (requestData?.search) {
+      const { column, query: searchValue } = requestData.search;
+      if (searchValue) {
+        query = query.ilike(column, `%${searchValue}%`);
+      }
+    }
+
+    if (requestData?.pagination) {
+      const { page, limit } = requestData.pagination;
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+    }
+
+    const { data, error, count  } = await query;
     if (error) throw error;
-    return data ?? [];
+    return {
+      data: data ?? [],
+      total: count ?? 0
+    };
   }
 
   static async fetchMetaData<T>(tableName: string): Promise<T[]> {

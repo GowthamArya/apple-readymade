@@ -1,6 +1,6 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer } from 'antd';
-import { MenuOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { Table, Layout, Menu, Button, Drawer, Input } from 'antd';
+import { MenuOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
 import Link from 'next/link';
@@ -21,6 +21,10 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   const [allEntities,setAllEntities] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editRecord, setEditRecord] = useState<any>({id:0});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [searchText, setSearchText] = useState('');
 
   const handleEditClick = (record:any) => {
     setEditRecord(record);
@@ -39,11 +43,20 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
     })();
   }
 
-  async function fetchData(){
-    const data = await fetch(`/api/generic/${entityName}`);
-    const response = await data.json();
-    setEntities(response ? response.data : []);
+
+  async function fetchData(currentPage = page, currentPageSize = pageSize, searchText = '') {
+    setLoading(true);
+    const params = new URLSearchParams({
+      pagination: JSON.stringify({ page: currentPage, limit: currentPageSize }),
+      ...(searchText && { search: JSON.stringify({ column: columnsMetadata, query: searchText }) }),
+    });
+    const response = await fetch(`/api/generic/${entityName}?${params.toString()}`);
+    const json = await response.json();
+    setEntities(json.data || []);
+    setTotal(json.total || 0);
+    setLoading(false);
   }
+
 
   const items = allEntities.map(({EntityName} : any) => ({
     key: EntityName,
@@ -83,7 +96,6 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
 
   return (
     <Layout style={{ minHeight: '100vh', background: "#f7f7f7" }} className='flex !flex-row'>
-
       <Drawer
         title="Tables"
         placement="left"
@@ -152,14 +164,33 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
             <h1 className="text-center m-4 text-2xl font-bold">
               {entityName.toUpperCase()} DATA
             </h1>
-            <Button
-              icon={<PlusCircleOutlined style={{ fontSize: 20, verticalAlign: 'middle'}} />}
-              type='primary' 
-              onClick={() => {
-                setEditRecord({id:0});
-                setModalVisible(true);
-              }}
-            >Add</Button>
+            <div className='flex items-center gap-2'>
+              <Input.Search
+                placeholder={`Search in ${entityName}`}
+                value={searchText}
+                allowClear
+                onChange={e => setSearchText(e.target.value)}
+                onSearch={value => {
+                  setSearchText(value);
+                  setPage(1);
+                  fetchData(1, pageSize, value);
+                }}
+              />
+              <Button
+                icon={<PlusCircleOutlined />}
+                type='primary' 
+                onClick={() => {
+                  setEditRecord({id:0});
+                  setModalVisible(true);
+                }}
+              >Add</Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => fetchData(page, pageSize, searchText)}
+              >
+                Reload
+              </Button>
+            </div>
           </div>
             <Table
               bordered
@@ -168,6 +199,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
               rowKey="id"
               loading={loading}
               sticky
+              size='small'
               onRow={(record) => {
                 return {
                   onDoubleClick: (event) => {
@@ -175,20 +207,25 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
                   },
                 };
               }}
-              pagination={{ 
-                defaultPageSize:10,
-                hideOnSinglePage: true,
+              pagination={{
+                current: page,
+                pageSize,
+                total,
                 showSizeChanger: true,
-                pageSizeOptions: ['10', '20', '50', '100'],
+                onChange: (newPage, newSize) => {
+                  setPage(newPage);
+                  setPageSize(newSize);
+                  fetchData(newPage, newSize, searchText);
+                }
               }}
-              scroll={{ y: 100 * 5, x: true }}
+              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
             />
             <DynamicFormModal
               visible={modalVisible}
               metadata={columnsMetadata}
               onCancel={()=>setModalVisible(false)}
               onSubmit={()=>{
-                fetchData();
+                fetchData(page, pageSize, searchText);
                 setModalVisible(false);
               }}
               id={editRecord?.id}

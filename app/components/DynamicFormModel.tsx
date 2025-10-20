@@ -8,13 +8,15 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
     useEffect(()=>{
       setloading(true);
       setInitialData({});
-        (async function getEntityData() {
-            const data = await fetch("/api/generic/"+entityName+"?id="+id);
-            const response = await data.json();
-            setInitialData(response.data[0]);
-            setloading(false);
-        })();
-    },[entityName,id,visible])
+        if(visible){
+          (async function getEntityData() {
+              const data = await fetch("/api/generic/"+entityName+"?id="+id);
+              const response = await data.json();
+              setInitialData(response.data[0]);
+              setloading(false);
+          })();
+        }
+    },[visible])
 
     const [form] = Form.useForm();
 
@@ -42,7 +44,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
         .replace(/^./, (str: string) => str.toLowerCase());
 
       return (
-        <DynamicDropdown key={name} name={name} label={label} apiUrl={`/api/generic/${entity}`} />
+        <DynamicDropdown key={name} name={name} label={label} apiUrl={`/api/generic/${entity}`}/>
       );
     }
 
@@ -72,17 +74,22 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
   const handleFinish = (values: any) => {
     setloading(true);
-    (async function updateEntity() {
-      const url = `/api/generic/${entityName}?id=${id}`;
-      const response = await fetch(url, {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      setloading(false);
-      return response.json();
-    })();
-    onSubmit();
+    try{
+      (async function updateEntity() {
+        const url = `/api/generic/${entityName}?id=${id}`;
+        const response = await fetch(url, {
+          method: id ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        });
+        setloading(false);
+        onSubmit();
+        return response.json();
+      })();
+    }catch(err){
+      onSubmit();
+      console.log(err);
+    }
   };
 
   return (
