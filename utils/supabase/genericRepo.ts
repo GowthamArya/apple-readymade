@@ -1,6 +1,4 @@
-import { createClient } from "./server";
-
-export const supabase = await createClient();
+import { supabase } from "@/lib/supabaseServer";
 
 export default class GenericRepo<T extends { id?: number | string }> {
   tableName: string;
