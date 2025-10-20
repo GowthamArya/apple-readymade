@@ -33,8 +33,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/eslint": "^9.6.1",
     "@types/locomotive-scroll": "^4.1.4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.22",
     "@types/nodemailer": "^7.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",

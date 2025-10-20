@@ -1,11 +1,11 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers';
 
 export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(
     process.env.APPLE_DB_SUPABASE_URL!,
-    process.env.APPLE_DB_APPLE_SUPABASESUPABASE_ANON_KEY!,
+    process.env.APPLE_DB_SUPABASE_SERVICE_ROLE_KEY!,
     {
       cookies: {
         getAll() {

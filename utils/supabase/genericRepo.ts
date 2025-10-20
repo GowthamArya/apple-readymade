@@ -1,9 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "./server";
 
-export const supabase = createClient(
-  process.env.APPLE_DB_SUPABASE_URL!,
-  process.env.APPLE_DB_SUPABASE_SERVICE_ROLE_KEY!
-);
+export const supabase = await createClient();
 
 export default class GenericRepo<T extends { id?: number | string }> {
   tableName: string;
