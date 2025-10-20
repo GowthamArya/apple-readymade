@@ -58,9 +58,9 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
   }
 
 
-  const items = allEntities.map(({EntityName} : any) => ({
-    key: EntityName,
-    label: <Link href={`/list/${EntityName}`}>{EntityName.toUpperCase()}</Link>,
+  const items = allEntities.map(({name} : any) => ({
+    key: name,
+    label: <Link href={`/list/${name}`}>{name.toUpperCase()}</Link>,
   }));
 
   useEffect(() => {
