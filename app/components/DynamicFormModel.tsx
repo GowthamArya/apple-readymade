@@ -71,7 +71,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
       </Form.Item>
     );
   });
-
+ 
   const handleFinish = (values: any) => {
     setloading(true);
     try{
