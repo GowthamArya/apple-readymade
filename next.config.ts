@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   ],
   turbopack: {
   },
+  experimental: {
+    authInterrupts: true,
+  },
 };
 
 module.exports = withPWA(nextConfig);

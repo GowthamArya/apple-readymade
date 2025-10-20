@@ -4,7 +4,17 @@ import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";  
 import { SupabaseAdapter } from "@next-auth/supabase-adapter"
 import { sendVerificationRequest } from "./sendVerificationRequest";
+import { supabase } from "./supabaseServer";
 
+import { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      role?: string | null;
+    } & DefaultSession["user"];
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: SupabaseAdapter({
@@ -35,9 +45,23 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET!,
   callbacks: {
+    async session({ session, user }) {
+      const { data, error } = await supabase
+        .from("user")
+        .select("role_id, role(name)")
+        .eq("email", user.email)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user role:", error);
+      }
+
+      return {
+        ...session,
+        role: data?.role || null
+      };
+    },
     async signIn({ account, profile }) {
-      console.log("user oauth login",account, profile);
-      
       if (account?.provider === 'google') {
         return true;
       }

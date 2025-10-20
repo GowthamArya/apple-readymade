@@ -1,5 +1,6 @@
 "use client";
 import { App, Button, Form, Input } from 'antd';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 
@@ -14,6 +15,10 @@ export default function Account({ user }: { user: any }) {
         });
         }
     }, [user, form]);
+
+    const handleLogOut = async()=>{
+        signOut();
+    }
 
     const handleUpdate = async (values: any) => {
         try {
@@ -48,34 +53,34 @@ export default function Account({ user }: { user: any }) {
             layout="vertical"
             className="my-4 flex flex-col items-center !p-4 bg-white rounded-lg shadow-xl w-full max-w-md mx-auto"
         >
-        <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ message: 'Please enter your name' }]}
-            className="w-full"
-            initialValue={user?.name || ''}
-        >
-            <Input placeholder="Name" />
-        </Form.Item>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ message: 'Please enter your name' }]}
+                className="w-full"
+                initialValue={user?.name || ''}
+            >
+                <Input placeholder="Name" />
+            </Form.Item>
 
-        <Form.Item
-            label="Phone"
-            name="phone"
-            rules={[{ message: 'Please enter your phone number' }]}
-            className="w-full"
-            initialValue={user?.phone || ''}
-        >
-            <Input placeholder="Phone" />
-        </Form.Item>
+            <Form.Item
+                label="Phone"
+                name="phone"
+                rules={[{ message: 'Please enter your phone number' }]}
+                className="w-full"
+                initialValue={user?.phone || ''}
+            >
+                <Input placeholder="Phone" />
+            </Form.Item>
 
-        <Button type="primary" htmlType="submit" className="w-full">
-            Update Profile
-        </Button>
+            <Button type="primary" htmlType="submit" className="w-full">
+                Update Profile
+            </Button>
 
-        <div className="mt-4 space-x-2">
-            <Link href="/"><Button>Go to Home</Button></Link>
-            <Link href="/auth"><Button danger className="ml-2">Logout</Button></Link>
-        </div>
+            <div className="mt-4 space-x-2">
+                <Link href="/"><Button>Go to Home</Button></Link>
+                <Button danger className="ml-2" onClick={handleLogOut}>Logout</Button>
+            </div>
         </Form>
     );
 }

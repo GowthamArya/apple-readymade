@@ -7,11 +7,20 @@ import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
+import { useSession } from 'next-auth/react';
+import { forbidden } from 'next/navigation';
 
 const { Content } = Layout;
-const HEADER_HEIGHT = 64;
+const HEADER_HEIGHT = 50;
 
 export default function Listing(props: PageProps<"/list/[entity]">) {
+  const session = useSession();
+  useEffect(()=>{
+    console.log(session);
+    if (session.status == "unauthenticated" && session.data && session["data"]["role"] && session["data"]["role"]["name"] == "admin") {
+      forbidden();
+    }
+  },[session])
   const [entityName, setEntityName] = useState("");
   const [entities, setEntities] = useState<any[]>([]);
   const [loading,setLoading] = useState(false);
@@ -42,8 +51,6 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
       return response.json();
     })();
   }
-
-
   async function fetchData(currentPage = page, currentPageSize = pageSize, searchText = '') {
     setLoading(true);
     const params = new URLSearchParams({
@@ -53,10 +60,10 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
     const response = await fetch(`/api/generic/${entityName}?${params.toString()}`);
     const json = await response.json();
     setEntities(json.data || []);
+    console.table(json.data || []);
     setTotal(json.total || 0);
     setLoading(false);
   }
-
 
   const items = allEntities.map(({name} : any) => ({
     key: name,
@@ -75,7 +82,6 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
     if (!entityName) return;
     async function loadData() {
       try {
-        const data = await fetch(`/api/generic/${entityName}`);
         const metaData = await fetch(`/api/metadata/${entityName}`);
         const entities = await fetch(`/api/generic/entity`);
         const metaDataResponse = await metaData.json();
@@ -122,10 +128,9 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
         className="hidden lg:block"
         width={220}
         style={{
-          top: HEADER_HEIGHT,
           position: "fixed",
           left: 0,
-          height: `calc(100vh - ${HEADER_HEIGHT}px)`,
+          height: `calc(100vh)`,
           overflowY: "auto",
           background: "#001529",
           scrollBehavior: "smooth",
@@ -164,7 +169,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
             <h1 className="text-center m-4 text-2xl font-bold">
               {entityName.toUpperCase()} DATA
             </h1>
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-2 md:flex-nowrap flex-wrap'>
               <Input.Search
                 placeholder={`Search in ${entityName}`}
                 value={searchText}
@@ -218,7 +223,7 @@ export default function Listing(props: PageProps<"/list/[entity]">) {
                   fetchData(newPage, newSize, searchText);
                 }
               }}
-              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
+              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 180}px)`, x: true }}
             />
             <DynamicFormModal
               visible={modalVisible}
