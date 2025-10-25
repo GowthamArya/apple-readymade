@@ -6,10 +6,9 @@ import SearchBar from "./Search";
 import { LuUserRound, LuShoppingBag } from 'react-icons/lu';
 import Link from 'next/link';
 import { signOut, useSession } from "next-auth/react";
-import { IoMdLogOut } from "react-icons/io";
 import { RiMenuSearchLine } from "react-icons/ri";
 import { FaWindowClose } from "react-icons/fa";
-import { Badge, Button } from "antd";
+import { Badge, Button, Popover } from "antd";
 import { useCart } from "../context/CartContext";
 
 const navLinks = [
@@ -19,7 +18,7 @@ const navLinks = [
 
 export default function Header() {
   const { data: session } = useSession();
-  const [user, setUser] = useState(session?.user);
+  const [user, setUser] = useState(session?.user);``
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const { cart } = useCart();
@@ -112,7 +111,7 @@ function NavLinks({ isMobile, user, cartCount }: NavLinksProps) {
           key={label}
           href={href}
           className={isMobile
-            ? `${linkClass} border-b-1 border-b-green-200`
+            ? `${linkClass} border-b border-b-green-200`
             : `${linkClass} inline-block`
           }
           tabIndex={isMobile ? 0 : undefined}
@@ -138,26 +137,31 @@ function NavIcons({ user, isMobile, cartCount }: NavIconsProps) {
       </Link>
       {user ? (
         <>
-          <Link href="/account" className="inline">
-              {user?.image ? (
-                // Use next/image if possible:
-                <img
-                  src={user.image}
-                  className="rounded-full inline mx-2"
-                  alt={user?.name || "User"}
-                  width={25}
-                  height={25}
-                />
-              ) : (
-                <LuUserRound
-                  className="text-green-700 md:text-gray-700 mx-1 text-xl font-bold cursor-pointer"
-                  title={user?.name || user?.email || "Account"}
-                />
-              )}
-          </Link>
+          <Popover content={
+                  <div className="flex flex-col gap-2"><Link href="/account"><Button type="primary">Account Settings</Button></Link>
+                    <Button type="default" className="text-red-500!" onClick={()=>{
+                      signOut();
+                    }}>Log out</Button></div>
+                }>
+                {user?.image ? (
+                  // Use next/image if possible:
+                  <img
+                    src={user.image}
+                    className="rounded-full inline mx-2"
+                    alt={user?.name || "User"}
+                    width={25}
+                    height={25}
+                  />
+                ) : (
+                  <LuUserRound
+                    className="text-green-700 md:text-gray-700 mx-1 text-xl font-bold cursor-pointer"
+                    title={user?.name || user?.email || "Account"}
+                  />
+                )}
+          </Popover>
         </>
       ) : (
-        <Button type="primary" className="!mx-2" shape="default" size="middle">
+        <Button type="primary" className="mx-2!" shape="default" size="middle">
           <Link href="/auth" title="Login">Login</Link>
         </Button>
       )}
