@@ -31,11 +31,6 @@ export async function GET(
   { params }: { params: Promise<{ entityname: string; }> }
 ) {
   try {
-    const {session}:any = await getServerSession(authOptions);
-    const user = session?.user;
-    if(!user || user?.role_name?.toLowerCase() !== 'admin'){
-      return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
-    }
     const { entityname } = await params;
     const url = new URL(req.url);
     
