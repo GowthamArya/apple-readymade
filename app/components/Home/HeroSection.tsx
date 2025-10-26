@@ -60,6 +60,7 @@ export default function HeroSection({ locomotiveReady }: HeroSectionProps) {
         preload="auto"
         className="absolute bg-black top-0 left-0 w-screen h-full object-cover -z-10"
       >
+        <source src="/hero-720p-hevc.mp4" type='video/mp4; codecs="hvc1"'/>
         <source src="/hero.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>

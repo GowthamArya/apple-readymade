@@ -74,7 +74,6 @@ export default function Page() {
 
       <div ref={scrollRef} data-scroll-container>
         <main data-scroll-section>
-          {/* Pass `locomotiveReady` to trigger animations only after ready */}
           <HeroSection locomotiveReady={locomotiveReady} />
           <ShopByCollection />
           <TrustBuilding />
