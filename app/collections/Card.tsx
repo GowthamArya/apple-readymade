@@ -15,7 +15,7 @@ export default function ProductCard({ product }: { product: any }) {
     setUser(session?.user);
   }, [session]);
 
-  const { addToCart } = useCart();
+  const { addToCart , cart } = useCart();
   const { addToFavorites, favorites,removeFromFavorites } = useFavorites();
   const { message } = App.useApp();
   const handleFavorite = (action:string) => {
@@ -72,7 +72,7 @@ export default function ProductCard({ product }: { product: any }) {
         </p>
         <MdOutlineAddShoppingCart
           onClick={handleAdd}
-          className="text-xl cursor-pointer hover:text-green-700 transition-colors dark:text-green-50"
+          className={"text-xl cursor-pointer hover:text-green-700 transition-colors " + cart.some((c) => c.id === product.id) ? "text-green-600!" : "text-gray-900 dark:text-green-50"}
         />
       </div>
     </div>
