@@ -49,7 +49,7 @@ export default function ProductCard({ product }: { product: any }) {
         >
           
           {favorites.some((fav) => fav.id === product.id) ?
-            <MdFavorite className="text-xl cursor-pointer text-red-600" />
+            <MdFavorite className="text-xl cursor-pointer text-red-600!" />
             :
             <GrFavorite className="text-xl cursor-pointer" />
           }
