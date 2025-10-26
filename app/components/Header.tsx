@@ -138,10 +138,18 @@ function NavIcons({ user, isMobile, cartCount }: NavIconsProps) {
       {user ? (
         <>
           <Popover content={
-                  <div className="flex flex-col gap-2"><Link href="/account"><Button type="primary">Account Settings</Button></Link>
+                  <div className="flex flex-col gap-2">
+                    <Link href="/account">
+                      <Button type="primary">Account Settings</Button>
+                    </Link>
+                    {(user.role_name == "admin") && 
+                    <Link href={"/list/variant"} className="mx-auto">
+                      <Button type="dashed" className="text-black!">Master Tables</Button>
+                    </Link>}
                     <Button type="default" className="text-red-500!" onClick={()=>{
                       signOut();
-                    }}>Log out</Button></div>
+                    }}>Log out</Button>
+                  </div>
                 }>
                 {user?.image ? (
                   // Use next/image if possible:

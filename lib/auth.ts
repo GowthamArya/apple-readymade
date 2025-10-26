@@ -60,16 +60,17 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.picture = user.image;
+    async jwt({ token, user }) {
+      if (user?.email) {
+        const { data } = await supabase
+          .from("user")
+          .select("*, role(*)")
+          .eq("email", user.email)
+          .single();
+        token.role_name = data?.role?.name ?? null;
       }
       return token;
     },
-
     async session({ session, token }) {
       try {
         const { data, error } = await supabase
