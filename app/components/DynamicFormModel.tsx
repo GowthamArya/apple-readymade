@@ -105,7 +105,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 60 }}
         autoComplete="off"
-        className='!pt-5'
+        className='pt-5!'
       >
         {formItems}
         <Form.Item>

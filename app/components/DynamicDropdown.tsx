@@ -27,7 +27,7 @@ export default function DynamicDropdown({
       try {
         const params = new URLSearchParams({
           search: JSON.stringify({ column: "name", query: searchValue }),
-          pagination: JSON.stringify({ page: pageNumber, limit: 5 }),
+          pagination: JSON.stringify({ page: pageNumber, limit: 50 }),
         });
         const response = await fetch(`${apiUrl}?${params.toString()}`);
         const json = await response.json();

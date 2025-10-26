@@ -38,7 +38,7 @@ export default function AuthPage() {
       </div>
 
       <Form
-        className="!p-6 m-2 rounded md:w-1/3 bg-white/90 text-center"
+        className="p-6! m-2 rounded md:w-1/3 bg-white/90 text-center"
         layout="vertical"
         onFinish={handleEmailSignIn}
       >
