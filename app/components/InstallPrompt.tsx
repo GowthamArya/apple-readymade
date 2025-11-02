@@ -33,8 +33,10 @@ export default function InstallPrompt() {
   if (!showButton) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-1 install-prompt p-1 bg-green-100 rounded-xl shadow-lg hover:bg-green-900 transition-all duration-300">
+    <div className="fixed bottom-5 right-5 z-1 install-prompt shadow">
         <Button
+            size="large"
+            shape="round"
             onClick={handleInstallClick}
             type="primary"
         >
