@@ -40,7 +40,7 @@ export default function HeroSection() {
           <Button type="primary" size="large" href="/collections">
             Shop Now
           </Button>
-          <Button type="dashed" size="large" href="/about">
+          <Button size="large" href="/about">
             About Us
           </Button>
         </div>

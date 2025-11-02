@@ -11,5 +11,7 @@ export default async function VariantPage(props: PageProps<"/variant/[id]">) {
       return {  variants: data || [], product: productData?.product };
      }
      const variantData = await fetchVariant();
-    return <VariantDetails variants={variantData.variants} variant_id={id} productData={variantData.product} />;
+    return <>
+      <VariantDetails variants={variantData.variants} variant_id={id} productData={variantData.product} />
+    </>;
 }

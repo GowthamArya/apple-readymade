@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "antd";
 import { useEffect, useState } from "react";
 import { GrInstallOption } from "react-icons/gr";
 
@@ -33,13 +34,12 @@ export default function InstallPrompt() {
 
   return (
     <div className="fixed bottom-5 right-5 z-1 install-prompt p-1 bg-green-100 rounded-xl shadow-lg hover:bg-green-900 transition-all duration-300">
-        <button
+        <Button
             onClick={handleInstallClick}
-            className=" bg-green-800 cursor-pointer font-bold hover:animate-pulse animate-none text-white p-2 py-1 rounded-lg"
-            type="button"
+            type="primary"
         >
             Install App <GrInstallOption className="inline"/>
-        </button>
+        </Button>
     </div>
   );
 }

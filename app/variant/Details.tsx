@@ -5,6 +5,7 @@ import { Card, Radio, Image, Typography, Space, Tag, Button, theme, App } from "
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
+import Footer from "../components/Footer";
 
 export default function VariantDetails({ variants, variant_id, productData }: { variants: any[], variant_id: any, productData: any }) {
     const { token } = theme.useToken();
@@ -39,6 +40,7 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
       : null;
 
   return (
+    <>
     <div className="grid gap-6 md:grid-cols-2 min-h-[90vh] px-4 md:px-8 lg:px-16 py-8" style={{ backgroundColor: token.colorBgContainer }}>
       {/* Left: Gallery */}
       <div>
@@ -232,5 +234,7 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
         </Space>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
