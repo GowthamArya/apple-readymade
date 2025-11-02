@@ -211,9 +211,9 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
                 icon={<ShoppingCartOutlined />}
                 size="large"
                 onClick={() => router.push("/cart")}
-            >
-              Go to cart
-            </Button>
+              >
+                Go to cart
+              </Button>
             )
             :
             <Button

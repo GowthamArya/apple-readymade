@@ -74,10 +74,26 @@ export default function ProductCard({ product, token }: { product: any, token: a
             ) : null
           }
         </p>
+        {cart.some((item) => item.id === product.id) ?
+          <Link href="/cart">
+            <Button
+              type="primary"
+              icon={<MdOutlineAddShoppingCart />}
+              size="small"
+              
+            >
+            </Button>
+          </Link>
+        :
         <MdOutlineAddShoppingCart
-          onClick={handleAdd}
-          className={`text-xl cursor-pointer transition-colors` + (cart.some((item) => item.id === product.id) ? "text-green-700!" : "text-green-400!")}
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAdd();
+              }}
+            className={`text-xl cursor-pointer transition-colors }`}
         />
+        }
       </div>
     </Link>
   );
