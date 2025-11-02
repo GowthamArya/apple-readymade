@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { uiData } from "@/lib/config/uiData";
 import ProductList from "./List";
 import { useLoading } from "../context/LoadingContext";
-import { Button, Input, Select, Radio, Popover } from 'antd';
+import { Button, Input, Select, Radio, Popover, theme } from 'antd';
+const { useToken } = theme;
 
 // Mock sort options
 const sortOptions = [
@@ -27,6 +28,7 @@ export default function Filters({ initialProducts }: FilterProps) {
   const pageSize = 20;
   const [totalCount, setTotalCount] = useState(0); // set from API
   const pageLoading = useLoading();
+  const { token } = useToken();
 
   useEffect(() => {
     pageLoading.setLoading(true);
@@ -62,9 +64,9 @@ export default function Filters({ initialProducts }: FilterProps) {
 
   return (
     <>
-      <ProductList products={products} />
+      <ProductList products={products} token={token} />
       <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-30">
-        <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw bg-white dark:bg-black rounded-t-xl shadow-3xl overflow-hidden dark:shadow-gray-700 pb-2 items-center">
+        <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw rounded-t-xl shadow-3xl overflow-hidden shadow-gray-700 pb-2 items-center" style={{ background: token.colorBgContainer }} >
           {uiData.map((item, index) => {
             if (item.key === "prev") {
               return (
@@ -76,7 +78,7 @@ export default function Filters({ initialProducts }: FilterProps) {
                   aria-label="Previous Page"
                   title={`Current page no. ${page}`}
                   onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                  className="flex items-center gap-2 font-medium dark:!text-green-50"
+                  className="flex items-center gap-2 font-medium dark:text-green-50!"
                 >
                   <item.icon className="text-xl" /> {`${page - 1} ` + item.label}
                 </Button>
@@ -92,7 +94,7 @@ export default function Filters({ initialProducts }: FilterProps) {
                   aria-label="Next Page"
                   title={`Current page no. ${page}`}
                   onClick={() => setPage(prev => prev + 1)}
-                  className="flex items-center gap-2 font-medium dark:!text-green-50"
+                  className="flex items-center gap-2 font-medium"
                 >
                   <item.icon className="text-xl" title={`Current page no. ${page}`}/> {`${page + 1} ` + item.label}
                 </Button>
@@ -121,7 +123,7 @@ export default function Filters({ initialProducts }: FilterProps) {
                     hover:bg-green-100 cursor-pointer md:p-4 p-1 py-3 sm:p-2
                     ${currentPopup === item.key && item.showBgOnClick
                       ? "bg-green-100 font-bold"
-                      : "text-gray-200 dark:text-green-100"}`}
+                      : ""}`}
                   onClick={() => showPopup(item.key || "")}
                 >
                   {item.icon && (
@@ -132,8 +134,8 @@ export default function Filters({ initialProducts }: FilterProps) {
                   )}
                   {item.label && (
                     <div className={`font-medium text-sm ${currentPopup === item.key
-                      ? "dark:text-green-500 text-black"
-                      : "md:block dark:text-green-100 text-green-800"}`}>
+                      ? "text-black"
+                      : "md:block"}`}>
                       {item.label}
                     </div>
                   )}
@@ -166,7 +168,7 @@ function PopUp({
     return (
       <div style={{ width: 280 }}>
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-gray-800 font-semibold text-base">Filters</h3>
+          <h3 className="font-semibold text-base">Filters</h3>
           <Button
             type="default"
             aria-label="Close sort popup"
@@ -199,7 +201,7 @@ function PopUp({
     return (
       <div style={{ width: 280 }}>
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-gray-800 font-semibold text-base">Sort By</h3>
+          <h3 className="font-semibold text-base">Sort By</h3>
           <Button type="default" aria-label="Close sort popup" onClick={onClose} className="mt-4">✕</Button>
         </div>
         <Select

@@ -1,5 +1,6 @@
+import { theme } from "antd";
 import Link from "next/link";
-
+const { useToken } = theme;
 const collections = [
     { 
         name: "Formals", 
@@ -18,10 +19,12 @@ const collections = [
   ];
 
 export default function ShopByCollection() {
+    const { token } = useToken();
     return (
         <div
             data-scroll
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 px-4 dark:bg-black bg-gray-50/50"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 px-4"
+             style={{ backgroundColor: token.colorBgContainer }}
             >
             {collections.map((collection) => (
                 <Link

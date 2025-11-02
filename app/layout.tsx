@@ -4,11 +4,16 @@ import 'antd/dist/reset.css';
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
-import "locomotive-scroll/dist/locomotive-scroll.css";
 import ClientLayout from "./components/ClientLayout";
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import type { Viewport } from 'next'
-
+import type { Viewport } from 'next';
+import { Roboto } from "next/font/google";
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+  // variable: "--font-roboto", // optional if you prefer CSS variables
+});
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   variable: '--font-ibm-plex-mono',
@@ -49,7 +54,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
       </head>
-      <body className={`${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
+      <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
         <SpeedInsights/>
       </body>

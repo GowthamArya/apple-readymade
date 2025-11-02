@@ -6,10 +6,13 @@ import { PiShirtFoldedFill,PiPantsFill } from 'react-icons/pi';
 import { GiClothes } from 'react-icons/gi';
 import { FaHatCowboySide } from 'react-icons/fa';
 import { LiaAppleAltSolid } from 'react-icons/lia';
+import { theme } from 'antd';
 
 const icons = [IoShirtSharp, PiShirtFoldedFill, PiPantsFill, GiClothes, FaHatCowboySide, LiaAppleAltSolid];
 
 export default function Loader(): any {
+  const { token } = theme.useToken();
+
     const animValue = useRef({ value: 0 });
     const [index, setIndex] = useState(0);
     
@@ -31,7 +34,7 @@ export default function Loader(): any {
     const IconComponent = icons[index];
 
     return (
-        <div className="fixed inset-0 bg-white dark:bg-black bg-opacity-50 flex flex-col justify-center items-center z-100 dark:text-green-100 text-green-800">
+        <div className="fixed inset-0 bg-opacity-50 flex flex-col justify-center items-center z-100" style={{ backgroundColor: token.colorBgContainer, color: token.colorText }}>
             <IconComponent size={50} />
             <p className='font-bold text-xs'>Please wait</p>
         </div>

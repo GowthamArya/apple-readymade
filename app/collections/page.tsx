@@ -5,7 +5,7 @@ export default async function ProductsPage() {
   const initialProducts = await getProduct();
 
   return (
-    <div className="relative p-2 md:px-4 min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="relative min-h-screen" >
       <Filters initialProducts={initialProducts}/>
     </div>
   );

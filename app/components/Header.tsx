@@ -1,178 +1,218 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import SearchBar from "./Search";
-import { LuUserRound, LuShoppingBag } from 'react-icons/lu';
-import Link from 'next/link';
-import { signOut, useSession } from "next-auth/react";
-import { RiMenuSearchLine } from "react-icons/ri";
-import { FaWindowClose } from "react-icons/fa";
-import { Badge, Button, Popover } from "antd";
-import { useCart } from "../context/CartContext";
+import { 
+  Layout, Menu, Grid, Input, Badge, Button, 
+  Avatar, Dropdown, Drawer, theme, Flex, Switch, 
+  Typography, 
+  Segmented} from "antd"; // **Added Typography**
+import { 
+  ShoppingOutlined, UserOutlined, MenuOutlined, 
+  LogoutOutlined, SettingOutlined, AppstoreOutlined, 
+  SunOutlined, MoonOutlined
+} from "@ant-design/icons";
+import { useSession, signOut } from "next-auth/react";
+import { useThemeMode } from "../context/ThemeContext";
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Collections", href: "/collections" },
-];
-
-export default function Header() {
-  const { data: session } = useSession();
-  const [user, setUser] = useState(session?.user);``
-  const [menuOpen, setMenuOpen] = useState(false);
-  const mobileNavRef = useRef<HTMLDivElement>(null);
-  const { cart } = useCart();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => setUser(session?.user), [session]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handleClick = () => setMenuOpen(false);
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleEsc);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleEsc);
-    };
-  }, [menuOpen]);
+function ThemeToggle() {
+  const { mode, setMode } = useThemeMode();
 
   return (
-    <header className="w-full fixed top-0 z-100">
-      <div className={
-        "pb-2 mx-auto flex items-center justify-between md:justify-center transition duration-200 ease-in-out" +
-        (scrolled ? " bg-white dark:bg-black shadow-md" : " bg-transparent")
-      }>
-        <a className="md:hidden flex items-center gap-1" href="/" title="Go Home" tabIndex={-1}>
-          <Image src="/logo.png" alt="Logo" width={50} height={50} priority />
-          <span className="text-xl font-bold hidden md:block">
-            Apple Readymade &amp; More
-          </span>
-        </a>
-        <div className="flex md:hidden items-center">
-          <NavIcons user={user} cartCount={cart.length} />
-          <button
-            className="md:hidden p-2 rounded focus:outline-none transition"
-            aria-label="Menu"
-            id="hamburgerBtn"
-            onClick={e => {
-              e.stopPropagation();
-              setMenuOpen(!menuOpen);
-            }}
-            aria-expanded={menuOpen}
-            type="button"
-          >
-            {!menuOpen
-              ? <RiMenuSearchLine size={30} className="text-green-700" />
-              : <FaWindowClose size={30} className="text-green-700" />
-            }
-          </button>
-        </div>
-        <nav className="hidden md:flex gap-6 items-center">
-          <NavLinks user={user} cartCount={cart.length} />
-        </nav>
-      </div>
-      <div
-        ref={mobileNavRef}
-        className={
-          `md:hidden overflow-hidden transition-all duration-500 flex flex-col justify-end rounded ` +
-          (menuOpen ? "max-h-full bg-amber-50 opacity-100" : "max-h-0 opacity-0")
-        }
-        aria-label="Mobile Navigation"
-      >
-        <NavLinks isMobile user={user} cartCount={cart.length} />
-      </div>
-    </header>
-  );
-}
-
-interface NavLinksProps {
-  isMobile?: boolean;
-  user?: any;
-  cartCount: number;
-}
-
-function NavLinks({ isMobile, user, cartCount }: NavLinksProps) {
-  const linkClass = "block py-3 px-5 transition duration-500 ease-in-out !hover:bg-green-100 !hover:text-stone-950 p-2";
-  return (
-    <div className="theme text-center dark:theme-opp-background shadow-md rounded-b-lg p-1 w-full font-semibold">
-      <Image src="/logo.png" className="md:inline hidden" alt="Logo" width={50} height={50} priority />
-      {navLinks.map(({ label, href }) => (
-        <Link
-          key={label}
-          href={href}
-          className={isMobile
-            ? `${linkClass} border-b border-b-green-200`
-            : `${linkClass} inline-block`
-          }
-          tabIndex={isMobile ? 0 : undefined}
-        >
-          {label}
-        </Link>
-      ))}
-      {!isMobile && <NavIcons user={user} cartCount={cartCount} />}
+    <div style={{ display: "inline-flex" }}>
+      <Segmented
+        shape="round"
+        value={mode}
+        onChange={(val) => setMode(val as "light" | "dark")}
+        options={[
+          { value: 'light', icon: <SunOutlined /> },
+          { value: 'dark', icon: <MoonOutlined /> },
+        ]}
+      />
     </div>
   );
 }
 
-interface NavIconsProps { user?: any; isMobile?: boolean; cartCount: number }
+const { Header } = Layout;
+const { useToken } = theme;
+const { useBreakpoint } = Grid;
+const { Text } = Typography; 
 
-function NavIcons({ user, isMobile, cartCount }: NavIconsProps) {
+const navItems = [
+  { key: "home", label: <Link href="/">Home</Link> },
+  { key: "collections", label: <Link href="/collections">Collections</Link> },
+];
+
+export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const [open, setOpen] = useState(false);
+  const screens = useBreakpoint();
+  const { token } = useToken();
+  const isMobile = screens.md === false;
+
+  const accountMenu = useMemo(
+    () => ({
+      items: [
+        {
+          key: "settings",
+          icon: <SettingOutlined />,
+          label: <Link href="/account">Account Settings</Link>,
+        },
+        ...(user?.role_name === "admin"
+          ? [{
+              key: "master",
+              icon: <AppstoreOutlined />,
+              label: <Link href="/list/variant">Master Tables</Link>,
+            }]
+          : []),
+        {
+          key: "logout",
+          icon: <LogoutOutlined />,
+          label: <span onClick={() => signOut()}>Log out</span>,
+        },
+      ],
+    }),
+    [user?.role_name]
+  );
+
   return (
-    <>
-      {!isMobile && <SearchBar />}
-      <Link href="/cart" className="mx-2" title="Cart">
-        <Badge count={cartCount} className="text-center flex-row" color="green">
-          <LuShoppingBag className="inline mx-1 text-xl font-bold cursor-pointer text-green-700 md:text-gray-700" />
-        </Badge>
-      </Link>
-      {user ? (
-        <>
-          <Popover content={
-                  <div className="flex flex-col gap-2">
-                    <Link href="/account">
-                      <Button type="primary">Account Settings</Button>
-                    </Link>
-                    {(user.role_name == "admin") && 
-                    <Link href={"/list/variant"} className="mx-auto">
-                      <Button type="dashed" className="text-black!">Master Tables</Button>
-                    </Link>}
-                    <Button type="default" className="text-red-500!" onClick={()=>{
-                      signOut();
-                    }}>Log out</Button>
-                  </div>
-                }>
-                {user?.image ? (
-                  // Use next/image if possible:
-                  <img
-                    src={user.image}
-                    className="rounded-full inline mx-2"
-                    alt={user?.name || "User"}
-                    width={25}
-                    height={25}
-                  />
-                ) : (
-                  <LuUserRound
-                    className="text-green-700 md:text-gray-700 mx-1 text-xl font-bold cursor-pointer"
-                    title={user?.name || user?.email || "Account"}
-                  />
-                )}
-          </Popover>
-        </>
-      ) : (
-        <Button type="primary" className="mx-2!" shape="default" size="middle">
-          <Link href="/auth" title="Login">Login</Link>
-        </Button>
-      )}
-    </>
+    <Header
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        width: "100%",
+        background: token.colorBgContainer,
+        paddingInline: token.paddingLG,
+      }}
+    >
+      <Flex align="center" justify="space-between" gap={16}>
+        <Link href="/" aria-label="Go Home" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Image src="/logo.png" alt="Logo" width={40} height={40} priority />
+          {!isMobile && (
+            <Text 
+              strong 
+              style={{ 
+                color: token.colorTextHeading,
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                letterSpacing: '1.25px',
+              }}
+            >
+              apple
+            </Text>
+          )}
+        </Link>
+
+        {/* Center: Desktop Menu + Search */}
+        {!isMobile && (
+          <Flex align="center" gap={16}>
+            <Menu
+              className="w-100 font-light text-2xl"
+              mode="horizontal"
+              items={navItems}
+            />
+            <Input.Search placeholder="Search products" allowClear style={{ width: 240 }} />
+          </Flex>
+        )}
+
+        {/* Right: Actions */}
+        <Flex align="center" gap={12}>
+          {/* Cart */}
+          <Link href="/cart" aria-label="Cart">
+            <Badge count={cartCount} color="green">
+              <Button type="text" icon={<ShoppingOutlined style={{ fontSize: 20, color: token.colorTextHeading }} />} />
+            </Badge>
+          </Link>
+          {!isMobile && <ThemeToggle />}
+          {/* Account */}
+          {user ? (
+            <Dropdown menu={accountMenu} trigger={["click"]}>
+              <Avatar
+                src={user.image}
+                icon={!user.image ? <UserOutlined /> : undefined}
+                style={{ cursor: "pointer"}}
+                alt={user?.name || user?.email || "Account"}
+              />
+            </Dropdown>
+          ) : (
+            <Link href="/auth">
+              <Button type="primary">Login</Button>
+            </Link>
+          )}
+
+          {/* Mobile menu trigger */}
+          {isMobile && (
+            <Button
+              type="text"
+              icon={<MenuOutlined style={{ fontSize: 20 }} />}
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+            />
+          )}
+        </Flex>
+      </Flex>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        title={
+          <Flex justify="space-between" align="center" gap={8}>
+            <Image src="/logo.png" alt="Logo" width={28} height={28} />
+            {/* MODIFIED: Using Typography.Text for mobile drawer title */}
+            <Text strong italic style={{ fontSize: '1.1rem' }}>Apple</Text>
+            <ThemeToggle />
+          </Flex>
+        }
+        placement="right"
+        open={open}
+        onClose={() => setOpen(false)}
+      >
+        {/* Optional mobile search */}
+        <Input.Search placeholder="Search products" allowClear />
+        <Menu
+          mode="inline"
+          className="my-3!"
+          items={[
+            ...navItems,
+            { type: "divider" as const },
+            {
+              key: "cart",
+              label: <Link href="/cart">Cart</Link>,
+              icon: <ShoppingOutlined />,
+            },
+            ...(user
+              ? [
+                  {
+                    key: "settings",
+                    label: <Link href="/account">Account Settings</Link>,
+                    icon: <SettingOutlined />,
+                  },
+                  ...(user?.role_name === "admin"
+                    ? [{
+                        key: "master",
+                        label: <Link href="/list/variant">Master Tables</Link>,
+                        icon: <AppstoreOutlined />,
+                      }]
+                    : []),
+                  {
+                    key: "logout",
+                    label: <span onClick={() => signOut()}>Log out</span>,
+                    icon: <LogoutOutlined />,
+                  },
+                ]
+              : [
+                  {
+                    key: "login",
+                    label: <Link href="/auth">Login</Link>,
+                    icon: <UserOutlined />,
+                  },
+                ]),
+          ]}
+          onClick={() => setOpen(false)}
+        />
+      </Drawer>
+    </Header>
   );
 }

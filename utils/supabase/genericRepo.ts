@@ -88,6 +88,21 @@ export default class GenericRepo<T extends { id?: number | string }> {
     };
   }
 
+  static async fetch(tableName: string, id: number) {
+    let query = supabase.from(tableName).select("*", { count: "exact" });
+
+    if (id) {
+      query = query.eq("id", id);
+    }
+
+    const { data, error, count  } = await query;
+    if (error) throw error;
+    return {
+      data: data ?? [],
+      total: count ?? 0
+    };
+  }
+
   static async fetchMetaData<T>(tableName: string): Promise<T[]> {
     const { data, error } = await supabase.from("vwtablecolumnsmetadata")
       .select("*").eq("EntityName", tableName);

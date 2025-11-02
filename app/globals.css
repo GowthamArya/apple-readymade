@@ -12,11 +12,6 @@
   }
 }
 
-body {
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica;
-}
-
 .theme {
   background: rgba(var(--background), 0.65) !important;
   color: rgb(var(--foreground)) !important;
@@ -30,4 +25,69 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
+}
+
+
+@keyframes custom-shine {
+  from { background-position: 100%; }
+  to { background-position: -100%; }
+}
+
+.text-shine {
+  animation: custom-shine 5s linear infinite;
+  background-image: linear-gradient(
+    90deg, 
+    rgba(240, 253, 244, 0.75) 0%,           /* Dark background color at start */
+    #c0c0c0 20%,          /* White light start */
+    rgb(225, 255, 236) 50%,          /* Bright white light center */
+    #747474 80%,          /* White light end */
+    rgba(240, 253, 244, 0.75) 100%     /* Dark background color at end */
+  );
+  background-size: 100% auto; 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Zoom the first background layer (your image) as you scroll the page */
+@supports (animation-timeline: scroll(root block)) {
+  .bg-zoom-on-scroll {
+    background-size: 80% auto, cover;
+    animation: bgZoom linear both;
+    animation-timeline: scroll(root block); 
+    animation-range: 0 150vh; 
+  }
+
+  @keyframes bgZoom {
+    from { background-size: 35% auto, cover;
+      background-repeat: no-repeat, no-repeat;
+    }
+    to { background-size: 0% auto, cover; }
+  }
+}
+
+@media (max-width: 767px) {
+  @supports (animation-timeline: scroll(root block)) {
+    .bg-zoom-on-scroll {
+      background-size: 80% auto, cover;
+      animation: bgZoom linear both;
+      animation-timeline: scroll(root block); 
+      animation-range: 0 150vh; 
+    }
+
+    @keyframes bgZoom {
+      from { background-size: 85% auto, cover;
+        background-repeat: no-repeat, no-repeat;
+      }
+      to { background-size: 0% auto, cover; }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-zoom-on-scroll {
+    animation: none;
+  }
 }

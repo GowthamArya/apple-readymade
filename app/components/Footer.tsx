@@ -3,16 +3,18 @@ import Image from 'next/image';
 import { FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram } from "react-icons/fa";
-import { Typography, Row, Col } from 'antd';
+import { Typography, Row, Col, theme } from 'antd';
 import SubscribeForm from './Home/SubscribeForm';
+const { useToken } = theme;
 
 const { Title, Text } = Typography;
 
 const footerLinkClass = "text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out";
 
 export default function Footer() {
+  const { token } = useToken();
   return (
-    <footer data-scroll className="bg-green-50/75 text-white p-6">
+    <footer data-scroll className="p-6" style={{ backgroundColor: token.colorBgContainer }}>
       <Row gutter={[32, 32]} justify="center" className="max-w-7xl mx-auto">
         <Col xs={24} md={6}>
           <div className="flex items-center space-x-3 mb-4">
@@ -23,7 +25,7 @@ export default function Footer() {
               height={36}
               priority
             />
-            <Title level={4} className="text-white m-0">
+            <Title level={4} color='black' className="m-0">
               Apple Readymade & More
             </Title>
           </div>
@@ -76,7 +78,7 @@ export default function Footer() {
           <Title level={5} className="text-white mb-3">Stay Connected</Title>
           <SubscribeForm />
           <div className="flex space-x-6 text-gray-400 text-xl">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
+            <a href="https://www.instagram.com/apple_readymade/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebookF /></a>
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><FaXTwitter /></a>
           </div>

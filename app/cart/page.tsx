@@ -172,7 +172,7 @@ export default function CartPage() {
 
 
   return (
-    <div className="min-h-screen px-4 py-20 md:px-20 bg-green-50/50">
+    <div className="min-h-screen px-4 py-20 md:px-20">
       <Tabs defaultActiveKey="cart" centered items={[
         {
           key: 'cart',
