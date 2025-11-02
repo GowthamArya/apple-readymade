@@ -29,7 +29,7 @@ export default function HeroSection() {
       <div className="flex md:flex-row mb-20 md:mb-0 flex-col h-full w-full md:justify-between justify-center md:items-end p-4 pb-0 md:pb-5">
         <div className="inline-block">
           <h1 className={`${isDark ? "text-shine" : "text-green-950"} m-0! text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight`}>
-            MAKE ▲ M◍⨈E●
+            MAKE ▲ MOVE
           </h1>
           <p className="mt-2 text-lg md:text-xl lg:text-2xl text-gray-500">
             Elevate Your Style with Our Exclusive Collection
