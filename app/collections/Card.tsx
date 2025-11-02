@@ -38,7 +38,7 @@ export default function ProductCard({ product, token }: { product: any, token: a
   };
 
   return (
-    <Link href={`/variant/${product.id}`} className="relative p-2 col-span-1 rounded-md shadow-lg hover:shadow-green-900/30 dark:shadow-green-50/25 transition-shadow duration-300" style={{ border: `1px solid ${token.colorBorder}` }}>
+    <Link href={`/variant/${product.id}`} className="relative p-2 col-span-1 rounded-md shadow-lg duration-3000! hover:shadow-green-900/30 dark:shadow-green-50/25 transition-shadow" style={{ border: `1px solid ${token.colorBorder}` }}>
       {user && <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
         <Button
           shape="round"
@@ -48,7 +48,6 @@ export default function ProductCard({ product, token }: { product: any, token: a
           type="text"
           onClick={()=>handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')}
         >
-          
           {favorites.some((fav) => fav.id === product.id) ?
             <MdFavorite className="text-xl cursor-pointer text-red-600!" />
             :

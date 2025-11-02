@@ -112,11 +112,12 @@ export default function AppHeader() {
         {!isMobile && (
           <Flex align="center" gap={16}>
             <Menu
-              className="w-100 font-light text-2xl"
+              className="w-100 font-semibold text-2xl"
               mode="horizontal"
               items={navItems}
+              style={{ borderBottom: "none", background: "transparent", color: token.colorTextHeading }}
             />
-            <Input.Search placeholder="Search products" allowClear style={{ width: 240 }} />
+            <Input.Search placeholder="Search products" size="large" allowClear style={{ width: 240 }} />
           </Flex>
         )}
 

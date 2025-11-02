@@ -122,7 +122,7 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <Row gutter={16 } justify="center">
+          <Row gutter={16 } justify="start">
             {favorites.map((item) => (
               <Col 
                   xs={{ flex: '100%' }}
