@@ -104,7 +104,7 @@ export default function CartPage() {
             </div>
             <div className="flex gap-2">
               <Button onClick={clearCart}>Clear Cart</Button>
-              <Button type="primary">Proceed to Checkout</Button>
+              <Link href="/checkout"><Button type="primary">Proceed to Checkout</Button></Link>
             </div>
           </div>
         </>
