@@ -47,7 +47,7 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-            <Row gutter={16 } justify="start">
+            <Row gutter={16} justify="start">
               {cart.map((item) => (
                 <Col 
                   xs={{ flex: '100%' }}
@@ -58,7 +58,7 @@ export default function CartPage() {
                 >
                   <Card
                     key={item.id}
-                    className="!m-2 w-full"
+                    className="m-2! w-full"
                     hoverable
                     loading={isLoading}
                     cover={
@@ -133,8 +133,7 @@ export default function CartPage() {
                 >
                   <Card
                     key={item.id}
-                    className="!p-2"
-                    style={{ flex: '1 0 calc(25% - 1rem)', maxWidth: '350px' }}
+                    className="m-2! w-full"
                     hoverable
                     cover={
                       <img
