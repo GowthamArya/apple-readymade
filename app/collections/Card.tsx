@@ -50,7 +50,7 @@ export default function ProductCard({ product, token }: { product: any, token: a
         >
           
           {favorites.some((fav) => fav.id === product.id) ?
-            <MdFavorite className="text-xl cursor-pointer text-red-600" />
+            <MdFavorite className="text-xl cursor-pointer text-red-600!" />
             :
             <GrFavorite className="text-xl cursor-pointer" />
           }
