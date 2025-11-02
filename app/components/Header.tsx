@@ -11,10 +11,12 @@ import {
 import { 
   ShoppingOutlined, UserOutlined, MenuOutlined, 
   LogoutOutlined, SettingOutlined, AppstoreOutlined, 
-  SunOutlined, MoonOutlined
+  SunOutlined, MoonOutlined,
+  HeartOutlined
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
+import { useCart } from "../context/CartContext";
 
 function ThemeToggle() {
   const { mode, setMode } = useThemeMode();
@@ -44,8 +46,9 @@ const navItems = [
   { key: "collections", label: <Link href="/collections">Collections</Link> },
 ];
 
-export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
-  const { data: session } = useSession();
+export default function AppHeader() {
+  const { cart } = useCart();
+   const { data: session } = useSession();
   const user = session?.user;
   const [open, setOpen] = useState(false);
   const screens = useBreakpoint();
@@ -85,12 +88,11 @@ export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
         zIndex: 100,
         width: "100%",
         background: token.colorBgContainer,
-        paddingInline: token.paddingLG,
       }}
     >
       <Flex align="center" justify="space-between" gap={16}>
         <Link href="/" aria-label="Go Home" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <Image src="/logo.png" alt="Logo" width={40} height={40} priority />
+          <Image src="/logo.png" alt="Logo" width={35} height={35} priority />
           {!isMobile && (
             <Text 
               strong 
@@ -101,7 +103,7 @@ export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
                 letterSpacing: '1.25px',
               }}
             >
-              apple
+              Apple
             </Text>
           )}
         </Link>
@@ -121,8 +123,11 @@ export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
         {/* Right: Actions */}
         <Flex align="center" gap={12}>
           {/* Cart */}
-          <Link href="/cart" aria-label="Cart">
-            <Badge count={cartCount} color="green">
+          <Link href="/cart?activeTab=wishlist" aria-label="Wishlist">
+              <Button type="text" icon={<HeartOutlined style={{ fontSize: 20, color: token.colorTextHeading }} />} />
+          </Link>
+          <Link href="/cart?activeTab=cart" aria-label="Cart">
+            <Badge size="small" count={cart.length} color="green">
               <Button type="text" icon={<ShoppingOutlined style={{ fontSize: 20, color: token.colorTextHeading }} />} />
             </Badge>
           </Link>
@@ -159,9 +164,9 @@ export default function AppHeader({ cartCount = 0 }: { cartCount?: number }) {
       <Drawer
         title={
           <Flex justify="space-between" align="center" gap={8}>
-            <Image src="/logo.png" alt="Logo" width={28} height={28} />
+            <Image src="/logo.png" alt="Logo" width={28} height={2} />
             {/* MODIFIED: Using Typography.Text for mobile drawer title */}
-            <Text strong italic style={{ fontSize: '1.1rem' }}>Apple</Text>
+            <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
             <ThemeToggle />
           </Flex>
         }

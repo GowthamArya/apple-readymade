@@ -82,20 +82,20 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
   if (!entityName) return <Loading />;
 
   return (
-    <Layout style={{ minHeight: '100vh', background: "#f7f7f7" }} className='flex flex-row!'>
+    <Layout className='flex flex-row!'>
       <Drawer
         title="Tables"
         placement="left"
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}
-        className='pb-10'
+        className='pb-10!'
       >
         <Menu
           mode="inline"
           selectedKeys={[entityName]}
           items={items}
           onClick={() => setDrawerOpen(false)}
-          style={{ height: '100vh', borderRight: 0 }}
+          style={{ borderRight: 0 }}
         />
       </Drawer>
 
@@ -107,11 +107,11 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
         breakpoint="lg"
         collapsedWidth={0}
         className="hidden lg:block"
-        width={220}
+        width={250}
         style={{
           position: "fixed",
           left: 0,
-          height: `calc(100vh)`,
+          height: `calc(95vh)`,
           overflowY: "auto",
           background: "#001529",
           scrollBehavior: "smooth",
@@ -121,22 +121,16 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
         <div className="bg-green-500 text-white font-bold p-3 text-xl text-start sticky top-0 z-10">
           Master Tables
         </div>
-        <Menu theme="dark" mode="inline" className='pb-10!' selectedKeys={[entityName]} items={items} />
+        <Menu theme="dark" mode="inline" className='pb-30!' selectedKeys={[entityName]} items={items} />
       </Sider>
 
       <Layout
-        style={{
-          marginLeft: "0px",
-          marginTop: HEADER_HEIGHT,
-          paddingLeft: "0px",
-        }}
-        className={`pt-6 lg:pt-0`}
+        className={`p-5!`}
       >
         <Content
           style={{
-            margin: '24px 16px 0',
             overflow: 'auto',
-            marginLeft: collapsed ? 0 : 250,
+            marginLeft: collapsed ? 0 : 250, 
             transition: 'margin-left 1s',
           }}
         >
@@ -147,7 +141,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
               className='md:hidden!'
               onClick={() => setDrawerOpen(true)}
             />
-            <h1 className="text-center m-4 text-2xl font-bold">
+            <h1 className="text-center text-2xl font-bold">
               {entityName.toUpperCase()} DATA
             </h1>
             <div className='flex items-center gap-2 md:flex-nowrap flex-wrap'>
@@ -204,7 +198,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
                   fetchData(newPage, newSize, searchText);
                 }
               }}
-              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 180}px)`, x: true }}
+              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
             />
             <DynamicFormModal
               visible={modalVisible}

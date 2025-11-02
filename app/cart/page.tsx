@@ -5,10 +5,13 @@ import { useFavorites } from '../context/FavoriteContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'next/navigation';
 
 const { Meta } = Card;
 
 export default function CartPage() {
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("activeTab") || "cart";
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
   const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
   const [total, setTotal] = useState(0);
@@ -108,8 +111,6 @@ export default function CartPage() {
       )}
     </>
   );
-
-
   const WishlistTab = () => (
     <>
       {favorites.length === 0 ? (
@@ -173,7 +174,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen px-4 py-20 md:px-20">
-      <Tabs defaultActiveKey="cart" centered items={[
+      <Tabs defaultActiveKey={activeTab} centered items={[
         {
           key: 'cart',
           label: (
