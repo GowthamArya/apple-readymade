@@ -23,7 +23,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="hero-section min-h-[80vh] flex md:items-end items-start bg-zoom-on-scroll"
+      className="hero-section min-h-[80vh] flex md:items-end items-center bg-zoom-on-scroll"
       style={bgStyle}
     >
       <div className="flex md:flex-row flex-col h-full w-full md:justify-between justify-center md:items-end p-4 pb-0 md:pb-5">
