@@ -17,6 +17,7 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
+import { useRouter } from "next/navigation";
 
 function ThemeToggle() {
   const { mode, setMode } = useThemeMode();
@@ -54,6 +55,7 @@ export default function AppHeader() {
   const screens = useBreakpoint();
   const { token } = useToken();
   const isMobile = screens.md === false;
+  const router = useRouter();
 
   const accountMenu = useMemo(
     () => ({
@@ -80,6 +82,10 @@ export default function AppHeader() {
     [user?.role_name]
   );
 
+  function handleSearch(search: string) {
+    router.push(`/collections?searchQuery=${search}`);
+  }
+
   return (
     <Header
       style={{
@@ -101,6 +107,9 @@ export default function AppHeader() {
                 fontSize: '1.75rem',
                 fontWeight: 800,
                 letterSpacing: '1.25px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
               Apple
@@ -117,7 +126,10 @@ export default function AppHeader() {
               items={navItems}
               style={{ borderBottom: "none", background: "transparent", color: token.colorTextHeading }}
             />
-            <Input.Search placeholder="Search products" size="large" allowClear style={{ width: 240 }} />
+            <Input.Search placeholder="Search products" onSearch={(search) => {
+              setOpen(false);
+              handleSearch(search);
+            }} allowClear style={{ width: 240 }} />
           </Flex>
         )}
 
@@ -176,7 +188,10 @@ export default function AppHeader() {
         onClose={() => setOpen(false)}
       >
         {/* Optional mobile search */}
-        <Input.Search placeholder="Search products" allowClear />
+        <Input.Search placeholder="Search products" onSearch={(search, e) => {
+          setOpen(false);
+          handleSearch(search);
+        }} allowClear />
         <Menu
           mode="inline"
           className="my-3!"

@@ -11,12 +11,17 @@ const { Meta } = Card;
 
 export default function CartPage() {
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("activeTab") || "cart";
+  const [activeTab, setActiveTab] = useState("cart");
+
+  useEffect(() => {
+    const tab = searchParams.get("activeTab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
   const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
   const [total, setTotal] = useState(0);
   const [isLoading,setIsLoading] = useState(true);
-  
   useEffect(()=>{
     setIsLoading(false);
   },[]);
@@ -50,6 +55,7 @@ export default function CartPage() {
             <Row gutter={16} justify="start">
               {cart.map((item) => (
                 <Col 
+                  key={item.id}
                   xs={{ flex: '100%' }}
                   sm={{ flex: '50%' }}
                   md={{ flex: '50%' }}
@@ -57,14 +63,13 @@ export default function CartPage() {
                   xl={{ flex: '25%' }}
                 >
                   <Card
-                    key={item.id}
-                    className="m-2! w-full"
+                    className="m-2! w-full shadow-lg"
                     hoverable
                     loading={isLoading}
                     cover={
                       <img
                         alt={item.product?.name}
-                        src={item.image_urls?.[0]}
+                        src={item.image_urls?.[0] ?? '/no-image.png'}
                         className="h-48 w-full object-cover"
                       />
                     }
@@ -125,6 +130,7 @@ export default function CartPage() {
           <Row gutter={16 } justify="start">
             {favorites.map((item) => (
               <Col 
+                  key={item.id}
                   xs={{ flex: '100%' }}
                   sm={{ flex: '50%' }}
                   md={{ flex: '50%' }}
@@ -132,21 +138,21 @@ export default function CartPage() {
                   xl={{ flex: '25%' }}
                 >
                   <Card
-                    key={item.id}
-                    className="m-2! w-full"
+                    className="m-2! w-full shadow-lg"
                     hoverable
                     cover={
                       <img
                         alt={item.product?.name}
-                        src={item.image_urls?.[0]}
+                        src={item.image_urls?.[0] ?? '/no-image.png'}
                         className="h-48 w-full object-cover"
                       />
                     }
                     actions={[
-                      <Button type="link" danger onClick={() => removeFromFavorites(item.id)} key="remove">
+                      <Button type="dashed" danger onClick={() => removeFromFavorites(item.id)} key="remove">
                         Remove
                       </Button>,
                       <Button type="primary" onClick={() => {
+                        item.quantity = 1;
                         removeFromFavorites(item.id);
                         addToCart(item);
                       }} key="remove">
@@ -173,7 +179,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen px-4 py-20 md:px-20">
-      <Tabs defaultActiveKey={activeTab} centered items={[
+      <Tabs activeKey={activeTab} onChange={setActiveTab} centered items={[
         {
           key: 'cart',
           label: (

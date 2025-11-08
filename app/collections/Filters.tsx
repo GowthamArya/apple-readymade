@@ -5,6 +5,7 @@ import ProductList from "./List";
 import { useLoading } from "../context/LoadingContext";
 import { Button, Input, Select, Radio, Popover, theme } from 'antd';
 import Footer from "../components/Footer";
+import { useRouter } from "next/navigation";
 const { useToken } = theme;
 
 // Mock sort options
@@ -16,22 +17,27 @@ const sortOptions = [
 
 interface FilterProps {
   initialProducts: any[];
+  searchQuery?: string;
+  category?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
-export default function Filters({ initialProducts }: FilterProps) {
+export default function Filters( {initialProducts, searchQuery} : FilterProps) {
+  const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [currentPopup, setCurrentPopup] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchQuery || "");
   const [category, setCategory] = useState("");
   const [sortBy, setSortBy] = useState("created_on");
   const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
   const pageSize = 20;
-  const [totalCount, setTotalCount] = useState(0); // set from API
+  const [totalCount, setTotalCount] = useState(initialProducts.length || 0);
   const pageLoading = useLoading();
   const { token } = useToken();
 
-  useEffect(() => {
+  function fetchProducts() {
     pageLoading.setLoading(true);
     const query = new URLSearchParams({
       search,
@@ -41,14 +47,39 @@ export default function Filters({ initialProducts }: FilterProps) {
       skip: String((page - 1) * pageSize),
       pageSize: String(pageSize)
     }).toString();
+
     fetch(`/api/collections?${query}`)
       .then(res => res.json())
       .then(data => {
         setProducts(data ?? []);
         setTotalCount(data.totalCount ?? 0);
+      }).catch(err => {
+        console.error("Failed to fetch products:", err);
+      }).finally(() => {
         pageLoading.setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (search.trim() !== "") {
+        console.log("Debounced search triggered:", search);
+        fetchProducts();
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [search, category, sortBy, sortOrder, page]);
+
+
 
   // Show popover for filter/sort only
   const showPopup = (key: string) => {
@@ -109,8 +140,8 @@ export default function Filters({ initialProducts }: FilterProps) {
                     currentPopupType={item.key === currentPopup ? currentPopup : ""}
                     onClose={() => setCurrentPopup("")}
                     {...{
-                      search, setSearch, category, setCategory,
-                      sortBy, setSortBy, sortOrder, setSortOrder, handleReset
+                      search, router, category, setCategory,
+                      sortBy, setSearch, setSortBy, sortOrder, setSortOrder, handleReset
                     }}
                   />
                 }
@@ -155,6 +186,7 @@ function PopUp({
   currentPopupType,
   onClose,
   search,
+  router,
   setSearch,
   category,
   setCategory,
@@ -179,10 +211,14 @@ function PopUp({
           >✕</Button>
         </div>
         <div className="space-y-3">
-          <Input
+          <Input.Search
             placeholder="Search product..."
+            onChange={(e) => setSearch(e.target.value)} 
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onSearch={(value) => {
+              console.log("Searching for:", value);
+              router.push(`/collections?searchQuery=${value}`);
+            }}
             style={{ marginBottom: 8 }}
           />
           <Input

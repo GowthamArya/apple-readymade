@@ -66,7 +66,7 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
   return (
     <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
       <AntdRegistry>
-        <ConfigProvider theme={theme} componentSize="small">
+        <ConfigProvider theme={theme} componentSize="large">
           <App>{children}</App>
         </ConfigProvider>
       </AntdRegistry>
