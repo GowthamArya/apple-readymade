@@ -3,17 +3,24 @@ import { supabase } from './supabaseServer';
 
 
 export async function uploadVariantFileToStorage(file: File) {
+  const fileName = `${Date.now()}_${file.name}`; 
+  const filePath = `products/${fileName}`;
+
   const { data, error } = await supabase.storage
     .from("products")
-    .upload(`products/`, file, { upsert: true });
+    .upload(filePath, file, { upsert: true });
+
   if (error) {
     throw error;
   }
-  const { data: publicUrlData } = await supabase.storage
+
+  const { data: publicUrlData } = supabase.storage
     .from("products")
-    .getPublicUrl(data.path);
+    .getPublicUrl(filePath);
+
   return publicUrlData.publicUrl;
 }
+
 
 function createIncludesQuery(includeRelations: string[]): string {
   if (includeRelations.length === 0) return '*';
