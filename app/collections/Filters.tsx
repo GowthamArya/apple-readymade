@@ -68,10 +68,7 @@ export default function Filters( {initialProducts, searchQuery} : FilterProps) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (search.trim() !== "") {
-        console.log("Debounced search triggered:", search);
-        fetchProducts();
-      }
+      fetchProducts();
     }, 500);
 
     return () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -17,7 +17,7 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function ThemeToggle() {
   const { mode, setMode } = useThemeMode();
@@ -48,8 +48,10 @@ const navItems = [
 ];
 
 export default function AppHeader() {
+  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
   const { cart } = useCart();
-   const { data: session } = useSession();
+  const { data: session } = useSession();
   const user = session?.user;
   const [open, setOpen] = useState(false);
   const screens = useBreakpoint();
@@ -85,6 +87,11 @@ export default function AppHeader() {
   function handleSearch(search: string) {
     router.push(`/collections?searchQuery=${search}`);
   }
+
+  useEffect(() => {
+    const searchQuery = searchParams.get('searchQuery');
+    setSearch(searchQuery || "");
+  }, [searchParams]); 
 
   return (
     <Header
@@ -126,10 +133,18 @@ export default function AppHeader() {
               items={navItems}
               style={{ borderBottom: "none", background: "transparent", color: token.colorTextHeading }}
             />
-            <Input.Search placeholder="Search products" onSearch={(search) => {
-              setOpen(false);
-              handleSearch(search);
-            }} allowClear style={{ width: 240 }} />
+            <Input.Search 
+              placeholder="Search products" 
+              onSearch={(search) => {
+                setOpen(false);
+                handleSearch(search);
+              }} 
+              onChange={(e)=>{
+                setSearch(e.target.value);
+              }}  
+              value={search}
+              allowClear 
+              style={{ width: 240 }} />
           </Flex>
         )}
 
