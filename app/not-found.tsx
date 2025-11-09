@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Metadata, Viewport } from "next";
 
 export default function NotFound() {
     const [seconds, setSeconds] = useState<number>(5);

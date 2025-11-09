@@ -1,5 +1,5 @@
 'use client';
-import { Tabs, Button, InputNumber, Card, Col, Row } from 'antd';
+import { Tabs, Button, InputNumber, Card, Col, Row, theme } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoriteContext';
 import { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { useSearchParams } from 'next/navigation';
 const { Meta } = Card;
 
 export default function CartPage() {
+  const { token } = theme.useToken();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("cart");
 
@@ -178,7 +179,7 @@ export default function CartPage() {
 
 
   return (
-    <div className="min-h-screen px-4 py-20 md:px-20">
+    <div className="min-h-screen px-4 py-20 md:px-20" style={{ backgroundColor: token.colorBgContainer }}>
       <Tabs activeKey={activeTab} onChange={setActiveTab} centered items={[
         {
           key: 'cart',

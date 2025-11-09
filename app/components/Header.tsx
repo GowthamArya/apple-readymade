@@ -49,7 +49,7 @@ const navItems = [
 
 export default function AppHeader() {
   const [search, setSearch] = useState("");
-  const searchParams = useSearchParams();
+  //const searchParams = useSearchParams();
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
@@ -88,10 +88,10 @@ export default function AppHeader() {
     router.push(`/collections?searchQuery=${search}`);
   }
 
-  useEffect(() => {
-    const searchQuery = searchParams.get('searchQuery');
-    setSearch(searchQuery || "");
-  }, [searchParams]); 
+  // useEffect(() => {
+  //   const searchQuery = searchParams.get('searchQuery');
+  //   setSearch(searchQuery || "");
+  // }, [searchParams]); 
 
   return (
     <Header
@@ -193,7 +193,7 @@ export default function AppHeader() {
       <Drawer
         title={
           <Flex justify="space-between" align="center" gap={8}>
-            <Image src="/logo.png" alt="Logo" width={28} height={2} />
+            <Image src="/logo.png" alt="Logo" width={28} height={28} />
             {/* MODIFIED: Using Typography.Text for mobile drawer title */}
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
             <ThemeToggle />
