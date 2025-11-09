@@ -1,21 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './supabaseServer';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
-export async function uploadVariantFileToStorage(productId: string, variantId: string, file: File) {
+
+export async function uploadVariantFileToStorage(file: File) {
   const { data, error } = await supabase.storage
     .from("products")
-    .upload(`products/${productId}/variants/${variantId}/${file.name}`, file, { upsert: true });
+    .upload(`products/variants/`, file, { upsert: true });
   if (error) {
     throw error;
   }
-  const { data: publicUrlData } = supabase.storage
+  const { data: publicUrlData } = await supabase.storage
     .from("products")
     .getPublicUrl(data.path);
-  return publicUrlData;
+  return publicUrlData.publicUrl;
 }
 
 function createIncludesQuery(includeRelations: string[]): string {

@@ -20,7 +20,7 @@ import { useCart } from "../context/CartContext";
 import { useSearchParams, useRouter } from "next/navigation";
 
 function ThemeToggle() {
-  const { mode, setMode } = useThemeMode();
+  const { mode, setMode } = useThemeMode("dark");
 
   return (
     <div style={{ display: "inline-flex" }}>
@@ -150,14 +150,14 @@ export default function AppHeader() {
         )}
 
         {/* Right: Actions */}
-        <Flex align="center" gap={12}>
+        <Flex align="center" gap={18}>
           {/* Cart */}
           <Link href="/cart?activeTab=wishlist" aria-label="Wishlist">
-              <Button type="text" icon={<HeartOutlined style={{ fontSize: 20, color: token.colorTextHeading }} />} />
+              <HeartOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
           </Link>
           <Link href="/cart?activeTab=cart" aria-label="Cart">
-            <Badge size="small" count={cart.length} color="green">
-              <Button type="text" icon={<ShoppingOutlined style={{ fontSize: 20, color: token.colorTextHeading }} />} />
+            <Badge count={cart.length} color={token.colorPrimary} offset={[1, 1]}>
+              <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
           {!isMobile && <ThemeToggle />}

@@ -77,6 +77,6 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useThemeMode() {
+export function useThemeMode(theme?: string) {
   return useContext(ThemeCtx);
 }

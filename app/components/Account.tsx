@@ -51,7 +51,7 @@ export default function Account({ user }: { user: any }) {
             form={form}
             onFinish={handleUpdate}
             layout="vertical"
-            className="my-4 flex flex-col items-center !p-4 bg-white rounded-lg shadow-xl w-full max-w-md mx-auto"
+            className="my-4 flex flex-col items-center p-4! bg-white rounded-lg shadow-xl w-full max-w-md mx-auto"
         >
             <Form.Item
                 label="Name"

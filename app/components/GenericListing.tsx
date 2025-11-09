@@ -128,7 +128,10 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
       </Sider>
 
       <Layout
-        className={`p-5!`}
+        className={`p-5!  min-h-[95vh]!`}
+        style={{
+          background: token.colorBgContainer,
+        }}
       >
         <Content
           style={{
@@ -137,7 +140,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
             transition: 'margin-left 1s',
           }}
         >
-          <div className='flex justify-between!'>
+          <div className='flex justify-between! pb-5'>
             <Button
               type="primary"
               icon={<MenuOutlined className='text-white! p-3' style={{ fontSize: 20}} />}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import supabase, { fetchWithRelations, uploadVariantFileToStorage } from "@/lib/supabase";
+import { fetchWithRelations, uploadVariantFileToStorage } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -35,9 +35,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const publicUrl = uploadVariantFileToStorage(productId, variantId, file);
+    const publicUrl =  await uploadVariantFileToStorage(file);
 
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({ url: publicUrl }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
