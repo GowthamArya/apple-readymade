@@ -5,7 +5,7 @@ import { supabase } from './supabaseServer';
 export async function uploadVariantFileToStorage(file: File) {
   const { data, error } = await supabase.storage
     .from("products")
-    .upload(`products/variants/`, file, { upsert: true });
+    .upload(`products/`, file, { upsert: true });
   if (error) {
     throw error;
   }
