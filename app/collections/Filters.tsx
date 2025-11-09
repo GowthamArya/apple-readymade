@@ -215,8 +215,12 @@ function PopUp({
             placeholder="Search product..."
             onChange={(e) => setSearch(e.target.value)} 
             value={search}
+            allowClear
+            onClear={() => {
+              router.push(`/collections?searchQuery=`);
+              setSearch("");
+            }}
             onSearch={(value) => {
-              console.log("Searching for:", value);
               router.push(`/collections?searchQuery=${value}`);
             }}
             style={{ marginBottom: 8 }}
