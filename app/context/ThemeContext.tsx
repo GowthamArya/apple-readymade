@@ -51,8 +51,11 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
       algorithm,
       token: {
         colorText: isDark ? "#D1D5DB" : "#374151",
-        colorBackground: isDark ? "#111827" : "#FFFFFF",
-        colorBorder: isDark ? "#374151" : "#E5E7EB",
+        colorBackground: isDark ? "#000000" : "#E4EFE7",
+        colorBgContainer: isDark ? "#000000" : "#E4EFE7",
+        colorBgLayout: isDark ? "#3A6F43" : "#CEE5D0",
+        colorBorderSecondary: isDark ? "#18230F" : "#E4EFE7",
+        colorBorder: isDark ? "#374151" : "#B8C4A9",
         colorPrimary: "#3A6F43",
         colorLink: isDark ? "#3A6F43": "#276749",
         colorLinkHover: "#2f5735",

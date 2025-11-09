@@ -41,7 +41,7 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
 
   return (
     <>
-    <div className="grid gap-6 md:grid-cols-2 min-h-[90vh] px-4 md:px-8 lg:px-16 py-8" style={{ backgroundColor: token.colorBgContainer }}>
+    <div className="grid gap-6 md:grid-cols-2 min-h-screen px-4 md:px-8 lg:px-16 py-8" style={{ backgroundColor: token.colorBgContainer }}>
       {/* Left: Gallery */}
       <div>
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -234,7 +234,6 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
         </Space>
       </div>
     </div>
-    <Footer />
     </>
   );
 }

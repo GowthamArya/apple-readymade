@@ -1,5 +1,5 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer, Input } from 'antd';
+import { Table, Layout, Menu, Button, Drawer, Input, theme } from 'antd';
 import { MenuOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
@@ -7,12 +7,15 @@ import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
+const { useToken } = theme;
 
 const { Content } = Layout;
 const HEADER_HEIGHT = 50;
 
 
 const GenericListing = ({entityName, allEntities}:{entityName:string, allEntities: []}) => {
+  const { token } = useToken();
+
     const [entities, setEntities] = useState<any[]>([]);
     const [loading,setLoading] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
@@ -118,7 +121,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
           zIndex: 10,
         }}
       >
-        <div className="bg-green-500 text-white font-bold p-3 text-xl text-start sticky top-0 z-10">
+        <div className="font-bold p-3 text-xl text-start sticky top-0 z-10" style={{ background: token.colorText, color: token.colorBgContainer   }}>
           Master Tables
         </div>
         <Menu theme="dark" mode="inline" className='pb-30!' selectedKeys={[entityName]} items={items} />

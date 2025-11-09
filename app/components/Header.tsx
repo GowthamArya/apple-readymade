@@ -95,6 +95,7 @@ export default function AppHeader() {
 
   return (
     <Header
+      className="px-5!"
       style={{
         position: "sticky",
         top: 0,

@@ -31,7 +31,7 @@ export default function HeroSection() {
           <h1 className={`${isDark ? "text-shine" : "text-green-950"} m-0! text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight`}>
             MAKE ▲ MOVE
           </h1>
-          <p className="mt-2 text-lg md:text-xl lg:text-2xl text-gray-500">
+          <p className="mt-2 text-lg md:text-xl lg:text-2xl text-gray-500 text-shine block! pl-0.5!">
             Elevate Your Style with Our Exclusive Collection
           </p>
         </div>

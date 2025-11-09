@@ -92,7 +92,7 @@ export default function Filters( {initialProducts, searchQuery} : FilterProps) {
   };
 
   return (
-    <>
+    <div className="relative min-h-screen!" style={{ backgroundColor: token.colorBgContainer }}>
       <ProductList products={products} token={token} />
       <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-30">
         <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw rounded-t-xl shadow-3xl overflow-hidden shadow-gray-700 pb-2 items-center" style={{ background: token.colorBgContainer }} >
@@ -174,8 +174,7 @@ export default function Filters( {initialProducts, searchQuery} : FilterProps) {
           })}
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   );
 }
 

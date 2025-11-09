@@ -28,21 +28,11 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div
-        className="fixed top-0 left-0 w-full h-full -z-10 bg-cover bg-center"
-        style={{ backgroundImage: "url('/apple-bg.png')" }}
-      >
-        <div
-          id="bgOverBlend"
-          className="absolute top-0 left-0 w-full h-full bg-white/70 mix-blend-lighten"
-        />
-      </div>
-
+    <div className="min-h-[90vh] flex items-center justify-center" style={{background:token.colorBgLayout}}>
       <Form
         className="p-6! m-2 rounded md:w-1/4 text-center"
         layout="vertical"
-        style={{background:token.colorBgContainer, boxShadow: token.boxShadowSecondary}}
+        style={{ background: token.colorBgContainer, boxShadow: token.boxShadowSecondary }}
         onFinish={handleEmailSignIn}
       >
         <h1 className="text-xl font-bold mb-4!">
