@@ -16,7 +16,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
       id="childrenRoot"
       style={{
         backgroundColor: token.colorBgLayout,
-        minHeight: "80dvh",
+        minHeight: "92dvh",
       }}
     >
       {children}

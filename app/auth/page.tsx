@@ -28,7 +28,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-[90vh] flex items-center justify-center" style={{background:token.colorBgLayout}}>
+    <div className="min-h-[80vh] flex items-center justify-center">
       <Form
         className="p-6! m-2 rounded md:w-1/4 text-center"
         layout="vertical"

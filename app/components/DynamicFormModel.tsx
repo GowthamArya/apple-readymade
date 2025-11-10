@@ -113,7 +113,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     if (field.type === "images") {
       return (
-        <Form.Item key={name} label={label} name="images" valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: !!field.required }]}> 
+        <Form.Item className="p-5!" key={name} label={label} name="images" valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: !!field.required }]}> 
           <Upload.Dragger
             name="file"
             action="/api/collections"
@@ -185,16 +185,15 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
       footer={null}
       afterClose={() => form.resetFields()}
       destroyOnHidden={true}
+      className="p-5!"
     >
       <Form
         form={form}
         onFinish={handleFinish}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
         autoComplete="off"
       >
         {formItems}
-        <Form.Item wrapperCol={{ span: 16, offset: 8 }}>
+        <Form.Item>
           <Button type="primary" htmlType="submit" block loading={loading}>
             Save
           </Button>
