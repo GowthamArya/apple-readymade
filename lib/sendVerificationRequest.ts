@@ -11,8 +11,8 @@ export async function sendVerificationRequest({
     const transport = nodemailer.createTransport(provider.server);
     const logoUrl = "https://apple-readymade.vercel.app/logo.png";
     const emailHtml = `
-        <body style="margin:0; padding:0; background-color:#3A6F43; font-family:Arial, sans-serif;">
-            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#3A6F43; padding:20px;">
+        <body style="margin:0; padding:0; background-color:#CEE5D0; font-family:Arial, sans-serif;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="padding:20px;">
                 <tr>
                 <td align="center">
 

@@ -77,12 +77,19 @@ export const authOptions: NextAuthOptions = {
         if (user?.email) {
           const { data, error } = await supabase
             .from(USERS_TABLE)
-            .select("id, role_id, role(name)")
+            .select(`
+              id,
+              role_id,
+              role:role_id (
+                name
+              )
+            `)
             .eq("email", user.email)
             .single();
 
+
           if (!error && data) {
-            token.role_name = data?.role?.[0]?.name ?? null;
+            token.role_name = (data?.role as any)?.name ?? null;
             token.role_id = data?.role_id ?? null;
             token.userId = data?.id ?? null;
             token.email = user.email;
@@ -122,7 +129,7 @@ export const authOptions: NextAuthOptions = {
       try {
         const { data: existingUser, error: selectError } = await supabase
           .from(USERS_TABLE)
-          .select("id, email, name, image, role_id")
+          .select("id, email, name, image, role_id, role(name)")
           .eq("email", user.email)
           .maybeSingle();
 
