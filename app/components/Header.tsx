@@ -19,13 +19,14 @@ import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
 import { useSearchParams, useRouter } from "next/navigation";
 
-function ThemeToggle() {
+function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
 
   return (
     <div style={{ display: "inline-flex" }}>
       <Segmented
         shape="round"
+        style={{backgroundColor: token.colorPrimary}}
         value={mode}
         onChange={(val) => setMode(val as "light" | "dark")}
         options={[
@@ -160,7 +161,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {!isMobile && <ThemeToggle />}
+          {!isMobile && <ThemeToggle token={token}  />}
           {/* Account */}
           {user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
@@ -196,7 +197,7 @@ export default function AppHeader() {
             <Image src="/logo.png" alt="Logo" width={28} height={28} />
             {/* MODIFIED: Using Typography.Text for mobile drawer title */}
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
-            <ThemeToggle />
+            <ThemeToggle token={token}  />
           </Flex>
         }
         placement="right"

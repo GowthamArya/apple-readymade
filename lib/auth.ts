@@ -1,33 +1,45 @@
 // lib/auth.ts
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import EmailProvider from "next-auth/providers/email";  
+import EmailProvider from "next-auth/providers/email";
 import { SupabaseAdapter } from "@next-auth/supabase-adapter";
 import { sendVerificationRequest } from "./sendVerificationRequest";
 import { supabase } from "./supabaseServer";
-
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
     user: {
-      id?: string; // Add id field
+      id?: string;
       role?: string | null;
-      role_name: string | null;
+      role_name?: string | null;
     } & DefaultSession["user"];
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id?: string;
+    userId?: string | null;
+    role_id?: string | null;
+    role_name?: string | null;
+    email?: string | null;
   }
 }
+
+const USERS_TABLE = "user";
+const DEFAULT_ROLE_ID = process.env.DEFAULT_ROLE_ID || "user";
+
+const smtpSecure = (() => {
+  const env = process.env.EMAIL_SERVER_SECURE;
+  if (env === "true" || env === "false") return env === "true";
+  const port = Number(process.env.EMAIL_SERVER_PORT || 0);
+  return port === 465;
+})();
 
 export const authOptions: NextAuthOptions = {
   adapter: SupabaseAdapter({
     url: process.env.APPLE_DB_SUPABASE_URL!,
-    secret: process.env.APPLE_DB_SUPABASE_ANON_KEY!,
+    secret: process.env.APPLE_DB_SUPABASE_ANON_KEY!, // consider using a service role key if adapter needs elevated perms
   }),
   providers: [
     GoogleProvider({
@@ -37,7 +49,8 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER_HOST!,
-        port: Number(process.env.EMAIL_SERVER_PORT),
+        port: Number(process.env.EMAIL_SERVER_PORT || 587),
+        secure: smtpSecure,
         auth: {
           user: process.env.EMAIL_SERVER_USER!,
           pass: process.env.EMAIL_SERVER_PASSWORD!,
@@ -53,103 +66,120 @@ export const authOptions: NextAuthOptions = {
     signOut: "/auth",
   },
   secret: process.env.NEXTAUTH_SECRET!,
-  
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user?.email) {
-        const { data } = await supabase
-          .from("user")
-          .select("*, role(*)")
-          .eq("email", user.email)
-          .single();
-        token.role_name = data?.role?.name ?? null;
+      try {
+        if (user?.email) {
+          const { data, error } = await supabase
+            .from(USERS_TABLE)
+            .select("id, role_id, role(name)")
+            .eq("email", user.email)
+            .single();
+
+          if (!error && data) {
+            token.role_name = data?.role?.[0]?.name ?? null;
+            token.role_id = data?.role_id ?? null;
+            token.userId = data?.id ?? null;
+            token.email = user.email;
+          } else {
+            token.email = user.email;
+            token.userId = token.userId ?? null;
+            token.role_id = token.role_id ?? null;
+            token.role_name = token.role_name ?? null;
+            if (error) console.error("Supabase lookup failed in jwt callback");
+          }
+        }
+      } catch (err) {
+        console.error("JWT callback error");
       }
       return token;
     },
+
     async session({ session, token }) {
       try {
-        const { data, error } = await supabase
-          .from("user")
-          .select("*, role(*)")
-          .eq("email", token.email)
-          .single();
-
-        if (error) {
-          console.error("Error fetching user role:", error);
-          return {
-            ...session,
-            user: {
-              ...session.user,
-              id: token.id as string,
-              role_name: null,
-              role: null,
-            },
-          };
-        }
-
         return {
           ...session,
           user: {
             ...session.user,
-            id: (token.id || data?.id) as string,
-            role_name: data?.role?.name || null,
-            role: data?.role_id || null,
+            id: (token.userId as string) ?? session.user?.id,
+            role_name: (token.role_name as string) ?? null,
+            role: (token.role_id as string) ?? null,
           },
         };
       } catch (err) {
-        console.error("Session callback error:", err);
+        console.error("Session mapping error");
         return session;
       }
     },
 
     async signIn({ account, user, profile }) {
+      if (!user?.email) return false;
       try {
-        const { data: existingUser } = await supabase
-          .from("user")
-          .select("id, email")
+        const { data: existingUser, error: selectError } = await supabase
+          .from(USERS_TABLE)
+          .select("id, email, name, image, role_id")
           .eq("email", user.email)
-          .single();
+          .maybeSingle();
+
+        if (selectError) {
+          console.error("Error checking existing user",{selectError});
+          return false;
+        }
 
         if (!existingUser) {
+          const insertPayload: Record<string, any> = {
+            email: user.email,
+            name: user.name || null,
+            image: user.image || null,
+          };
+          if (DEFAULT_ROLE_ID) insertPayload.role_id = DEFAULT_ROLE_ID;
+
           const { error: insertError } = await supabase
-            .from("user")
-            .insert({
-              email: user.email,
-              name: user.name,
-              image: user.image,
-              email_verified: new Date().toISOString(),
-            });
+            .from(USERS_TABLE)
+            .insert(insertPayload);
 
           if (insertError) {
-            console.error("Error creating user:", insertError);
+            console.error("Error creating user record");
             return false;
           }
         } else {
-          await supabase
-            .from("user")
-            .update({
-              email_verified: new Date().toISOString(),
-              name: user.name,
-              image: user.image,
-            })
-            .eq("email", user.email);
+          const updates: Record<string, any> = {};
+          if (user.name && user.name !== existingUser.name) updates.name = user.name;
+          if (user.image && user.image !== existingUser.image) updates.image = user.image;
+
+          if (Object.keys(updates).length > 0) {
+            const { error: updateError } = await supabase
+              .from(USERS_TABLE)
+              .update(updates)
+              .eq("email", user.email);
+
+            if (updateError) {
+              console.error("Error updating user record");
+            }
+          }
         }
 
         return true;
-      } catch (error) {
-        console.error("SignIn callback error:", error);
+      } catch (err) {
+        console.error("SignIn callback error");
         return false;
       }
     },
 
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      try {
+        const dest = new URL(url);
+        if (dest.origin === baseUrl) return url;
+      } catch (e) {
+        console.error("Redirect callback URL error:", e);
+        return baseUrl;
+      }
       return baseUrl;
     },
   },
