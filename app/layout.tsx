@@ -8,6 +8,9 @@ import ClientLayout from "./components/ClientLayout";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Viewport } from 'next';
 import { Roboto } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
+ 
+
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -57,6 +60,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
         <SpeedInsights/>
+        <Analytics />
       </body>
     </html>
   );
