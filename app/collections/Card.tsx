@@ -8,8 +8,10 @@ import { useFavorites } from "../context/FavoriteContext";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product, token }: { product: any, token: any }) {
+  const router = useRouter();
   const { data:session } = useSession();
   const [user, setUser] = useState(session?.user);
   useEffect(() => {
@@ -74,16 +76,18 @@ export default function ProductCard({ product, token }: { product: any, token: a
           }
         </p>
         {cart.some((item) => item.id === product.id) ?
-          <Link href="/cart">
             <Button
               type="primary"
               icon={<MdOutlineAddShoppingCart />}
               size="small"
-              
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push("/cart");
+              }}
             >
             </Button>
-          </Link>
-        :
+:
         <MdOutlineAddShoppingCart
             onClick={(e) => {
                 e.preventDefault();

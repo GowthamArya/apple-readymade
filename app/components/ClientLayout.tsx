@@ -9,6 +9,7 @@ import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { theme } from "antd";
 import Script from "next/script";
+import { useEffect } from "react";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
@@ -26,6 +27,22 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
 }
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const og = console.error;
+    console.error = (...args) => {
+      if (
+        typeof args[0] === "string" &&
+        args[0].includes("antd v5 support React is 16 ~ 18")
+      ) {
+        return;
+      }
+      og(...args);
+    };
+    return () => {
+      console.error = og;
+    };
+  }, []);
+
   const { token } = theme.useToken();
   return (
     <ThemeContext>

@@ -3,11 +3,13 @@
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { useLoading } from "../context/LoadingContext";
-import { Button, Divider, Form, Input, message, theme } from "antd";
+import { Button, Divider, Form, Input, App, theme } from "antd";
 const { useToken } = theme;
 export default function AuthPage() {
   const pageLoading = useLoading();
   const { token } = useToken();
+  const { message } = App.useApp(); 
+  
 
   const handleEmailSignIn = async (values: { email: string }) => {
     pageLoading.setLoading(true);

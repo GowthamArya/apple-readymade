@@ -48,7 +48,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
     setLoading(true);
     const params = new URLSearchParams({
       pagination: JSON.stringify({ page: currentPage, limit: currentPageSize }),
-      ...(searchText && { search: JSON.stringify({ column: columnsMetadata, query: searchText }) }),
+      ...(searchText && { search: JSON.stringify({ query: searchText }) }),
     });
     const response = await fetch(`/api/generic/${entityName}?${params.toString()}`);
     const json = await response.json();

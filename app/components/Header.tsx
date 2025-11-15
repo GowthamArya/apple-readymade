@@ -1,23 +1,21 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  Layout, Menu, Grid, Input, Badge, Button, 
-  Avatar, Dropdown, Drawer, theme, Flex, Switch, 
-  Typography, 
-  Segmented} from "antd"; // **Added Typography**
+  Layout, Menu, Grid, Input, Badge, Button, Avatar,
+  Dropdown, Drawer, theme, Flex, Typography, Segmented,
+  } from "antd";
 import { 
-  ShoppingOutlined, UserOutlined, MenuOutlined, 
-  LogoutOutlined, SettingOutlined, AppstoreOutlined, 
-  SunOutlined, MoonOutlined,
-  HeartOutlined
+  ShoppingOutlined, UserOutlined, MenuOutlined, LogoutOutlined, SettingOutlined, 
+  AppstoreOutlined, SunOutlined, MoonOutlined, HeartOutlined
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useLoading } from "../context/LoadingContext";
 
 function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
@@ -50,7 +48,7 @@ const navItems = [
 
 export default function AppHeader() {
   const [search, setSearch] = useState("");
-  //const searchParams = useSearchParams();
+  const pageLoading = useLoading();
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
@@ -78,7 +76,11 @@ export default function AppHeader() {
         {
           key: "logout",
           icon: <LogoutOutlined />,
-          label: <span onClick={() => signOut()}>Log out</span>,
+          label: <span onClick={() => {
+              pageLoading.setLoading(true);
+              signOut();
+            }
+          }>Log out</span>,
         },
       ],
     }),
@@ -88,11 +90,6 @@ export default function AppHeader() {
   function handleSearch(search: string) {
     router.push(`/collections?searchQuery=${search}`);
   }
-
-  // useEffect(() => {
-  //   const searchQuery = searchParams.get('searchQuery');
-  //   setSearch(searchQuery || "");
-  // }, [searchParams]); 
 
   return (
     <Header
@@ -236,7 +233,7 @@ export default function AppHeader() {
                     : []),
                   {
                     key: "logout",
-                    label: <span onClick={() => signOut()}>Log out</span>,
+                    label: <span onClick={() => (pageLoading.setLoading(true),signOut())}>Log out</span>,
                     icon: <LogoutOutlined />,
                   },
                 ]

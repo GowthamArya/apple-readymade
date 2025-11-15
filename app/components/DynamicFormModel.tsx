@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, Form, Input, InputNumber, Button, Checkbox, Upload, UploadFile, message } from "antd";
+import { Modal, Form, Input, InputNumber, Button, Checkbox, Upload, UploadFile, message, App } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DynamicDropdown from "./DynamicDropdown";
 
@@ -28,6 +28,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const isEditing = useMemo(() => id !== undefined && id !== null, [id]);
+  const { message } = App.useApp(); 
 
   // Fetch existing entity when opening in edit mode
   useEffect(() => {
@@ -121,6 +122,13 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
             listType="picture-card"
             multiple
             accept="image/*"
+            beforeUpload={(file) => {
+              const isImage = file.type.startsWith("image/");
+              if (!isImage) {
+                message.error("Only image files are allowed!");
+              }
+              return isImage || Upload.LIST_IGNORE; 
+            }}
           >
             <p>
               <PlusOutlined />
@@ -147,6 +155,9 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     const payload = { ...values, image_urls };
     delete (payload as any).images;
+    if (image_urls.length === 0) {
+      delete (payload as any).image_urls;
+    }
 
     setLoading(true);
     try {
