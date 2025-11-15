@@ -23,7 +23,7 @@ export async function sendVerificationRequest({
         
             <!-- Outer Full Width Table -->
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation" 
-                   style="background-color:#CEE5D0; padding:20px 0;">
+                   style="background-color:#CEE5D0; padding:20px 10px;">
                 <tr>
                     <td align="center">
         
