@@ -58,11 +58,12 @@ export default function Footer() {
           <Title level={5} className="text-white mb-3">Customer Service</Title>
           <ul className="space-y-2 text-sm">
             {[
-              { href: "/support/contact", label: "Contact Us" },
-              { href: "/support/shipping", label: "Shipping" },
-              { href: "/support/returns", label: "Returns" },
-              { href: "/support/faq", label: "FAQ" },
-              { href: "/support/size-guide", label: "Size Guide" },
+              { href: "/contact", label: "Contact Us" },
+              { href: "/shipping", label: "Shipping" },
+              { href: "/returns", label: "Returns" },
+              { href: "/refund-cancellation", label: "Refund-cancellation polciy" },
+              { href: "/privacy", label: "Privacy" },
+              { href: "/terms", label: "Terms" },
             ].map(({ href, label }) => (
               <li key={href}>
                 <Link href={href} className={footerLinkClass}>
