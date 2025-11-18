@@ -60,7 +60,7 @@ export default function Footer() {
             {[
               { href: "/contact", label: "Contact Us" },
               { href: "/shipping", label: "Shipping" },
-              { href: "/returns", label: "Returns" },
+              // { href: "/returns", label: "Returns" }, 
               { href: "/refund-cancellation", label: "Refund-cancellation polciy" },
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
