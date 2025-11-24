@@ -61,7 +61,6 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
         colorLinkHover: "#2f5735",
         colorLinkActive: "#25462b",   
         borderRadius: 8,
-        
       },
     }),
     [algorithm]
@@ -70,7 +69,7 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
   return (
     <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
       <AntdRegistry>
-        <ConfigProvider theme={theme} componentSize="middle">
+        <ConfigProvider theme={theme} componentSize="large" >
           <App>{children}</App>
         </ConfigProvider>
       </AntdRegistry>

@@ -44,7 +44,6 @@ const { Text } = Typography;
 
 export default function AppHeader() {
   const pathname = usePathname();
-  console.log(pathname);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const pageLoading = useLoading();

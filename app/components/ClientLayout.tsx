@@ -13,6 +13,10 @@ import { useEffect } from "react";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
+  useEffect(() => {
+    document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
+  }, [token.colorBgLayout]);
+
   return (
     <main
       id="childrenRoot"
@@ -43,7 +47,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  const { token } = theme.useToken();
   return (
     <ThemeContext>
         <SessionProvider>

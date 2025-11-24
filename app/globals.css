@@ -5,6 +5,15 @@
   to { background-position: -100%; }
 }
 
+:root {
+  --bg-layout: #000;
+}
+
+html, body {
+  background-color: var(--bg-layout);
+}
+
+
 .text-shine {
   animation: custom-shine 2s linear infinite;
   background-image: linear-gradient(

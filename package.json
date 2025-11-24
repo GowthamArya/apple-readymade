@@ -44,7 +44,7 @@
     "@types/locomotive-scroll": "^4.1.4",
     "@types/node": "^20.19.22",
     "@types/nodemailer": "^7.0.2",
-    "@types/react": "^19",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "supabase": "^2.45.5",
