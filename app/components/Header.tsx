@@ -16,6 +16,7 @@ import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 import { useLoading } from "../context/LoadingContext";
+import { usePathname } from "next/navigation";
 
 function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
@@ -42,9 +43,10 @@ const { useBreakpoint } = Grid;
 const { Text } = Typography; 
 
 export default function AppHeader() {
+  const pathname = usePathname();
+  console.log(pathname);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
-  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
   const pageLoading = useLoading();
   const { cart } = useCart();
   const { data: session } = useSession();
@@ -86,14 +88,14 @@ export default function AppHeader() {
   
   const menuItems = useMemo(() => {
     const baseItems = [
-      { key: "home", label: <Link href="/">Home</Link> },
-      { key: "collections", label: <Link href="/collections">Collections</Link> },
+      { key: "/", label: <Link href="/">Home</Link> },
+      { key: "/collections", label: <Link href="/collections">Collections</Link> },
     ];
 
     const mobileOnlyItems = [
       { type: "divider" as const },
       {
-        key: "cart",
+        key: "/cart",
         label: <Link href="/cart">Cart</Link>,
         icon: <ShoppingOutlined />,
       },
@@ -102,13 +104,13 @@ export default function AppHeader() {
     const userSpecificItems = user
       ? [
           {
-            key: "settings",
+            key: "/account",
             label: <Link href="/account">Account Settings</Link>,
             icon: <SettingOutlined />,
           },
           ...(user?.role_name === "admin"
             ? [{
-                key: "master",
+                key: "/list/variant",
                 label: <Link href="/list/variant">Master Tables</Link>,
                 icon: <AppstoreOutlined />,
               }]
@@ -121,7 +123,7 @@ export default function AppHeader() {
         ]
       : [
           {
-            key: "login",
+            key: "/auth",
             label: <Link href="/auth">Login</Link>,
             icon: <UserOutlined />,
           },
@@ -177,6 +179,7 @@ export default function AppHeader() {
               className="w-100 font-semibold text-2xl"
               mode="horizontal"
               items={menuItems}
+              selectedKeys={[pathname]} 
               style={{ borderBottom: "none", background: "transparent", color: token.colorTextHeading }}
             />
             <Input.Search 
@@ -255,6 +258,7 @@ export default function AppHeader() {
           mode="inline"
           className="my-3!"
           items={menuItems}
+          selectedKeys={[pathname]} 
           onClick={() => setOpen(false)}
         />
       </Drawer>
