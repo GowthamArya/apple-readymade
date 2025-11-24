@@ -1,10 +1,11 @@
 import GenericListing from "@/app/components/GenericListing";
 import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { forbidden } from "next/navigation";
 
 export default async function Listing(props: PageProps<"/list/[entity]">) {
-  const {user}:any = await getServerSession(authOptions);
+  const session: Session | null = await getServerSession(authOptions);
+  const user = session?.user as { role_name?: string } | undefined;
   if(user?.role_name?.toLowerCase() !== 'admin'){
     forbidden();
   }

@@ -27,19 +27,11 @@ declare module "next-auth/jwt" {
 }
 
 const USERS_TABLE = "user";
-const DEFAULT_ROLE_ID = process.env.DEFAULT_ROLE_ID || "user";
-
-const smtpSecure = (() => {
-  const env = process.env.EMAIL_SERVER_SECURE;
-  if (env === "true" || env === "false") return env === "true";
-  const port = Number(process.env.EMAIL_SERVER_PORT || 0);
-  return port === 465;
-})();
 
 export const authOptions: NextAuthOptions = {
   adapter: SupabaseAdapter({
     url: process.env.APPLE_DB_SUPABASE_URL!,
-    secret: process.env.APPLE_DB_SUPABASE_ANON_KEY!, // consider using a service role key if adapter needs elevated perms
+    secret: process.env.APPLE_DB_SUPABASE_SERVICE_ROLE_KEY!,
   }),
   providers: [
     GoogleProvider({
@@ -47,15 +39,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST!,
-        port: Number(process.env.EMAIL_SERVER_PORT || 587),
-        secure: smtpSecure,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER!,
-          pass: process.env.EMAIL_SERVER_PASSWORD!,
-        },
-      },
       from: process.env.EMAIL_FROM!,
       sendVerificationRequest,
     }),
@@ -65,7 +48,7 @@ export const authOptions: NextAuthOptions = {
     verifyRequest: "/verify-request",
     signOut: "/auth",
   },
-  secret: process.env.NEXTAUTH_SECRET!,
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -77,13 +60,15 @@ export const authOptions: NextAuthOptions = {
         if (user?.email) {
           const { data, error } = await supabase
             .from(USERS_TABLE)
-            .select(`
+            .select(
+              `
               id,
               role_id,
               role:role_id (
                 name
               )
-            `)
+            `
+            )
             .eq("email", user.email)
             .single();
 
@@ -143,8 +128,8 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name || null,
             image: user.image || null,
+            role_id: process.env.DEFAULT_ROLE_ID || "user",
           };
-          if (DEFAULT_ROLE_ID) insertPayload.role_id = DEFAULT_ROLE_ID;
 
           const { error: insertError } = await supabase
             .from(USERS_TABLE)

@@ -1,15 +1,33 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaFacebookF } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaInstagram } from "react-icons/fa";
+import {
+  InstagramOutlined,
+  FacebookOutlined,
+  TwitterOutlined,
+} from '@ant-design/icons';
 import { Typography, Row, Col, theme } from 'antd';
 import SubscribeForm from './Home/SubscribeForm';
 const { useToken } = theme;
 
 const { Title, Text } = Typography;
 
-const footerLinkClass = "text-gray-400 hover:text-gray-100 transition duration-150 ease-in-out";
+const socialLinks = [
+  {
+    href: "https://www.instagram.com/apple_readymade/",
+    label: "Instagram",
+    icon: <InstagramOutlined />,
+  },
+  {
+    href: "https://facebook.com",
+    label: "Facebook",
+    icon: <FacebookOutlined />,
+  },
+  {
+    href: "https://twitter.com",
+    label: "Twitter",
+    icon: <TwitterOutlined />,
+  },
+];
 
 export default function Footer() {
   const { token } = useToken();
@@ -25,18 +43,18 @@ export default function Footer() {
               height={36}
               priority
             />
-            <Title level={4} color='black' className="m-0">
+            <Title level={4} className="m-0" style={{ color: token.colorText }}>
               Apple Readymade & More
             </Title>
           </div>
-          <Text type="secondary" className="max-w-xs leading-relaxed">
+          <Text style={{ color: token.colorTextSecondary }} className="max-w-xs leading-relaxed">
             Where tradition meets trend — quality readymade wear with a fresh twist.
           </Text>
         </Col>
 
         {/* Shop Links */}
         <Col xs={24} sm={12} md={6}>
-          <Title level={5} className="text-white mb-3">Shop</Title>
+          <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Shop</Title>
           <ul className="space-y-2 text-sm">
             {[
               { href: "/collections/new-arrivals", label: "New Arrivals" },
@@ -45,7 +63,7 @@ export default function Footer() {
               { href: "/collections/sale", label: "Sale" },
             ].map(({ href, label }) => (
               <li key={href}>
-                <Link href={href} className={footerLinkClass}>
+                <Link href={href} style={{ color: token.colorTextSecondary }}>
                   {label}
                 </Link>
               </li>
@@ -55,7 +73,7 @@ export default function Footer() {
 
         {/* Customer Service */}
         <Col xs={24} sm={12} md={6}>
-          <Title level={5} className="text-white mb-3">Customer Service</Title>
+          <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Customer Service</Title>
           <ul className="space-y-2 text-sm">
             {[
               { href: "/contact", label: "Contact Us" },
@@ -66,7 +84,7 @@ export default function Footer() {
               { href: "/terms", label: "Terms" },
             ].map(({ href, label }) => (
               <li key={href}>
-                <Link href={href} className={footerLinkClass}>
+                <Link href={href} style={{ color: token.colorTextSecondary }}>
                   {label}
                 </Link>
               </li>
@@ -76,19 +94,28 @@ export default function Footer() {
 
         {/* Social & Newsletter */}
         <Col xs={24} md={6}>
-          <Title level={5} className="text-white mb-3">Stay Connected</Title>
+          <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Stay Connected</Title>
           <SubscribeForm />
-          <div className="flex space-x-6 text-gray-400 text-xl">
-            <a href="https://www.instagram.com/apple_readymade/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebookF /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><FaXTwitter /></a>
+          <div className="flex space-x-6 text-xl" style={{ color: token.colorTextSecondary }}>
+            {socialLinks.map(social => (
+              <a
+                key={social.href}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={social.label}
+                style={{ color: 'inherit' }}
+              >
+                {social.icon}
+              </a>
+            ))}
           </div>
         </Col>
       </Row>
 
       {/* Bottom line */}
-      <div className="mt-10 border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
-        Copyright &copy;  2025 Apple Menswear Co. All rights reserved.
+      <div className="mt-10 pt-6 text-center text-sm" style={{ borderTop: `1px solid ${token.colorBorder}`, color: token.colorTextTertiary }}>
+        Copyright &copy; {new Date().getFullYear()} Apple Menswear Co. All rights reserved.
       </div>
     </footer>
   );

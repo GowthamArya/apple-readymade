@@ -8,25 +8,24 @@ const { useToken } = theme;
 export default function AuthPage() {
   const pageLoading = useLoading();
   const { token } = useToken();
-  const { message } = App.useApp(); 
-  
+  const { message } = App.useApp();
 
-  const handleEmailSignIn = async (values: { email: string }) => {
+  const handleSignIn = async (provider: "email" | "google", email?: string) => {
     pageLoading.setLoading(true);
+    const key = "signIn";
     try {
-      await signIn("email", {
-        email: values.email,
+      message.loading({ content: provider === 'email' ? 'Sending sign-in link...' : 'Redirecting to Google...', key });
+      await signIn(provider, {
+        email,
         callbackUrl: "/",
         redirect: true,
       });
+      message.success({ content: provider === 'email' ? 'Link sent successfully!' : 'Sign-in successful!', key });
     } catch (error) {
       message.error("Failed to sign in. Try again.");
+    } finally {
+      pageLoading.setLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    pageLoading.setLoading(true);
-    signIn("google", { callbackUrl: "/" });
   };
 
   return (
@@ -35,7 +34,7 @@ export default function AuthPage() {
         className="p-6! m-2 rounded md:w-1/4 text-center"
         layout="vertical"
         style={{ background: token.colorBgContainer, boxShadow: token.boxShadowSecondary }}
-        onFinish={handleEmailSignIn}
+        onFinish={(values) => handleSignIn("email", values.email)}
       >
         <h1 className="text-xl font-bold mb-4!">
           Sign in to Apple Menswear
@@ -53,7 +52,9 @@ export default function AuthPage() {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="w-full">Get Link</Button>
+          <Button type="primary" htmlType="submit" className="w-full" loading={pageLoading.loading}>
+            Get Link
+          </Button>
         </Form.Item>
 
         <Divider size="large">Other sign-in options</Divider>
@@ -61,9 +62,10 @@ export default function AuthPage() {
         <Button
           type="dashed"
           className="w-full flex justify-center items-center gap-2"
-          onClick={handleGoogleSignIn}
+          onClick={() => handleSignIn("google")}
+          loading={pageLoading.loading}
         >
-          <span className="text-sm">Continue with</span>
+          <span className="text-sm">Continue with Google</span>
           <FcGoogle />
         </Button>
       </Form>

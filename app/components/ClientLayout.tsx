@@ -83,6 +83,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   })();
                   `}
                 </Script>
+                {/* <!-- Brevo Conversations {literal} --> */}
+                {/* <Script>
+                   {`
+                    (function(d, w, c) {
+                        w.BrevoConversationsID = '680d1e7cb2b1f40d15057540';
+                        w[c] = w[c] || function() {
+                            (w[c].q = w[c].q || []).push(arguments);
+                        };
+                        var s = d.createElement('script');
+                        s.async = true;
+                        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
+                        if (d.head) d.head.appendChild(s);
+                    })(document, window, 'BrevoConversations');`}
+                </Script> */}
+                {/* <!-- /Brevo Conversations {/literal} --> */}
                 <LoadingLayer />
                 <ThemedMain>{children}</ThemedMain>
               </LoadingProvider>

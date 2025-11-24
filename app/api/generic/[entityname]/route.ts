@@ -1,6 +1,4 @@
-import { authOptions } from "@/lib/auth";
 import GenericRepo from "@/utils/supabase/genericRepo";
-import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -8,11 +6,6 @@ export async function POST(
   { params }: { params: Promise<{ entityname: string; id?: string }> }
 ) {
   try {
-    // const {session}:any = await getServerSession(authOptions);
-    // const user = session?.user;
-    // if(!user || user?.role_name?.toLowerCase() !== 'admin'){
-    //   return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
-    // }
     const { entityname } = await params;
 
     const requestData = await req.json();

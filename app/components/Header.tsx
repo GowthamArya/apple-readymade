@@ -41,22 +41,23 @@ const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Text } = Typography; 
 
-const navItems = [
-  { key: "home", label: <Link href="/">Home</Link> },
-  { key: "collections", label: <Link href="/collections">Collections</Link> },
-];
-
 export default function AppHeader() {
   const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
   const pageLoading = useLoading();
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
-  const [open, setOpen] = useState(false);
   const screens = useBreakpoint();
   const { token } = useToken();
   const isMobile = screens.md === false;
   const router = useRouter();
+
+  const handleLogout = () => {
+    pageLoading.setLoading(true);
+    signOut();
+  };
 
   const accountMenu = useMemo(
     () => ({
@@ -76,16 +77,62 @@ export default function AppHeader() {
         {
           key: "logout",
           icon: <LogoutOutlined />,
-          label: <span onClick={() => {
-              pageLoading.setLoading(true);
-              signOut();
-            }
-          }>Log out</span>,
+          label: <span onClick={handleLogout}>Log out</span>,
         },
       ],
     }),
     [user?.role_name]
   );
+  
+  const menuItems = useMemo(() => {
+    const baseItems = [
+      { key: "home", label: <Link href="/">Home</Link> },
+      { key: "collections", label: <Link href="/collections">Collections</Link> },
+    ];
+
+    const mobileOnlyItems = [
+      { type: "divider" as const },
+      {
+        key: "cart",
+        label: <Link href="/cart">Cart</Link>,
+        icon: <ShoppingOutlined />,
+      },
+    ];
+
+    const userSpecificItems = user
+      ? [
+          {
+            key: "settings",
+            label: <Link href="/account">Account Settings</Link>,
+            icon: <SettingOutlined />,
+          },
+          ...(user?.role_name === "admin"
+            ? [{
+                key: "master",
+                label: <Link href="/list/variant">Master Tables</Link>,
+                icon: <AppstoreOutlined />,
+              }]
+            : []),
+          {
+            key: "logout",
+            label: <span onClick={handleLogout}>Log out</span>,
+            icon: <LogoutOutlined />,
+          },
+        ]
+      : [
+          {
+            key: "login",
+            label: <Link href="/auth">Login</Link>,
+            icon: <UserOutlined />,
+          },
+        ];
+    
+    if (isMobile) {
+      return [...baseItems, ...mobileOnlyItems, ...userSpecificItems];
+    }
+    
+    return baseItems;
+  }, [user, isMobile]);
 
   function handleSearch(search: string) {
     router.push(`/collections?searchQuery=${search}`);
@@ -129,7 +176,7 @@ export default function AppHeader() {
             <Menu
               className="w-100 font-semibold text-2xl"
               mode="horizontal"
-              items={navItems}
+              items={menuItems}
               style={{ borderBottom: "none", background: "transparent", color: token.colorTextHeading }}
             />
             <Input.Search 
@@ -158,7 +205,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {!isMobile && <ThemeToggle token={token}  />}
+          {!isMobile &&<ThemeToggle token={token} />}
           {/* Account */}
           {user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
@@ -192,7 +239,6 @@ export default function AppHeader() {
         title={
           <Flex justify="space-between" align="center" gap={8}>
             <Image src="/logo.png" alt="Logo" width={28} height={28} />
-            {/* MODIFIED: Using Typography.Text for mobile drawer title */}
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
             <ThemeToggle token={token}  />
           </Flex>
@@ -201,7 +247,6 @@ export default function AppHeader() {
         open={open}
         onClose={() => setOpen(false)}
       >
-        {/* Optional mobile search */}
         <Input.Search placeholder="Search products" onSearch={(search, e) => {
           setOpen(false);
           handleSearch(search);
@@ -209,42 +254,7 @@ export default function AppHeader() {
         <Menu
           mode="inline"
           className="my-3!"
-          items={[
-            ...navItems,
-            { type: "divider" as const },
-            {
-              key: "cart",
-              label: <Link href="/cart">Cart</Link>,
-              icon: <ShoppingOutlined />,
-            },
-            ...(user
-              ? [
-                  {
-                    key: "settings",
-                    label: <Link href="/account">Account Settings</Link>,
-                    icon: <SettingOutlined />,
-                  },
-                  ...(user?.role_name === "admin"
-                    ? [{
-                        key: "master",
-                        label: <Link href="/list/variant">Master Tables</Link>,
-                        icon: <AppstoreOutlined />,
-                      }]
-                    : []),
-                  {
-                    key: "logout",
-                    label: <span onClick={() => (pageLoading.setLoading(true),signOut())}>Log out</span>,
-                    icon: <LogoutOutlined />,
-                  },
-                ]
-              : [
-                  {
-                    key: "login",
-                    label: <Link href="/auth">Login</Link>,
-                    icon: <UserOutlined />,
-                  },
-                ]),
-          ]}
+          items={menuItems}
           onClick={() => setOpen(false)}
         />
       </Drawer>
