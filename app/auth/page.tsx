@@ -60,7 +60,7 @@ export default function AuthPage() {
         <Divider size="large">Other sign-in options</Divider>
 
         <Button
-          type="dashed"
+          type="default"
           className="w-full flex justify-center items-center gap-2"
           onClick={() => handleSignIn("google")}
           loading={pageLoading.loading}
