@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, Radio, Image, Typography, Space, Tag, Button, theme, App } from "antd";
-import { ShoppingCartOutlined } from "@ant-design/icons";
+import { ShoppingCartOutlined, ShareAltOutlined } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import Footer from "../components/Footer";
@@ -33,6 +33,29 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
         () => variants.find(v => v.id === selectedId) ?? variants[0],
         [variants, selectedId]
     );
+
+    const handleShare = async () => {
+        const shareData = {
+            title: productData?.name,
+            text: productData?.description,
+            url: window.location.href,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                // Avoid showing an error if the user cancels the share dialog.
+                if ((err as Error).name !== 'AbortError') {
+                    message.error('Error sharing product.');
+                }
+            }
+        } else {
+            // Fallback for browsers that do not support the Web Share API
+            await navigator.clipboard.writeText(window.location.href);
+            message.success('Link copied to clipboard!');
+        }
+    };
 
   const discountPct =
     selected?.price != null && selected?.mrp != null && selected.mrp > 0
@@ -230,6 +253,13 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
               Add to cart
             </Button>}
             <Button size="large">Buy now</Button>
+            <Button
+              size="large"
+              icon={<ShareAltOutlined />}
+              onClick={handleShare}
+            >
+              Share
+            </Button>
           </div>
         </Space>
       </div>
