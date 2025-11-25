@@ -4,7 +4,6 @@ import { uiData } from "@/lib/config/uiData";
 import ProductList from "./List";
 import { useLoading } from "../context/LoadingContext";
 import { Button, Input, Select, Radio, Popover, theme } from 'antd';
-import Footer from "../components/Footer";
 import { useRouter } from "next/navigation";
 const { useToken } = theme;
 
