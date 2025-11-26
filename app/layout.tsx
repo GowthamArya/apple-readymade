@@ -42,15 +42,15 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Apple Readymade mens wear",
-  description: "Mens wear ecommerce website.",
+  description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
   openGraph: {
     title: "Apple Readymade mens wear",
-    description: "Mens wear ecommerce website.",
+    description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
     url: "https://apple-readymade.vercel.app/",
     siteName: "Apple Readymade",
     images: [
       {
-        url: "https://apple-readymade.vercel.app/apple-bg.png",
+        url: "https://apple-readymade.vercel.app/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Apple Readymade Preview",
@@ -61,8 +61,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Apple Readymade mens wear",
-    description: "Mens wear ecommerce website.",
-    images: ["https://apple-readymade.vercel.app/apple-bg.png"],
+    description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
+    images: ["https://apple-readymade.vercel.app/og-image.jpg"],
   },
 };
 
