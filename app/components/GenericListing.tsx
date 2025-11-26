@@ -1,5 +1,5 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer, Input, theme } from 'antd';
+import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal } from 'antd';
 import { MenuOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
+import TextArea from 'antd/es/input/TextArea';
 const { useToken } = theme;
 
 const { Content } = Layout;
@@ -27,7 +28,23 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
     const [pageSize, setPageSize] = useState(10);
     const [total, setTotal] = useState(0);
     const [searchText, setSearchText] = useState('');
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notifiyMessage, setNotifyMessage] = useState("");
+    const [notifiyTitle, setNotifyTitle] = useState("");
+    const showModal = () => {
+      setIsModalOpen(true);
+    };
+    const handleOk = () => {
+      setIsModalOpen(false);
+      notifiyMessage && sendPush(notifiyTitle || "Apple Readymade" , notifiyMessage);
+      setNotifyTitle("");
+      setNotifyMessage("");
+    };
+    const handleCancel = () => {
+      setIsModalOpen(false);
+      setNotifyTitle("");
+      setNotifyMessage("");
+    };
     const handleEditClick = (record:any) => {
         setEditRecord(record);
         setModalVisible(true);
@@ -151,6 +168,19 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
               {entityName.toUpperCase()} DATA
             </h1>
             <div className='flex items-center gap-2 md:flex-nowrap flex-wrap'>
+              <Button type="primary" onClick={showModal}>
+                Notify Users
+              </Button>
+              <Modal
+                title="Notify Users"
+                closable={{ 'aria-label': 'Custom Close Button' }}
+                open={isModalOpen}
+                onOk={handleOk}
+                onCancel={handleCancel}
+              >
+                <Input placeholder='Title of the notification' value={notifiyTitle} onChange={(e)=>setNotifyTitle(e.currentTarget.value)}></Input>
+                <Input.TextArea placeholder='Please enter a message to notify' value={notifiyMessage} onChange={(e)=>setNotifyMessage(e.currentTarget.value)}></Input.TextArea>
+              </Modal>
               <Input.Search
                 placeholder={`Search in ${entityName}`}
                 value={searchText}
@@ -223,4 +253,26 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
   );
 }
 
-export default GenericListing
+export default GenericListing;
+
+
+export async function sendPush(title: string, message: string, userId?: string) {
+  try {
+    const res = await fetch("/api/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, message, userId }), 
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      console.error("❌ Push API failed:", data.error);
+      return;
+    }
+
+    console.log("✅ Push request delivered to server");
+  } catch (err) {
+    console.error("🔥 Network error hitting push API:", err);
+  }
+}

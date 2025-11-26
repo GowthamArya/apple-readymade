@@ -1,15 +1,20 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
   Layout, Menu, Grid, Input, Badge, Button, Avatar,
   Dropdown, Drawer, theme, Flex, Typography, Segmented,
+  Popover,
   } from "antd";
 import { 
   ShoppingOutlined, UserOutlined, MenuOutlined, LogoutOutlined, SettingOutlined, 
-  AppstoreOutlined, SunOutlined, MoonOutlined, HeartOutlined
+  AppstoreOutlined, SunOutlined, MoonOutlined, HeartOutlined,
+  BellOutlined,
+  CheckCircleFilled,
+  BellFilled,
+  CloseCircleFilled
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
@@ -17,6 +22,8 @@ import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
+import useApp from "antd/es/app/useApp";
+import subscribeToPush from "@/lib/config/push-subscription";
 
 function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
@@ -50,6 +57,7 @@ export default function AppHeader() {
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
+  console.log(user);
   const screens = useBreakpoint();
   const { token } = useToken();
   const isMobile = screens.md === false;
@@ -207,6 +215,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
+          {!isMobile &&  <NotifPopover  userId={user?.id || ""}/>}
           {!isMobile &&<ThemeToggle token={token} />}
           {/* Account */}
           {user ? (
@@ -220,7 +229,7 @@ export default function AppHeader() {
             </Dropdown>
           ) : (
             <Link href="/auth">
-              <Button type="primary">Login</Button>
+              <Button type="primary" size="small">Login</Button>
             </Link>
           )}
 
@@ -242,10 +251,11 @@ export default function AppHeader() {
           <Flex justify="space-between" align="center" gap={8}>
             <Image src="/logo.png" alt="Logo" width={28} height={28} />
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
+            <NotifPopover userId={user?.id || ""}/>
             <ThemeToggle token={token}  />
           </Flex>
         }
-        placement="right"
+        placement="left"
         open={open}
         onClose={() => setOpen(false)}
       >
@@ -262,5 +272,93 @@ export default function AppHeader() {
         />
       </Drawer>
     </Header>
+  );
+}
+
+
+export function NotifPopover({userId}:{userId:string}) {
+  const {message} = useApp();
+  const [notifiAllowed, setNotifiAllowed] = useState<boolean>(false);
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+
+  // On mount: check permission + stored deny choice
+  useEffect(() => {
+
+    const deniedStored = localStorage.getItem('notif-denied');
+    const currentAllowed = Notification.permission === 'granted' && deniedStored != "yes";
+
+    setNotifiAllowed(currentAllowed);
+
+    // Open popover automatically only if user didn’t deny earlier AND it’s not granted
+    if (deniedStored !== 'yes' && !currentAllowed) {
+      setPopoverOpen(true);
+    } else {
+      setPopoverOpen(false);
+      
+      navigator.serviceWorker.register('/sw.js')
+      .then(sw => sw.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_KEY
+      }))
+      .then(sub => console.log("Already subscribed:", sub))
+      .catch(console.error);
+    }
+  }, []);
+
+  // Ask permission & update state
+  const askPermission = async (decision: 'granted' | 'denied') => {
+    if (decision === 'granted') {
+      const permission = await Notification.requestPermission();
+      const isGranted = permission === 'granted';
+
+      setNotifiAllowed(isGranted);
+      setPopoverOpen(!isGranted);
+
+      if (isGranted) {
+        message.success('Notifications allowed ✅');
+        localStorage.removeItem('notif-denied');
+        subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
+      } else {
+        message.warning('Enable notifications from browser settings ⚙️');
+      }
+    } else {
+      setNotifiAllowed(false);
+      setPopoverOpen(false);
+      localStorage.setItem('notif-denied', 'yes'); // store denied choice
+      message.info('Notifications denied ❎');
+    }
+  };
+
+  return (
+    <Popover
+      placement="bottom"
+      trigger="click"
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
+      title={
+        <Flex align="center" gap={8}>
+          <span className="font-semibold text-base">
+            {notifiAllowed ? 'Notifications Active' : 'Notifications Off'}
+          </span>
+          {notifiAllowed ? (
+            <CheckCircleFilled style={{ fontSize: 16 }} />
+          ) : (
+            <CloseCircleFilled style={{ fontSize: 16 }} />
+          )}
+        </Flex>
+      }
+      content={
+        <Flex align="center" gap={12}>
+          <Button size="small" onClick={() => askPermission('denied')}>
+            Deny
+          </Button>
+          <Button type="primary" size="small" onClick={() => askPermission('granted')}>
+            Allow
+          </Button>
+        </Flex>
+      }
+    >
+      {!notifiAllowed && userId && <BellOutlined style={{ fontSize: 22, cursor: 'pointer' }} />}
+    </Popover>
   );
 }

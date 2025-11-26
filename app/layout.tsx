@@ -41,6 +41,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://apple-readymade.vercel.app/"),
   title: "Apple Readymade mens wear",
   description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
   openGraph: {

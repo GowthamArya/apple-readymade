@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
   // --- Auth check for the protected area (only /list routes) ---
   // skip auth for /auth pages
-  if (pathname.startsWith('/list') && !pathname.startsWith('/auth')) {
+  if ((pathname.startsWith('/list') || pathname.startsWith('/api/push')) && !pathname.startsWith('/auth')) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
