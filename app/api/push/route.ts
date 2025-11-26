@@ -3,13 +3,13 @@ const webpush = require('web-push');
 import { supabase } from "@/lib/supabaseServer";
 
 function initWebPush() {
-  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+  if (!process.env.NEXT_PUBLIC_VAPID_KEY || !process.env.VAPID_PRIVATE_KEY) {
     return false;
   }
 
   webpush.setVapidDetails(
-    `mailto:arya.dev@example.com`,
-    process.env.VAPID_PUBLIC_KEY,
+    `mailto:gowtham.arya999@gmail.com`,
+    process.env.NEXT_PUBLIC_VAPID_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
   return true;

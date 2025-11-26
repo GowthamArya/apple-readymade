@@ -178,7 +178,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
                 onOk={handleOk}
                 onCancel={handleCancel}
               >
-                <Input placeholder='Title of the notification' value={notifiyTitle} onChange={(e)=>setNotifyTitle(e.currentTarget.value)}></Input>
+                <Input placeholder='Title of the notification' value={notifiyTitle} className='mb-3!' onChange={(e)=>setNotifyTitle(e.currentTarget.value)}></Input>
                 <Input.TextArea placeholder='Please enter a message to notify' value={notifiyMessage} onChange={(e)=>setNotifyMessage(e.currentTarget.value)}></Input.TextArea>
               </Modal>
               <Input.Search
