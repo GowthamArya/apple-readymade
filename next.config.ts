@@ -1,9 +1,23 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
-  importScripts: ["sw-custom.js"],
   skipWaiting: true,
+  importScripts: ['sw-custom.js'],
+
+  exclude: [
+    /app-build-manifest\.json$/,
+    /_buildManifest\.js$/,
+    /_ssgManifest\.js$/,
+  ],
+
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/apple-readymade\.vercel\.app\/_next\/.*/i,
+      handler: 'NetworkOnly', // avoids caching _next assets via Workbox
+    }
+  ],
 });
+
 
 
 const nextConfig = {
