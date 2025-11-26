@@ -2,14 +2,26 @@ import { NextResponse } from "next/server";
 const webpush = require('web-push');
 import { supabase } from "@/lib/supabaseServer";
 
-webpush.setVapidDetails(
-  "mailto:gowtham.arya999@gmail.com",
-  process.env.NEXT_PUBLIC_VAPID_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+function initWebPush() {
+  if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+    return false;
+  }
+
+  webpush.setVapidDetails(
+    `mailto:arya.dev@example.com`,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+  return true;
+}
 
 export async function POST(req: Request) {
   try {
+    const ready = initWebPush();
+    if (!ready) {
+        return new Response("VAPID keys missing on server", { status: 500 });
+    }
+    
     const { title, message } = await req.json();
     await sendPushNotification(title, message);
     return NextResponse.json({ ok: true });

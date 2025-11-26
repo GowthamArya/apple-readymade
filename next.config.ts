@@ -1,40 +1,32 @@
-import { NextConfig } from "next";
-
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development'
+  // Don't fully disable PWA in dev — instead, let it register but avoid caching
+  disable: false, 
+  runtimeCaching: [], // prevents Workbox from injecting cache strategies in dev
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   images: {
-      remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'rkwxsjrwvooyalymhedv.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'mmhrpgijcpvcvjgrbiem.supabase.co',
-      }
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'rkwxsjrwvooyalymhedv.supabase.co' },
+      { protocol: 'https', hostname: 'mmhrpgijcpvcvjgrbiem.supabase.co' }
     ],
   },
+
   allowedDevOrigins: [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
   ],
-  turbopack: {
-  },
+
   experimental: {
     authInterrupts: true,
   },
+
+  output: 'standalone',
 };
 
 module.exports = withPWA(nextConfig);
