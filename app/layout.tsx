@@ -41,14 +41,31 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Apple",
+  title: "Apple Readymade mens wear",
   description: "Mens wear ecommerce website.",
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/Icons/logo-192x192.png",
-    apple: "/Icons/logo-192x192.png",
+  openGraph: {
+    title: "Apple Readymade mens wear",
+    description: "Mens wear ecommerce website.",
+    url: "https://apple-readymade.vercel.app/",
+    siteName: "Apple Readymade",
+    images: [
+      {
+        url: "https://apple-readymade.vercel.app/apple-bg.png",
+        width: 1200,
+        height: 630,
+        alt: "Apple Readymade Preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Apple Readymade mens wear",
+    description: "Mens wear ecommerce website.",
+    images: ["https://apple-readymade.vercel.app/apple-bg.png"],
   },
 };
+
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
   return (
