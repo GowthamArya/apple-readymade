@@ -5,8 +5,14 @@ export default async function subscribeToPush(vapidPublicKey: string, userId: st
   }
 
   try {
-    const sw = await navigator.serviceWorker.register('/sw.js');
+    const sw = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
     console.log("SW registered with scope:", sw.scope);
+    
+    if (!navigator.serviceWorker.controller) {
+        console.log("Reloading once so SW can control the page…");
+        location.reload();
+        return;
+    }
 
     const swReady = await navigator.serviceWorker.ready;
     console.log("SW is active:", swReady.active);

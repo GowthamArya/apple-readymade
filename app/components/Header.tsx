@@ -293,14 +293,7 @@ export function NotifPopover({userId}:{userId:string}) {
       setPopoverOpen(true);
     } else {
       setPopoverOpen(false);
-      
-      navigator.serviceWorker.register('/sw.js')
-      .then(sw => sw.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_KEY
-      }))
-      .then(sub => console.log("Already subscribed:", sub))
-      .catch(console.error);
+      subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
     }
   }, []);
 
