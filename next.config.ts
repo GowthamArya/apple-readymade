@@ -1,11 +1,10 @@
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
+  importScripts: ["sw-custom.js"],
   skipWaiting: true,
-  // Don't fully disable PWA in dev — instead, let it register but avoid caching
-  disable: false, 
-  runtimeCaching: [], // prevents Workbox from injecting cache strategies in dev
 });
+
 
 const nextConfig = {
   reactStrictMode: true,

@@ -10,7 +10,6 @@ export default class Repository<T> {
     const { data, error } = await supabase
       .from(this.tableName)
       .select(selectString);
-    console.log(data, error);
     if (error) {
       throw error;
     }

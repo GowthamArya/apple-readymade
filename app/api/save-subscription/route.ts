@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       p256dh,
       auth,
     });
-    console.log(data,error)
     return NextResponse.json({ ok: true });
 
   } catch (err: any) {

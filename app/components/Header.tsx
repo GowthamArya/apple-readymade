@@ -57,7 +57,6 @@ export default function AppHeader() {
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
-  console.log(user);
   const screens = useBreakpoint();
   const { token } = useToken();
   const isMobile = screens.md === false;

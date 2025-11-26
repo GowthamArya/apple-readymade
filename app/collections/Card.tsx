@@ -28,7 +28,6 @@ export default function ProductCard({ product, token }: { product: any, token: a
       return;
     }else if(action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
       addToFavorites(product);
-      console.log(favorites);
       message.success(`${product.product?.name || 'Product'} added to favorites!`);
       return;
     }
