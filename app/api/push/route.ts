@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function sendPushNotification(title: string, message: string) {
+async function sendPushNotification(title: string, message: string) {
   const { data, error } = await supabase.from("push_subscriptions").select("*");
 
   if (error) {
