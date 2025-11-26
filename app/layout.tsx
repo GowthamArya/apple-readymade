@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     siteName: "Apple Readymade",
     images: [
       {
-        url: "https://apple-readymade.vercel.app/og-image.jpg",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Apple Readymade Preview",
@@ -60,9 +60,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Apple Readymade mens wear",
-    description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
-    images: ["https://apple-readymade.vercel.app/og-image.jpg"],
+    images: ["/og-image.jpg"],
+  },
+  verification: {
+    google: "7khpcoBL-6GoSdhWkvgT6JZleSALk5oIXznyFPumROE",
   },
 };
 
