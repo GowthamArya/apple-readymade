@@ -214,7 +214,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {!isMobile && user?.id &&  <NotifPopover userId={user.id}/>}
+          {user?.id &&  <NotifPopover userId={user.id}/>}
           {!isMobile &&<ThemeToggle token={token} />}
           {/* Account */}
           {user ? (
@@ -274,82 +274,41 @@ export default function AppHeader() {
 }
 
 
-export function NotifPopover({userId}:{userId:string}) {
-  const {message} = useApp();
-  const [notifiAllowed, setNotifiAllowed] = useState<boolean>(false);
-  const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+export function NotifPopover({ userId }: { userId: string }) {
+  const [isAllowed, setIsAllowed] = useState(Notification.permission === 'granted');
+  const [open, setOpen] = useState(false);
 
-  // On mount: check permission + stored deny choice
   useEffect(() => {
-
-    const deniedStored = localStorage.getItem('notif-denied');
-    const currentAllowed = Notification.permission === 'granted' && deniedStored != "yes";
-
-    setNotifiAllowed(currentAllowed);
-
-    // Open popover automatically only if user didn’t deny earlier AND it’s not granted
-    if (deniedStored !== 'yes' && !currentAllowed) {
-      setPopoverOpen(true);
-    } else {
-      setPopoverOpen(false);
-      subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
+    setIsAllowed(Notification.permission === 'granted');
+    if (Notification.permission !== 'granted' && userId) {
+      setOpen(true);
     }
-  }, []);
+  }, [userId]);
 
-  // Ask permission & update state
-  const askPermission = async (decision: 'granted' | 'denied') => {
-    if (decision === 'granted') {
-      const permission = await Notification.requestPermission();
-      const isGranted = permission === 'granted';
+  const requestPermission = async () => {
+    const permission = await Notification.requestPermission();
+    const granted = permission === 'granted';
 
-      setNotifiAllowed(isGranted);
-      setPopoverOpen(!isGranted);
-
-      if (isGranted) {
-        message.success('Notifications allowed ✅');
-        localStorage.removeItem('notif-denied');
-        subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
-      } else {
-        message.warning('Enable notifications from browser settings ⚙️');
-      }
-    } else {
-      setNotifiAllowed(false);
-      setPopoverOpen(false);
-      localStorage.setItem('notif-denied', 'yes'); // store denied choice
-      message.info('Notifications denied ❎');
-    }
+    setIsAllowed(granted);
+    setOpen(!granted);
   };
 
   return (
     <Popover
       placement="bottom"
       trigger="click"
-      open={popoverOpen && userId? true : false}
-      onOpenChange={setPopoverOpen}
-      title={
-        <Flex align="center" gap={8}>
-          <span className="font-semibold text-base">
-            {notifiAllowed ? 'Notifications Active' : 'Notifications Off'}
-          </span>
-          {notifiAllowed ? (
-            <CheckCircleFilled style={{ fontSize: 16 }} />
-          ) : (
-            <CloseCircleFilled style={{ fontSize: 16 }} />
-          )}
-        </Flex>
-      }
+      open={open && !!userId}
+      onOpenChange={setOpen}
+      title={isAllowed ? "Notifications Enabled ✅" : "Allow notifications"}
       content={
-        <Flex align="center" gap={12}>
-          <Button size="small" onClick={() => askPermission('denied')}>
-            Deny
-          </Button>
-          <Button type="primary" size="small" onClick={() => askPermission('granted')}>
-            Allow
-          </Button>
-        </Flex>
+        <Button type="primary" size="small" onClick={requestPermission}>
+          Enable
+        </Button>
       }
     >
-      {!notifiAllowed && userId && <BellOutlined style={{ fontSize: 22, cursor: 'pointer' }} />}
+      {!isAllowed && userId && (
+        <BellOutlined style={{ fontSize: 22, cursor: "pointer" }} />
+      )}
     </Popover>
   );
 }

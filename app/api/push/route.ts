@@ -44,19 +44,26 @@ async function sendPushNotification(title: string, message: string) {
     return;
   }
 
-  data.forEach((row) => {
-    const sub = {
-      endpoint: row.endpoint,
-      keys: {
-        p256dh: row.p256dh,
-        auth: row.auth
-      }
-    };
+  const unique = new Set<string>();
+  const subs: any[] = [];
 
-    webpush.sendNotification(sub, JSON.stringify({
-        title: title,
-        body: message
-    })).then(() => console.log("✅ Push sent to device"))
-      .catch((err: any) => console.error("❌ Push failed:", err));
+  for (const row of data) {
+    if (!unique.has(row.endpoint)) {
+      unique.add(row.endpoint);
+      subs.push({
+        endpoint: row.endpoint,
+        keys: { p256dh: row.p256dh, auth: row.auth }
+      });
+    }
+  }
+
+  subs.forEach((sub) => {
+    webpush.sendNotification(
+      sub,
+      JSON.stringify({ title, body: message })
+    ).catch((err: any) => console.error("❌ Push failed:", err));
   });
+
+  console.log(`${title} ${message}`);
+  console.log("✅ Push sent to devices", subs.length);
 }
