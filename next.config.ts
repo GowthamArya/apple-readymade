@@ -12,24 +12,18 @@ const withPWA = require('next-pwa')({
   ],
 
   // ✅ NEW WAY: tell Workbox to ignore all 404s and disable precache
-  workboxOptions: {
-    disableDevLogs: true,
-    precacheManifestFilename: null, // ← prevents Workbox from loading precache manifest
-    maximumFileSizeToCacheInBytes: 0, // ← disables actual file precaching
-    runtimeCaching: [], // optional: ensures no extra caching rules slip in
+    // ✅ Also add Workbox fallback handler via config Mutation (not root options):
+  generateSw: {
+    sourcemap: false,
+    // This line prevents Workbox from crashing on missing precache manifests
+    // by giving it an empty manifest implicitly
+    additionalManifestEntries: [],
   }
 });
 
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "rkwxsjrwvooyalymhedv.supabase.co" },
-      { protocol: "https", hostname: "mmhrpgijcpvcvjgrbiem.supabase.co" },
-    ],
-  },
+  images: { unoptimized: true },
 };
 
 export default withPWA(nextConfig);
