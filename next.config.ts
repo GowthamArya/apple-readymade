@@ -3,16 +3,12 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   importScripts: ["sw-custom.js"],
-  precacheManifestFilename: null,
   runtimeCaching: [
     {
       urlPattern: /_next\/.*\.js$/i,
       handler: "NetworkOnly",
     },
-  ],
-  fallbacks: {
-    document: "/",
-  },
+  ]
 });
 
 const nextConfig = {
