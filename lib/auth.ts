@@ -136,7 +136,7 @@ export const authOptions: NextAuthOptions = {
             .insert(insertPayload);
 
           if (insertError) {
-            console.error("Error creating user record");
+            console.error("Error creating user record", insertError);
             return false;
           }
         } else {
