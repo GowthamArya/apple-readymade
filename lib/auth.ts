@@ -127,8 +127,7 @@ export const authOptions: NextAuthOptions = {
           const insertPayload: Record<string, any> = {
             email: user.email,
             name: user.name || null,
-            image: user.image || null,
-            role_id: process.env.DEFAULT_ROLE_ID || "user",
+            image: user.image || null
           };
 
           const { error: insertError } = await supabase
