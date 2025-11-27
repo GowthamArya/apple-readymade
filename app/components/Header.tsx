@@ -214,7 +214,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {!isMobile &&  <NotifPopover  userId={user?.id || ""}/>}
+          {!isMobile && user?.id &&  <NotifPopover  userId={user?.id || ""}/>}
           {!isMobile &&<ThemeToggle token={token} />}
           {/* Account */}
           {user ? (
@@ -250,7 +250,7 @@ export default function AppHeader() {
           <Flex justify="space-between" align="center" gap={8}>
             <Image src="/logo.png" alt="Logo" width={28} height={28} />
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
-            <NotifPopover userId={user?.id || ""}/>
+            {user?.id && <NotifPopover userId={user.id}/>}
             <ThemeToggle token={token}  />
           </Flex>
         }
