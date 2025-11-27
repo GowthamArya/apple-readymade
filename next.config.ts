@@ -3,16 +3,21 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   importScripts: ["sw-custom.js"],
-   precache() { return []; },          // overrides default precache list
+
   runtimeCaching: [
     {
       urlPattern: /_next\/.*manifest\.json$/i,
-      handler: 'NetworkOnly',
-      options: { cacheableResponse: { statuses: [0, 200] } },
+      handler: "NetworkOnly",
     }
   ],
 
-  onError: (err: any) => console.warn("Ignoring Workbox:", err), // soft ignore
+  // ✅ NEW WAY: tell Workbox to ignore all 404s and disable precache
+  workboxOptions: {
+    disableDevLogs: true,
+    precacheManifestFilename: null, // ← prevents Workbox from loading precache manifest
+    maximumFileSizeToCacheInBytes: 0, // ← disables actual file precaching
+    runtimeCaching: [], // optional: ensures no extra caching rules slip in
+  }
 });
 
 const nextConfig = {
