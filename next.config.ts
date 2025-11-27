@@ -3,27 +3,41 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   importScripts: ["sw-custom.js"],
-
-  runtimeCaching: [
-    {
-      urlPattern: /_next\/.*manifest\.json$/i,
-      handler: "NetworkOnly",
-    }
-  ],
-
-  // ✅ NEW WAY: tell Workbox to ignore all 404s and disable precache
-    // ✅ Also add Workbox fallback handler via config Mutation (not root options):
-  generateSw: {
-    sourcemap: false,
-    // This line prevents Workbox from crashing on missing precache manifests
-    // by giving it an empty manifest implicitly
-    additionalManifestEntries: [],
-  }
+  disable: process.env.NODE_ENV === 'development',
 });
 
 const nextConfig = {
   reactStrictMode: true,
-  images: { unoptimized: true },
+  images: {
+    unoptimized: true, // keeps Next happy in server mode
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'rkwxsjrwvooyalymhedv.supabase.co', pathname: '/**' },
+      { protocol: 'https', hostname: 'mmhrpgijcpvcvjgrbiem.supabase.co', pathname: '/**' }
+    ],
+  },
+
+  // ✅ Merge your headers here:
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self'" },
+        ],
+      },
+    ];
+  },
 };
 
-export default withPWA(nextConfig);
+module.exports = withPWA(nextConfig);
