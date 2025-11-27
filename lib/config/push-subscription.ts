@@ -9,21 +9,28 @@ export default async function subscribeToPush(vapidPublicKey: string, userId: st
     console.log("SW registered with scope:", sw.scope);
 
     const swReady = await navigator.serviceWorker.ready;
-    console.log("SW is active:", swReady.active);
+    navigator.serviceWorker.ready.then(sw => {
+      console.log("🔥 SW active?", sw.active !== null);
+    });
 
-    const subscription = await swReady.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: vapidPublicKey,
-    });
-    await fetch('/api/save-subscription', {
-        method: 'POST',
-        body: JSON.stringify({
-            userId: userId,
-            subscription: subscription,
-        }),
-    });
-    console.log("✅ Push subscribed:", subscription);
-    return subscription;
+    console.log("SW is ready:", swReady);
+    console.log("SW is active:", swReady.active);
+    const perm = await Notification.requestPermission();
+    if (perm === "granted") {
+      const subscription = await swReady.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidPublicKey,
+      });
+      await fetch('/api/save-subscription', {
+          method: 'POST',
+          body: JSON.stringify({
+              userId: userId,
+              subscription: subscription,
+          }),
+      });
+      console.log("✅ Push subscribed:", subscription);
+      return subscription;
+    }
   } catch (err) {
     console.error("❌ Push subscription failed:", err);
   }

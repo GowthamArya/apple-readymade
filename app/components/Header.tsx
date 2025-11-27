@@ -325,7 +325,7 @@ export function NotifPopover({userId}:{userId:string}) {
     <Popover
       placement="bottom"
       trigger="click"
-      open={popoverOpen}
+      open={popoverOpen && userId? true : false}
       onOpenChange={setPopoverOpen}
       title={
         <Flex align="center" gap={8}>
