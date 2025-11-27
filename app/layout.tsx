@@ -41,6 +41,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  manifest: "/manifest.webmanifest", 
   metadataBase: new URL("https://apple-readymade.vercel.app/"),
   title: "Apple Readymade mens wear",
   description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
@@ -73,7 +74,6 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
   return (
     <html lang="en">
       <head>
-        <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
