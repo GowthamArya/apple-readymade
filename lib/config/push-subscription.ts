@@ -2,10 +2,13 @@ export default async function subscribeToPush(vapidPublicKey: string, userId: st
   if (!('serviceWorker' in navigator)) {
     console.warn("Service workers not supported in this browser");
     return;
-  }
+  };
 
   try {
-    const sw = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    const sw = await navigator.serviceWorker.register('/sw.js', {
+      scope: '/',
+      updateViaCache: 'none',
+    })
     console.log("SW registered with scope:", sw.scope);
 
     const swReady = await navigator.serviceWorker.ready;
