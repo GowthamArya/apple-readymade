@@ -1,36 +1,40 @@
-// next.config.js
-
 const withPWAInit = require('next-pwa');
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = process.env.NODE_ENV === 'development';
 
 const withPWA = withPWAInit({
   dest: "public",
   register: true,
   skipWaiting: true,
-  disable: isDev,
+  disable: isDev, // PWA disabled in dev, enabled in prod
 });
 
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'rkwxsjrwvooyalymhedv.supabase.co', pathname: '/**' },
-      { protocol: 'https', hostname: 'mmhrpgijcpvcvjgrbiem.supabase.co', pathname: '/**' },
+      { protocol: 'https', hostname: '**.supabase.co', pathname: '/**' }, // covers ALL future buckets!
+      { protocol: 'https', hostname: 'i.pinimg.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'checkout.razorpay.com', pathname: '/**' },
     ],
   },
+
   async headers() {
     return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
       {
         source: '/sw.js',
         headers: [
           { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
           { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self'",
-          },
         ],
       },
     ];
