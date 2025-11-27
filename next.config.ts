@@ -10,20 +10,6 @@ const withPWA = withPWAInit({
   disable: isDev,
 });
 
-const cspHeader = `
-  default-src 'self';
-  script-src 'self';
-  style-src 'self';
-  img-src 'self' https://images.unsplash.com data: blob:;
-  connect-src 'self' https://images.unsplash.com;
-  font-src 'self';
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'none';
-  upgrade-insecure-requests;
-`;
-
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -36,18 +22,6 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          {
-            key: 'Content-Security-Policy',
-            value: cspHeader.replace(/\s{2,}/g, ' ').trim(),
-          },
-        ],
-      },
       {
         source: '/sw.js',
         headers: [
