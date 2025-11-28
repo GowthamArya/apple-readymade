@@ -33,15 +33,25 @@ export default function InstallPrompt() {
   if (!showButton) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-1 install-prompt shadow">
+    <div className="w-full py-2 px-4 flex justify-between items-center z-50 relative">
+      <div className="flex items-center gap-2">
+        <GrInstallOption className="text-lg" />
+        <span className="text-sm font-medium">Install our app for a better experience</span>
+      </div>
+      <div className="flex items-center gap-3">
         <Button
-            size="large"
-            shape="round"
-            onClick={handleInstallClick}
-            type="primary"
+          size="small"
+          shape="round"
+          onClick={handleInstallClick}
         >
-            Install App <GrInstallOption className="inline"/>
+          Install
         </Button>
+        <button
+          onClick={() => setShowButton(false)}
+        >
+          ✕
+        </button>
+      </div>
     </div>
   );
 }

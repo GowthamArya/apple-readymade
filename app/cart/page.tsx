@@ -22,10 +22,10 @@ export default function CartPage() {
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
   const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
   const [total, setTotal] = useState(0);
-  const [isLoading,setIsLoading] = useState(true);
-  useEffect(()=>{
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
     setIsLoading(false);
-  },[]);
+  }, []);
 
   useEffect(() => {
     const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -53,16 +53,17 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-            <Row gutter={16} justify="start">
-              {cart.map((item) => (
-                <Col 
-                  key={item.id}
-                  xs={{ flex: '100%' }}
-                  sm={{ flex: '50%' }}
-                  md={{ flex: '50%' }}
-                  lg={{ flex: '25%' }}
-                  xl={{ flex: '25%' }}
-                >
+          <Row gutter={16} justify="start">
+            {cart.map((item) => (
+              <Col
+                key={item.id}
+                xs={{ flex: '100%' }}
+                sm={{ flex: '50%' }}
+                md={{ flex: '50%' }}
+                lg={{ flex: '25%' }}
+                xl={{ flex: '25%' }}
+              >
+                <Link href={`/variant/${item.id}`}>
                   <Card
                     className="m-2! w-full shadow-lg"
                     hoverable
@@ -82,27 +83,36 @@ export default function CartPage() {
 
                     {/* Custom Action Buttons */}
                     <div className="mt-4 flex flex-wrap flex-row gap-2">
-                      <InputNumber
-                        min={1}
-                        value={item.quantity}
-                        onChange={(value) => handleQuantityChange(value || 1, item.id)}
-                      />
+                      <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                        <InputNumber
+                          min={1}
+                          value={item.quantity}
+                          onChange={(value) => handleQuantityChange(value || 1, item.id)}
+                        />
+                      </div>
 
-                        <Button danger type="dashed" onClick={() => removeFromCart(item.id)}>
-                          Remove
-                        </Button>
+                      <Button danger type="dashed" onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromCart(item.id);
+                      }}>
+                        Remove
+                      </Button>
 
-                        <Button  type="primary" onClick={() => {
-                          removeFromCart(item.id);
-                          addToFavorites({...item, quantity:1});
-                        }}>
-                          Move to Wishlist
-                        </Button>
+                      <Button type="primary" onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromCart(item.id);
+                        addToFavorites({ ...item, quantity: 1 });
+                      }}>
+                        Move to Wishlist
+                      </Button>
                     </div>
                   </Card>
-                </Col>
-              ))}
-            </Row>
+                </Link>
+              </Col>
+            ))}
+          </Row>
 
           <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-lg font-semibold">
@@ -128,16 +138,17 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <Row gutter={16 } justify="start">
+          <Row gutter={16} justify="start">
             {favorites.map((item) => (
-              <Col 
-                  key={item.id}
-                  xs={{ flex: '100%' }}
-                  sm={{ flex: '50%' }}
-                  md={{ flex: '50%' }}
-                  lg={{ flex: '25%' }}
-                  xl={{ flex: '25%' }}
-                >
+              <Col
+                key={item.id}
+                xs={{ flex: '100%' }}
+                sm={{ flex: '50%' }}
+                md={{ flex: '50%' }}
+                lg={{ flex: '25%' }}
+                xl={{ flex: '25%' }}
+              >
+                <Link href={`/variant/${item.id}`}>
                   <Card
                     className="m-2! w-full shadow-lg"
                     hoverable
@@ -149,10 +160,16 @@ export default function CartPage() {
                       />
                     }
                     actions={[
-                      <Button type="dashed" danger onClick={() => removeFromFavorites(item.id)} key="remove">
+                      <Button type="dashed" danger onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFromFavorites(item.id);
+                      }} key="remove">
                         Remove
                       </Button>,
-                      <Button type="primary" onClick={() => {
+                      <Button type="primary" onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         item.quantity = 1;
                         removeFromFavorites(item.id);
                         addToCart(item);
@@ -166,6 +183,7 @@ export default function CartPage() {
                       description={`₹${item.price}`}
                     />
                   </Card>
+                </Link>
               </Col>
             ))}
           </Row>

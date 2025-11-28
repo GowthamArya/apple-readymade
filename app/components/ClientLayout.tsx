@@ -20,6 +20,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
   return (
     <main
       id="childrenRoot"
+      suppressHydrationWarning
       style={{
         backgroundColor: token.colorBgLayout,
         minHeight: "92dvh",
@@ -49,16 +50,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <ThemeContext>
-        <SessionProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <LoadingProvider>
-                <Header />
-                <div className="relative">
-                  <InstallPrompt />
-                </div>
-                <Script id="chatbase-loader" strategy="afterInteractive">
-                  {`
+      <SessionProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <LoadingProvider>
+              <InstallPrompt />
+              <Header />
+              <Script id="chatbase-loader" strategy="afterInteractive">
+                {`
                   (function(){
                     if(!window.chatbase || window.chatbase("getState") !== "initialized") {
                       window.chatbase = (...args) => {
@@ -85,9 +84,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     else window.addEventListener("load", onLoad);
                   })();
                   `}
-                </Script>
-                {/* <!-- Brevo Conversations {literal} --> */}
-                {/* <Script>
+              </Script>
+              {/* <!-- Brevo Conversations {literal} --> */}
+              {/* <Script>
                    {`
                     (function(d, w, c) {
                         w.BrevoConversationsID = '680d1e7cb2b1f40d15057540';
@@ -100,13 +99,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         if (d.head) d.head.appendChild(s);
                     })(document, window, 'BrevoConversations');`}
                 </Script> */}
-                {/* <!-- /Brevo Conversations {/literal} --> */}
-                <LoadingLayer />
-                <ThemedMain>{children}</ThemedMain>
-              </LoadingProvider>
-            </FavoritesProvider>
-          </CartProvider>
-        </SessionProvider>
+              {/* <!-- /Brevo Conversations {/literal} --> */}
+              <LoadingLayer />
+              <ThemedMain>{children}</ThemedMain>
+            </LoadingProvider>
+          </FavoritesProvider>
+        </CartProvider>
+      </SessionProvider>
     </ThemeContext>
   );
 }

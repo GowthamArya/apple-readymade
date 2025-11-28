@@ -12,21 +12,21 @@ import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product, token }: { product: any, token: any }) {
   const router = useRouter();
-  const { data:session } = useSession();
+  const { data: session } = useSession();
   const [user, setUser] = useState(session?.user);
   useEffect(() => {
     setUser(session?.user);
   }, [session]);
 
   const { addToCart, cart } = useCart();
-  const { addToFavorites, favorites,removeFromFavorites } = useFavorites();
+  const { addToFavorites, favorites, removeFromFavorites } = useFavorites();
   const { message } = App.useApp();
-  const handleFavorite = (action:string) => {
-    if(action === 'remove' && favorites.some((fav) => fav.id === product.id)) {
+  const handleFavorite = (action: string) => {
+    if (action === 'remove' && favorites.some((fav) => fav.id === product.id)) {
       removeFromFavorites(product.id);
       message.warning(`${product.product?.name || 'Product'} removed from favorites!`);
       return;
-    }else if(action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
+    } else if (action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
       addToFavorites(product);
       message.success(`${product.product?.name || 'Product'} added to favorites!`);
       return;
@@ -34,7 +34,7 @@ export default function ProductCard({ product, token }: { product: any, token: a
   }
 
   const handleAdd = () => {
-    addToCart({...product, quantity: 1});
+    addToCart({ ...product, quantity: 1 });
     message.success(`${product.product?.name || 'Product'} added to cart!`);
   };
 
@@ -47,7 +47,11 @@ export default function ProductCard({ product, token }: { product: any, token: a
           aria-label="Add to wishlist"
           tabIndex={-1}
           type="text"
-          onClick={()=>handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')
+          }}
         >
           {favorites.some((fav) => fav.id === product.id) ?
             <MdFavorite className="text-xl cursor-pointer text-red-600!" />
@@ -55,7 +59,7 @@ export default function ProductCard({ product, token }: { product: any, token: a
             <GrFavorite className="text-xl cursor-pointer" />
           }
         </Button>
-      </div>} 
+      </div>}
 
       <ProductCarousel product={product} />
 
@@ -75,26 +79,26 @@ export default function ProductCard({ product, token }: { product: any, token: a
           }
         </p>
         {cart.some((item) => item.id === product.id) ?
-            <Button
-              type="primary"
-              icon={<MdOutlineAddShoppingCart />}
-              size="small"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                router.push("/cart");
-              }}
-            >
-            </Button>
-:
-        <MdOutlineAddShoppingCart
+          <Button
+            type="primary"
+            icon={<MdOutlineAddShoppingCart />}
+            size="small"
             onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleAdd();
-              }}
+              e.preventDefault();
+              e.stopPropagation();
+              router.push("/cart");
+            }}
+          >
+          </Button>
+          :
+          <MdOutlineAddShoppingCart
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleAdd();
+            }}
             className={`text-xl cursor-pointer transition-colors }`}
-        />
+          />
         }
       </div>
     </Link>

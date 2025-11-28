@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Lenis from 'lenis';
 
 import HeroSection from "./components/Home/HeroSection";
 import ShopByCollection from "./components/Home/ShopByCollection";
@@ -11,50 +12,24 @@ import Footer from "./components/Footer";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Page() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  // const [locomotiveReady, setLocomotiveReady] = useState(false);
+  useEffect(() => {
+    const lenis = new Lenis();
 
-  // useEffect(() => {
-  //   if (!scrollRef.current) return;
-  //   let scroll: any;
-  //   import("locomotive-scroll").then((Locomotive) => {
-  //     scroll = new Locomotive.default({
-  //       el: scrollRef.current as HTMLElement,
-  //       smooth: true,
-  //       lerp: 0.1,
-  //       multiplier: 1,
-  //     });
+    lenis.on('scroll', ScrollTrigger.update);
 
-  //     ScrollTrigger.scrollerProxy(scrollRef.current, {
-  //       scrollTop(value) {
-  //         return arguments.length
-  //           ? scroll.scrollTo(value, 0, 0)
-  //           : scroll.scroll.instance.scroll.y;
-  //       },
-  //       getBoundingClientRect() {
-  //         return {
-  //           top: 0,
-  //           left: 0,
-  //           width: window.innerWidth,
-  //           height: window.innerHeight,
-  //         };
-  //       },
-  //       pinType: scrollRef.current?.style.transform ? "transform" : "fixed",
-  //     });
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
 
-  //     scroll.on("scroll", () => {
-  //       requestAnimationFrame(() => ScrollTrigger.update());
-  //     });
+    gsap.ticker.lagSmoothing(0);
 
-  //     ScrollTrigger.addEventListener("refresh", () => scroll.update());
-  //     ScrollTrigger.refresh();
-  //     setLocomotiveReady(true);
-  //   });
-
-  //   return () => {
-  //     if (scroll) scroll.destroy();
-  //   };
-  // }, []);
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove((time) => {
+        lenis.raf(time * 1000);
+      });
+    };
+  }, []);
 
   return (
     <div className="relative w-full min-h-screen">
@@ -65,7 +40,7 @@ export default function Page() {
         ></div>
       </div>
 
-      <div ref={scrollRef}>
+      <div>
         <main>
           <HeroSection />
           <ShopByCollection />

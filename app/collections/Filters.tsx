@@ -1,13 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
-import { uiData } from "@/lib/config/uiData";
+import { useState, useEffect, useRef, useCallback } from "react";
 import ProductList from "./List";
-import { useLoading } from "../context/LoadingContext";
-import { Button, Input, Select, Radio, Popover, theme } from 'antd';
+import { Button, Input, Select, Radio, Popover, theme, Tag } from 'antd';
 import { useRouter } from "next/navigation";
+import { TbFilterSearch } from "react-icons/tb";
+import { BiSort } from "react-icons/bi";
+import { CgClose } from "react-icons/cg";
+
 const { useToken } = theme;
 
-// Mock sort options
 const sortOptions = [
   { value: 'created_on', label: 'Most Recent' },
   { value: 'price', label: 'Price' },
@@ -16,65 +17,102 @@ const sortOptions = [
 
 interface FilterProps {
   initialProducts: any[];
+  totalCount: number;
+  categories: any[];
   searchQuery?: string;
   category?: string;
   sortBy?: string;
   sortOrder?: string;
+  page?: number;
 }
 
-export default function Filters( {initialProducts, searchQuery} : FilterProps) {
+export default function Filters({
+  initialProducts,
+  totalCount,
+  categories = [],
+  searchQuery = "",
+  category = "",
+  sortBy = "created_on",
+  sortOrder = "desc",
+  page = 1
+}: FilterProps) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [currentPopup, setCurrentPopup] = useState("");
-  const [search, setSearch] = useState(searchQuery || "");
-  const [category, setCategory] = useState("");
-  const [sortBy, setSortBy] = useState("created_on");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [page, setPage] = useState(1);
-  const pageSize = 20;
-  const [totalCount, setTotalCount] = useState(initialProducts.length || 0);
-  const pageLoading = useLoading();
+
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [localCategory, setLocalCategory] = useState(category);
+
+  const [hasMore, setHasMore] = useState(initialProducts.length < totalCount);
+  const [currentPage, setCurrentPage] = useState(page);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const observer = useRef<IntersectionObserver | null>(null);
   const { token } = useToken();
 
-  function fetchProducts() {
-    pageLoading.setLoading(true);
+  useEffect(() => {
+    setProducts(initialProducts);
+    setHasMore(initialProducts.length < totalCount);
+    setCurrentPage(1);
+    setLocalSearch(searchQuery);
+    setLocalCategory(category);
+  }, [searchQuery, category, sortBy, sortOrder, initialProducts, totalCount]);
+
+  const updateFilters = (newParams: any) => {
+    const params = new URLSearchParams({
+      searchQuery: searchQuery,
+      category: category,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      page: '1',
+      ...newParams
+    });
+
+    router.push(`/collections?${params.toString()}`);
+  };
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+
+    const nextPage = currentPage + 1;
     const query = new URLSearchParams({
-      search,
+      searchQuery,
       category,
       sortBy,
       sortOrder,
-      skip: String((page - 1) * pageSize),
-      pageSize: String(pageSize)
+      page: String(nextPage),
+      pageSize: '20'
     }).toString();
 
-    fetch(`/api/collections?${query}`)
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data ?? []);
-        setTotalCount(data.totalCount ?? 0);
-      }).catch(err => {
-        console.error("Failed to fetch products:", err);
-      }).finally(() => {
-        pageLoading.setLoading(false);
-      });
+    try {
+      const res = await fetch(`/api/collections?${query}`);
+      const data = await res.json();
+
+      if (data && Array.isArray(data.data)) {
+        setProducts(prev => [...prev, ...data.data]);
+        setCurrentPage(nextPage);
+        setHasMore(products.length + data.data.length < data.totalCount);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Failed to load more products", err);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
-  useEffect(() => {
-    if (searchQuery !== undefined) {
-      setSearch(searchQuery);
-    }
-  }, [searchQuery]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      fetchProducts();
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [search, category, sortBy, sortOrder, page]);
-
+  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
+    if (loadingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loadingMore, hasMore]);
 
 
   // Show popover for filter/sort only
@@ -83,95 +121,113 @@ export default function Filters( {initialProducts, searchQuery} : FilterProps) {
   };
 
   const handleReset = () => {
-    setSearch("");
-    setCategory("");
-    setSortBy("created_on");
-    setSortOrder("desc");
-    setPage(1);
+    setLocalSearch("");
+    setLocalCategory("");
+    router.push('/collections');
+    setCurrentPopup("");
+  };
+
+  const handleSearchApply = () => {
+    updateFilters({ searchQuery: localSearch, category: localCategory });
+    setCurrentPopup("");
+  };
+
+  const clearFilter = (key: string) => {
+    if (key === 'search') updateFilters({ searchQuery: '' });
+    if (key === 'category') updateFilters({ category: '' });
   };
 
   return (
     <div className="relative min-h-screen!" style={{ backgroundColor: token.colorBgContainer }}>
-      <ProductList products={products} token={token} />
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-30">
-        <div className="flex flex-wrap justify-around md:min-w-auto min-w-dvw rounded-t-xl shadow-3xl overflow-hidden shadow-gray-700 pb-2 items-center" style={{ background: token.colorBgContainer }} >
-          {uiData.map((item, index) => {
-            if (item.key === "prev") {
-              return (
-                <Button
-                  key={index}
-                  type="link"
-                  color="green"
-                  disabled={page <= 1}
-                  aria-label="Previous Page"
-                  title={`Current page no. ${page}`}
-                  onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                  className="flex items-center gap-2 font-medium dark:text-green-50!"
-                >
-                  <item.icon className="text-xl" /> {`${page - 1} ` + item.label}
-                </Button>
-              );
-            }
-            if (item.key === "next") {
-              return (
-                <Button
-                  key={index}
-                  color="green"
-                  type="text"
-                  disabled={(page * pageSize) >= totalCount || products.length < pageSize}
-                  aria-label="Next Page"
-                  title={`Current page no. ${page}`}
-                  onClick={() => setPage(prev => prev + 1)}
-                  className="flex items-center gap-2 font-medium"
-                >
-                  <item.icon className="text-xl" title={`Current page no. ${page}`}/> {`${page + 1} ` + item.label}
-                </Button>
-              );
-            }
-            return (
-              <Popover
-                key={index}
-                content={
-                  <PopUp
-                    currentPopupType={item.key === currentPopup ? currentPopup : ""}
-                    onClose={() => setCurrentPopup("")}
-                    {...{
-                      search, router, category, setCategory,
-                      sortBy, setSearch, setSortBy, sortOrder, setSortOrder, handleReset
-                    }}
-                  />
-                }
-                title={null}
-                trigger="click"
-                open={item.key === currentPopup}
-                placement="top"
+      {/* Top Filter Bar */}
+      <div className="sticky top-0 z-40 w-full shadow-sm py-3 px-4 flex flex-col gap-3" style={{ background: token.colorBgContainer }}>
+        <div className="flex md:flex-row md:flex-row-reverse flex-col justify-center md:justify-between items-center gap-2">
+          <div className="flex gap-2">
+            <Popover
+              content={
+                <PopUp
+                  currentPopupType="filter"
+                  onClose={() => setCurrentPopup("")}
+                  search={localSearch}
+                  setSearch={setLocalSearch}
+                  category={localCategory}
+                  setCategory={setLocalCategory}
+                  categories={categories}
+                  handleReset={handleReset}
+                  onApply={handleSearchApply}
+                />
+              }
+              title={null}
+              trigger="click"
+              open={currentPopup === 'filter'}
+              placement="bottomRight"
+            >
+              <Button
+                size="middle"
+                icon={<TbFilterSearch className="text-lg" />}
+                onClick={() => showPopup('filter')}
+                type={searchQuery || category ? "primary" : "default"}
               >
-                <div
-                  className={`flex items-center duration-500 
-                    hover:bg-green-100 cursor-pointer md:p-4 p-1 py-3 sm:p-2
-                    ${currentPopup === item.key && item.showBgOnClick
-                      ? "bg-green-100 font-bold"
-                      : ""}`}
-                  onClick={() => showPopup(item.key || "")}
-                >
-                  {item.icon && (
-                    <item.icon
-                      className={`${currentPopup === item.key
-                        ? "dark:text-green-50 text-black"
-                        : "dark:text-green-100 text-green-800 "}`} />
-                  )}
-                  {item.label && (
-                    <div className={`font-medium text-sm ${currentPopup === item.key
-                      ? "text-black"
-                      : "md:block"}`}>
-                      {item.label}
-                    </div>
-                  )}
-                </div>
-              </Popover>
-            );
-          })}
+                Filter
+              </Button>
+            </Popover>
+
+            <Popover
+              content={
+                <PopUp
+                  size="middle"
+                  currentPopupType="sort"
+                  onClose={() => setCurrentPopup("")}
+                  sortBy={sortBy}
+                  setSortBy={(val: string) => {
+                    updateFilters({ sortBy: val });
+                    setCurrentPopup("");
+                  }}
+                  sortOrder={sortOrder}
+                  setSortOrder={(val: string) => {
+                    updateFilters({ sortOrder: val });
+                    setCurrentPopup("");
+                  }}
+                />
+              }
+              title={null}
+              trigger="click"
+              open={currentPopup === 'sort'}
+              placement="bottomRight"
+            >
+              <Button
+                size="middle"
+                icon={<BiSort className="text-lg" />}
+                onClick={() => showPopup('sort')}>
+                Sort
+              </Button>
+            </Popover>
+          </div>
+          {/* Applied Filters Chips */}
+          {(searchQuery || category) && (
+            <div className="flex flex-wrap gap-2">
+              {searchQuery && (
+                <Tag closable onClose={() => clearFilter('search')} color="blue" className="flex items-center text-sm py-1 px-2">
+                  Search: {searchQuery}
+                </Tag>
+              )}
+              {category && (
+                <Tag closable onClose={() => clearFilter('category')} color="green" className="flex items-center text-sm py-1 px-2">
+                  Category: {category}
+                </Tag>
+              )}
+              {(searchQuery || category) && (
+                <Button type="link" size="small" onClick={handleReset} className="p-0 h-auto text-xs">Clear All</Button>
+              )}
+            </div>
+          )}
         </div>
+      </div>
+
+      <ProductList products={products} token={token} />
+      <div ref={lastProductElementRef} className="h-10 flex justify-center items-center w-full py-4">
+        {loadingMore && <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>}
+        {!hasMore && products.length <= 0 && <span className="text-gray-400 text-sm">No more products</span>}
       </div>
     </div>
   );
@@ -181,53 +237,64 @@ function PopUp({
   currentPopupType,
   onClose,
   search,
-  router,
   setSearch,
   category,
   setCategory,
+  categories = [],
   sortBy,
   setSortBy,
   sortOrder,
   setSortOrder,
-  handleReset
+  handleReset,
+  onApply
 }: any) {
   if (!currentPopupType) return <></>;
 
   if (currentPopupType === "filter") {
     return (
-      <div style={{ width: 280 }}>
+      <div style={{ width: 300 }}>
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold text-base">Filters</h3>
           <Button
-            type="default"
-            aria-label="Close sort popup"
+            type="text"
+            size="small"
+            icon={<CgClose />}
+            aria-label="Close filter popup"
             onClick={onClose}
-            className="mt-4"
-          >✕</Button>
+          />
         </div>
-        <div className="space-y-3">
-          <Input.Search
-            placeholder="Search product..."
-            onChange={(e) => setSearch(e.target.value)} 
-            value={search}
-            allowClear
-            onClear={() => {
-              router.push(`/collections?searchQuery=`);
-              setSearch("");
-            }}
-            onSearch={(value) => {
-              router.push(`/collections?searchQuery=${value}`);
-            }}
-            style={{ marginBottom: 8 }}
-          />
-          <Input
-            placeholder="Category name..."
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{ marginBottom: 8 }}
-          />
-          <div className="flex justify-between pt-2">
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 mb-1 block">Search</label>
+            <Input.Search
+              placeholder="Search product..."
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+              allowClear
+              onSearch={onApply}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-500 mb-1 block">Category</label>
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+              {categories.map((cat: any) => (
+                <Tag.CheckableTag
+                  key={cat.id}
+                  checked={category === cat.name}
+                  onChange={(checked) => setCategory(checked ? cat.name : "")}
+                  className="border border-gray-200 m-0"
+                >
+                  {cat.name}
+                </Tag.CheckableTag>
+              ))}
+              {categories.length === 0 && <span className="text-gray-400 text-sm">No categories found</span>}
+            </div>
+          </div>
+
+          <div className="flex justify-between pt-2 border-t mt-2">
             <Button type="default" onClick={handleReset}>Reset</Button>
+            <Button type="primary" onClick={onApply}>Apply</Button>
           </div>
         </div>
       </div>
@@ -239,7 +306,13 @@ function PopUp({
       <div style={{ width: 280 }}>
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold text-base">Sort By</h3>
-          <Button type="default" aria-label="Close sort popup" onClick={onClose} className="mt-4">✕</Button>
+          <Button
+            type="text"
+            size="small"
+            icon={<CgClose />}
+            aria-label="Close sort popup"
+            onClick={onClose}
+          />
         </div>
         <Select
           value={sortBy}
