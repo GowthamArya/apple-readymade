@@ -13,7 +13,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
-      { protocol: 'https', hostname: '**.supabase.co', pathname: '/**' }, // covers ALL future buckets!
+      { protocol: 'https', hostname: '**.supabase.co', pathname: '/**' },
       { protocol: 'https', hostname: 'i.pinimg.com', pathname: '/**' },
       { protocol: 'https', hostname: 'lh*.googleusercontent.com', pathname: '/**' },
       { protocol: 'https', hostname: 'checkout.razorpay.com', pathname: '/**' },

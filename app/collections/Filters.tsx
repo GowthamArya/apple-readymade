@@ -160,7 +160,7 @@ export default function Filters({
               title={null}
               trigger="click"
               open={currentPopup === 'filter'}
-              placement="bottomRight"
+              placement="bottom"
             >
               <Button
                 size="middle"
@@ -191,9 +191,8 @@ export default function Filters({
                 />
               }
               title={null}
-              trigger="click"
               open={currentPopup === 'sort'}
-              placement="bottomRight"
+              placement="bottom"
             >
               <Button
                 size="middle"

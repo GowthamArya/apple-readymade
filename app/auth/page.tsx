@@ -3,11 +3,13 @@
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { useLoading } from "../context/LoadingContext";
-import { Button, Divider, Form, Input, App, theme } from "antd";
-const { useToken } = theme;
+import { Button, Divider, Form, Input, App, theme, Card, Typography } from "antd";
+
+const { Title, Text } = Typography;
+
 export default function AuthPage() {
   const pageLoading = useLoading();
-  const { token } = useToken();
+  const { token } = theme.useToken();
   const { message } = App.useApp();
 
   const handleSignIn = async (provider: "email" | "google", email?: string) => {
@@ -29,46 +31,51 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <Form
-        className="p-6! m-2 rounded md:w-1/4 text-center"
-        layout="vertical"
-        style={{ background: token.colorBgContainer, boxShadow: token.boxShadowSecondary }}
-        onFinish={(values) => handleSignIn("email", values.email)}
+    <div className="min-h-[80vh] flex items-center justify-center p-4">
+      <Card
+        style={{ width: '100%', maxWidth: 400, boxShadow: token.boxShadowSecondary }}
+        bordered={false}
       >
-        <h1 className="text-xl font-bold mb-4!">
-          Sign in to Apple Menswear
-        </h1>
+        <div className="text-center mb-6">
+          <Title level={3} style={{ margin: 0 }}>Sign in</Title>
+          <Text type="secondary">to Apple Menswear</Text>
+        </div>
 
-        <Form.Item
-          name="email"
-          rules={[
-            { required: true, message: "Please enter your email to get Link" },
-            { type: "email", message: "Please enter a valid email" },
-          ]}
-          extra="A link will be emailed to you. No password needed."
+        <Form
+          layout="vertical"
+          onFinish={(values) => handleSignIn("email", values.email)}
         >
-          <Input type="email" placeholder="Enter your email" autoComplete="email" />
-        </Form.Item>
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: "Please enter your email to get Link" },
+              { type: "email", message: "Please enter a valid email" },
+            ]}
+            extra={<Text type="secondary" style={{ fontSize: '12px' }}>A link will be emailed to you. No password needed.</Text>}
+          >
+            <Input size="large" type="email" placeholder="Enter your email" autoComplete="email" />
+          </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="w-full" loading={pageLoading.loading}>
-            Get Link
+          <Form.Item>
+            <Button type="primary" htmlType="submit" size="large" block loading={pageLoading.loading}>
+              Get Link
+            </Button>
+          </Form.Item>
+
+          <Divider plain><Text type="secondary" style={{ fontSize: '12px' }}>OR</Text></Divider>
+
+          <Button
+            size="large"
+            block
+            className="flex justify-center items-center gap-2"
+            onClick={() => handleSignIn("google")}
+            loading={pageLoading.loading}
+          >
+            <FcGoogle size={20} />
+            <span>Continue with Google</span>
           </Button>
-        </Form.Item>
-
-        <Divider size="large">Other sign-in options</Divider>
-
-        <Button
-          type="default"
-          className="w-full flex justify-center items-center gap-2"
-          onClick={() => handleSignIn("google")}
-          loading={pageLoading.loading}
-        >
-          <span className="text-sm">Continue with Google</span>
-          <FcGoogle />
-        </Button>
-      </Form>
+        </Form>
+      </Card>
     </div>
   );
 }

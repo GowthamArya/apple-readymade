@@ -15,6 +15,8 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
   useEffect(() => {
     document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
+    document.documentElement.style.setProperty("--scrollbar-thumb", token.colorFillSecondary);
+    document.documentElement.style.setProperty("--scrollbar-track", token.colorBgContainer);
   }, [token.colorBgLayout]);
 
   return (
