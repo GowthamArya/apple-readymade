@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 @keyframes custom-shine {
-  from { background-position: 100%; }
-  to { background-position: -100%; }
+  from {
+    background-position: 100%;
+  }
+
+  to {
+    background-position: -100%;
+  }
 }
 
 :root {
   --bg-layout: #000;
 }
 
-html, body {
+html,
+body {
   background-color: var(--bg-layout);
 }
 
@@ -35,14 +41,18 @@ html, body {
 
 .text-shine {
   animation: custom-shine 2s linear infinite;
-  background-image: linear-gradient(
-    90deg, 
-    rgba(240, 253, 244, 0.75) 0%,           /* Dark background color at start */
-    #c0c0c0 20%,          /* White light start */
-    rgb(225, 255, 236) 50%,          /* Bright white light center */
-    #747474 80%,          /* White light end */
-    rgba(240, 253, 244, 0.75) 100%     /* Dark background color at end */
-  );
+  background-image: linear-gradient(90deg,
+      rgba(240, 253, 244, 0.75) 0%,
+      /* Dark background color at start */
+      #c0c0c0 20%,
+      /* White light start */
+      rgb(225, 255, 236) 50%,
+      /* Bright white light center */
+      #747474 80%,
+      /* White light end */
+      rgba(240, 253, 244, 0.75) 100%
+      /* Dark background color at end */
+    );
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -56,15 +66,19 @@ html, body {
   .bg-zoom-on-scroll {
     background-size: 80% auto, cover;
     animation: bgZoom linear both;
-    animation-timeline: scroll(root block); 
-    animation-range: 0 150vh; 
+    animation-timeline: scroll(root block);
+    animation-range: 10 150vh;
   }
 
   @keyframes bgZoom {
-    from { background-size: 35% auto, cover;
+    from {
+      background-size: 35% auto, cover;
       background-repeat: no-repeat, no-repeat;
     }
-    to { background-size: 0% auto, cover; }
+
+    to {
+      background-size: 0% auto, cover;
+    }
   }
 }
 
@@ -73,15 +87,19 @@ html, body {
     .bg-zoom-on-scroll {
       background-size: 80% auto, cover;
       animation: bgZoom linear both;
-      animation-timeline: scroll(root block); 
-      animation-range: 0 150vh; 
+      animation-timeline: scroll(root block);
+      animation-range: 0 150vh;
     }
 
     @keyframes bgZoom {
-      from { background-size: 85% auto, cover;
+      from {
+        background-size: 85% auto, cover;
         background-repeat: no-repeat, no-repeat;
       }
-      to { background-size: 0% auto, cover; }
+
+      to {
+        background-size: 0% auto, cover;
+      }
     }
   }
 }

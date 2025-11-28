@@ -1,44 +1,60 @@
 // app/not-found.tsx
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Button, theme, Typography } from "antd";
+
+const { Title, Text } = Typography;
 
 export default function NotFound() {
-    const [seconds, setSeconds] = useState<number>(5);
-    const router = useRouter();
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setSeconds((prev) => {
-                if (prev <= 1) {
-                    router.push("/");
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+  const [seconds, setSeconds] = useState<number>(5);
+  const router = useRouter();
+  const { token } = theme.useToken();
 
-        return () => clearInterval(interval);
-        }, [router]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          router.push("/");
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
+    return () => clearInterval(interval);
+  }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-black text-black dark:text-white px-4">
-      <div className="text-center space-y-4 max-w-md mb-15">
-        <h1 className="text-5xl font-extrabold text-green-200">Coming Soon!</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-lg">
-          This page hasn’t been created yet. We’re working on it!
-        </p>
+    <div
+      className="flex flex-col items-center justify-center px-4"
+      style={{
+        minHeight: '80vh',
+        backgroundColor: token.colorBgLayout,
+        color: token.colorText
+      }}
+    >
+      <div className="flex flex-col items-center text-center">
+        <img
+          src="/not_found_boy.png"
+          alt="Page Not Found"
+          className="w-64 md:w-80 object-contain"
+        />
+        <Title level={1} style={{ margin: '0 0 2px 0' }}>404</Title>
+        <Text type="secondary" style={{ fontSize: '18px' }}>
+          Sorry, the page you visited does not exist.
+        </Text>
+        <div className="flex flex-col items-center">
+          <Text type="secondary" style={{ fontSize: '14px' }}>
+            Automatically redirecting in {seconds} seconds...
+          </Text>
+          <Link href="/">
+            <Button type="primary" size="middle">Back Home</Button>
+          </Link>
+        </div>
       </div>
-      <p>Automatially redirect in {seconds} sec...</p>
-        <Link
-          href="/"
-          className="bg-white mt-3 p-3 hover:scale-105 hover:bg-green-200 duration-1000 rounded-full text-black font-medium"
-        >
-           Back to Home
-        </Link>
     </div>
   );
 }

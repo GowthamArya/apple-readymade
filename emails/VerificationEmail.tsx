@@ -82,87 +82,91 @@ const styles = {
   body: {
     margin: 0,
     padding: 0,
-    backgroundColor: "#CEE5D0",
-    fontFamily: "Arial, sans-serif",
+    backgroundColor: "#f6f9fc",
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif',
   },
 
   outerWrapper: {
-    backgroundColor: "#CEE5D0",
-    padding: "20px",
+    backgroundColor: "#f6f9fc",
+    padding: "40px 20px",
     width: "100%",
   },
 
   card: {
     width: "100%",
-    maxWidth: "600px",
+    maxWidth: "480px",
     backgroundColor: "#ffffff",
-    borderRadius: "8px",
-    padding: "40px",
+    borderRadius: "12px",
+    padding: "48px 32px",
     textAlign: "center" as const,
     margin: "0 auto",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
   },
 
   logo: {
-    marginBottom: "20px",
+    marginBottom: "32px",
     display: "block",
     marginLeft: "auto",
     marginRight: "auto",
   },
 
-
   heading: {
-    color: "#333",
+    color: "#1a1a1a",
     fontSize: "24px",
-    margin: "0 0 10px 0",
-    fontWeight: "bold",
+    margin: "0 0 16px 0",
+    fontWeight: "600",
+    letterSpacing: "-0.5px",
   },
 
   subText: {
-    color: "#555",
-    fontSize: "14px",
-    margin: "0 0 10px 0",
+    color: "#4a4a4a",
+    fontSize: "16px",
+    lineHeight: "24px",
+    margin: "0 0 8px 0",
   },
 
   button: {
     display: "inline-block",
-    padding: "14px 28px",
-    marginTop: "15px",
+    padding: "14px 32px",
+    marginTop: "32px",
     backgroundColor: "#3A6F43",
     color: "#ffffff",
     textDecoration: "none",
-    borderRadius: "6px",
-    fontSize: "15px",
-    fontWeight: "bold",
+    borderRadius: "8px",
+    fontSize: "16px",
+    fontWeight: "600",
+    boxShadow: "0 4px 12px rgba(58, 111, 67, 0.2)",
   },
 
   dividerWrapper: {
-    margin: "30px auto",
-    width: "80%",
+    margin: "40px auto",
+    width: "100%",
   },
 
   divider: {
-    borderTop: "1px solid #eee",
+    borderTop: "1px solid #eaeaea",
     width: "100%",
   },
 
   disclaimer: {
-    color: "#888",
-    fontSize: "12px",
-    lineHeight: "18px",
-    marginTop: "10px",
+    color: "#888888",
+    fontSize: "13px",
+    lineHeight: "20px",
+    marginTop: "12px",
   },
 
   footer: {
     width: "100%",
-    maxWidth: "600px",
+    maxWidth: "480px",
     textAlign: "center" as const,
-    margin: "20px auto 0",
-    padding: "10px 20px",
+    margin: "32px auto 0",
+    padding: "0 20px",
   },
 
   footerText: {
-    fontSize: "11px",
-    color: "#b5b5b5",
-    margin: "4px 0",
+    fontSize: "12px",
+    color: "#999999",
+    margin: "8px 0",
+    lineHeight: "18px",
   },
 };

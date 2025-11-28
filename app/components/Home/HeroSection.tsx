@@ -17,7 +17,7 @@ export default function HeroSection() {
       backgroundImage: `url("/small-boy.png"), ${gradient}`,
       backgroundSize: "contain, cover",
       backgroundRepeat: "no-repeat, no-repeat",
-      backgroundPosition: "bottom, center", // image anchored bottom, gradient centered
+      backgroundPosition: "bottom, center",
     } as const;
   }, [isDark, token.colorBgContainer, token.colorBorderSecondary]);  // use isDark as dep
 
