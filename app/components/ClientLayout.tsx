@@ -59,21 +59,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <InstallPrompt />
               <Header />
               <Script id="chatbase-loader" strategy="afterInteractive">
-{`
-  window.addEventListener("load", function() {
-    try {
-      const script = document.createElement("script");
-      script.src = "https://www.chatbase.co/embed.min.js";
-      script.id = "dXnsoBwvGUwA8nEoO_LEi";
-      script.domain = "www.chatbase.co";
-      document.body.appendChild(script);
-    } catch(e) {
-      console.error("Chatbase loader failed", e);
-    }
-  });
-`}
-</Script>
-                      };
+              {`
+                window.addEventListener("load", function() {
+                  try {
+                    const script = document.createElement("script");
+                    script.src = "https://www.chatbase.co/embed.min.js";
+                    script.id = "dXnsoBwvGUwA8nEoO_LEi";
+                    script.domain = "www.chatbase.co";
+                    document.body.appendChild(script);
+                  } catch(e) {
+                    console.error("Chatbase loader failed", e);
+                  }
+                });
+              `}
+              </Script>
+        
               {/* <!-- Brevo Conversations {literal} --> */}
               {/* <Script>
                    {`
