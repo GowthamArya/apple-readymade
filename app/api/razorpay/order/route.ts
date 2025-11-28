@@ -13,7 +13,14 @@ function getRazorpay() {
 
 export async function POST(req: Request) {
   try {
-    const { amount, currency = "INR", receipt, notes } = (await req.json()) as {
+    let body;
+    try {
+      body = await req.json();
+    } catch (err) {
+      return Response.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const { amount, currency = "INR", receipt, notes } = body as {
       amount: number;
       currency?: string;
       receipt?: string;

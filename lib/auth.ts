@@ -74,7 +74,9 @@ export const authOptions: NextAuthOptions = {
 
 
           if (!error && data) {
-            token.role_name = (data?.role as any)?.name ?? null;
+            const role = data.role as any;
+            const roleName = role?.name ?? (Array.isArray(role) ? role[0]?.name : null);
+            token.role_name = roleName;
             token.role_id = data?.role_id ?? null;
             token.userId = data?.id ?? null;
             token.email = user.email;
@@ -119,7 +121,7 @@ export const authOptions: NextAuthOptions = {
           .maybeSingle();
 
         if (selectError) {
-          console.error("Error checking existing user",{selectError});
+          console.error("Error checking existing user", { selectError });
           return false;
         }
 
