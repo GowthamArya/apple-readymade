@@ -84,7 +84,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 });
               `}
               </Script>
-
+<Script src="https://cdn.jsdelivr.net/npm/eruda"></Script>
+<Script>eruda.init();</Script>
               {/* <!-- Brevo Conversations {literal} --> */}
               {/* <Script>
                    {`
