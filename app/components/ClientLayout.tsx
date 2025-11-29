@@ -17,7 +17,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
     document.documentElement.style.setProperty("--scrollbar-thumb", token.colorFillSecondary);
     document.documentElement.style.setProperty("--scrollbar-track", token.colorBgContainer);
-  }, [token.colorBgLayout]);
+  }, [token]);
 
   return (
     <main
@@ -59,34 +59,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <InstallPrompt />
               <Header />
               <Script id="chatbase-loader" strategy="afterInteractive">
-                {`
-                  (function(){
-                    if(!window.chatbase || window.chatbase("getState") !== "initialized") {
-                      window.chatbase = (...args) => {
-                        if(!window.chatbase.q) { window.chatbase.q = []; }
-                        window.chatbase.q.push(args);
-                      };
-                      window.chatbase = new Proxy(window.chatbase, {
-                        get(target, prop) {
-                          if (prop === "q") return target.q;
-                          return (...args) => target(prop, ...args);
-                        }
-                      });
-                    }
-
-                    const onLoad = function() {
-                      const script = document.createElement("script");
-                      script.src = "https://www.chatbase.co/embed.min.js";
-                      script.id = "dXnsoBwvGUwA8nEoO_LEi";  // your ID stays the same
-                      script.domain = "www.chatbase.co";
-                      document.body.appendChild(script);
-                    };
-
-                    if (document.readyState === "complete") onLoad();
-                    else window.addEventListener("load", onLoad);
-                  })();
-                  `}
+              {`
+                window.addEventListener("load", function() {
+                  try {
+                    const script = document.createElement("script");
+                    script.src = "https://www.chatbase.co/embed.min.js";
+                    script.id = "dXnsoBwvGUwA8nEoO_LEi";
+                    script.domain = "www.chatbase.co";
+                    document.body.appendChild(script);
+                  } catch(e) {
+                    console.error("Chatbase loader failed", e);
+                  }
+                });
+              `}
               </Script>
+        
               {/* <!-- Brevo Conversations {literal} --> */}
               {/* <Script>
                    {`
