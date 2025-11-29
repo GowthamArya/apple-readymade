@@ -209,7 +209,7 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {user?.id && <NotifPopover userId={user.id} />}
+          {user && <NotifPopover userId={user.id} />}
           {!isMobile && <ThemeToggle token={token} />}
           {/* Account */}
           {user ? (
