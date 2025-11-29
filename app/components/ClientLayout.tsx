@@ -107,7 +107,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             </FavoritesProvider>
           </CartProvider>
         </SessionProvider>
-      </ConfigProvider>
     </ConfigProvider>
 
     {/* 🐞 Debug consoles must boot after page init, NOT before providers */}
