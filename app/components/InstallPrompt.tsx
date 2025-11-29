@@ -1,9 +1,10 @@
 "use client";
-import { Button } from "antd";
+import { Button, theme, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { GrInstallOption } from "react-icons/gr";
 
 export default function InstallPrompt() {
+  const { token } = theme.useToken();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showButton, setShowButton] = useState(false);
 
@@ -13,6 +14,7 @@ export default function InstallPrompt() {
       setDeferredPrompt(e);
       setShowButton(true);
     };
+    setShowButton(true);
 
     window.addEventListener("beforeinstallprompt", handler as any);
 
@@ -33,10 +35,12 @@ export default function InstallPrompt() {
   if (!showButton) return null;
 
   return (
-    <div className="w-full py-2 px-4 flex justify-between items-center z-50 relative">
-      <div className="flex items-center gap-2">
+    <div className="w-full py-2 px-4 flex justify-between items-center z-50 relative" >
+      <div className="flex items-center gap-2" style={{ backgroundColor: token.colorBgContainer, color: token.colorText }}>
         <GrInstallOption className="text-lg" />
-        <span className="text-sm font-medium">Install our app for a better experience</span>
+        <Typography.Text>
+          Install our app for a better experience
+        </Typography.Text>
       </div>
       <div className="flex items-center gap-3">
         <Button
