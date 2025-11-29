@@ -33,10 +33,11 @@ function ThemeToggle({ token }: { token: any }) {
         shape="round"
         style={{ backgroundColor: token.colorPrimary }}
         value={mode}
-        onChange={(val) => setMode(val as "light" | "dark")}
+        onChange={(val) => setMode(val as "light" | "dark" | 'system')}
         options={[
           { value: 'light', icon: <SunOutlined /> },
           { value: 'dark', icon: <MoonOutlined /> },
+          { value: 'system', icon: <SettingOutlined /> },
         ]}
       />
     </div>

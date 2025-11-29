@@ -91,7 +91,7 @@ export async function sendNotification(
           vibrate: [200, 100, 200],
           badge: '/logo.png',
           tag: 'new-notification',
-          image: '/logo.png',
+          image: image || '/logo.png',
           actions: [
             {
               action: 'view',

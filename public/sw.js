@@ -22,13 +22,14 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
         self.registration.showNotification(payload.title, {
             body: payload.body,
-            icon: "/Icons/logo-192x192.png", // Ensure this path exists
+            icon: "/Icons/logo-192x192.png",
             badge: "/Icons/logo-192x192.png",
+            image: payload.image,
             vibrate: [200, 100, 200, 100, 200, 100, 200],
             data: {
                 dateOfArrival: Date.now(),
                 primaryKey: 1,
-                url: payload.url || self.location.origin, // Support custom URL
+                url: payload.url || self.location.origin,
             },
         })
     );
@@ -36,25 +37,41 @@ self.addEventListener('push', (event) => {
 
 // ✅ Handle notification click
 self.addEventListener('notificationclick', function (event) {
-    console.log('Notification click received.')
-    event.notification.close()
+    console.log('Notification click received.');
+    event.notification.close();
 
-    // Open the URL from the notification data, or the root URL
-    const urlToOpen = event.notification.data?.url || self.location.origin;
+    const urlToOpen = new URL(event.notification.data?.url || '/', self.location.origin).href;
 
-    event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-            // Check if there is already a window/tab open with the target URL
+    const promiseChain = clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    }).then((windowClients) => {
+        let matchingClient = null;
+
+        for (let i = 0; i < windowClients.length; i++) {
+            const client = windowClients[i];
+            if (client.url === urlToOpen) {
+                matchingClient = client;
+                break;
+            }
+        }
+
+        if (matchingClient) {
+            return matchingClient.focus();
+        } else {
+            // If no exact match, try to find any window of this origin to focus and navigate
             for (let i = 0; i < windowClients.length; i++) {
                 const client = windowClients[i];
-                if (client.url === urlToOpen && 'focus' in client) {
-                    return client.focus();
+                if ('focus' in client) {
+                    return client.focus().then(c => c.navigate(urlToOpen));
                 }
             }
-            // If not, open a new window
+
             if (clients.openWindow) {
                 return clients.openWindow(urlToOpen);
             }
-        })
-    );
-})
+        }
+    });
+
+    event.waitUntil(promiseChain);
+});

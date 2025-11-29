@@ -1,5 +1,5 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal, Form, Upload } from 'antd';
+import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal, Form, Upload, message } from 'antd';
 import { MenuOutlined, PlusCircleOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
@@ -7,7 +7,6 @@ import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
-import TextArea from 'antd/es/input/TextArea';
 import { sendNotification } from '@/app/actions';
 const { useToken } = theme;
 
@@ -39,6 +38,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
   const handleOk = () => {
     form.validateFields().then((values) => {
       sendNotification(values.title, values.message, values.email, values.url, values.image);
+      message.success("Notification sent successfully!");
       setIsModalOpen(false);
       form.resetFields();
     }).catch((info) => {
