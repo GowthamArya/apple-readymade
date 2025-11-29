@@ -35,6 +35,17 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    // Register Service Worker manually
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+
     const og = console.error;
     console.error = (...args) => {
       if (
@@ -59,7 +70,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <InstallPrompt />
               <Header />
               <Script id="chatbase-loader" strategy="afterInteractive">
-              {`
+                {`
                 window.addEventListener("load", function() {
                   try {
                     const script = document.createElement("script");
@@ -73,7 +84,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 });
               `}
               </Script>
-        
+
               {/* <!-- Brevo Conversations {literal} --> */}
               {/* <Script>
                    {`

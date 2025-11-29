@@ -18,6 +18,7 @@ export default function HeroSection() {
       backgroundSize: "contain, cover",
       backgroundRepeat: "no-repeat, no-repeat",
       backgroundPosition: "bottom, center",
+      backgroundColor: token.colorBgContainer, // Fallback for iOS
     } as const;
   }, [isDark, token.colorBgContainer, token.colorBorderSecondary]);  // use isDark as dep
 

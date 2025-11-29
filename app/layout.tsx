@@ -1,6 +1,6 @@
 import '@ant-design/v5-patch-for-react-19';
 import "./globals.css";
-import 'antd/dist/reset.css'; 
+import 'antd/dist/reset.css';
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Mono } from "next/font/google";
@@ -9,7 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Viewport } from 'next';
 import { Roboto } from "next/font/google";
 import { Analytics } from '@vercel/analytics/next';
- 
+
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -32,7 +32,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
- 
+
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
@@ -41,7 +41,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  manifest: "/manifest.webmanifest", 
+  manifest: "/manifest.json",
   metadataBase: new URL("https://apple-readymade.vercel.app/"),
   title: "Apple Readymade mens wear",
   description: "Apple Readymade offers a collection of men’s shirts, pants, and fashion essentials crafted for comfort and style.",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en" suppressHydrationWarning >
       <head>
@@ -80,7 +80,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       </head>
       <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
         <ClientLayout>{children}</ClientLayout>
-        <SpeedInsights/>
+        <SpeedInsights />
         <Analytics />
       </body>
     </html>

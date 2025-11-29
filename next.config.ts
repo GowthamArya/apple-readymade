@@ -3,9 +3,9 @@ const isDev = process.env.NODE_ENV === 'development';
 
 const withPWA = withPWAInit({
   dest: "public",
-  register: true,
+  register: false, // Manually register
   skipWaiting: true,
-  disable: isDev, // PWA disabled in dev, enabled in prod
+  disable: true, // Disable auto-generation to use manual sw.js
 });
 
 const nextConfig = {

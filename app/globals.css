@@ -68,6 +68,10 @@ body {
     animation: bgZoom linear both;
     animation-timeline: scroll(root block);
     animation-range: 10 150vh;
+    transform: translate3d(0, 0, 0);
+    /* Force hardware acceleration for iOS */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   @keyframes bgZoom {
