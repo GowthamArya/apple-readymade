@@ -34,7 +34,6 @@ export default function AuthPage() {
     <div className="min-h-[80vh] flex items-center justify-center p-4">
       <Card
         style={{ width: '100%', maxWidth: 400, boxShadow: token.boxShadowSecondary }}
-        bordered={false}
       >
         <div className="text-center mb-6">
           <Title level={3} style={{ margin: 0 }}>Sign in</Title>

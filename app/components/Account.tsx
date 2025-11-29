@@ -54,7 +54,6 @@ export default function Account({ user, sessionUser }: { user: any, sessionUser:
     return (
         <Card
             style={{ width: '100%', maxWidth: 500, boxShadow: token.boxShadowSecondary }}
-            bordered={false}
         >
             <div className="flex flex-col items-center mb-8">
                 <Avatar

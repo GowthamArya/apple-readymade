@@ -17,7 +17,6 @@ export async function subscribeUser(sub: PushSubscription) {
   if (!session?.user?.id) {
     return { success: false, error: "User not authenticated" };
   }
-  console.log(sub);
   const { endpoint, keys }: any = sub;
 
   const { error } = await supabase
@@ -50,12 +49,21 @@ export async function unsubscribeUser() {
   return { success: true }
 }
 
-export async function sendNotification(message: string, userId?: string) {
+export async function sendNotification(
+  title?: string,
+  message?: string,
+  userEmail?: string,
+  url?: string,
+  image?: string
+) {
   try {
-    let query = supabase.from('push_subscriptions').select('*');
+    let query = supabase
+      .from('push_subscriptions')
+      .select('*, user:user(email)');
 
-    if (userId) {
-      query = query.eq('user_id', userId);
+    if (userEmail) {
+      // ✅ Correct join filter
+      query = query.eq('user.email', userEmail);
     }
 
     const { data: subscriptions, error } = await query;
@@ -77,25 +85,41 @@ export async function sendNotification(message: string, userId?: string) {
       return webpush.sendNotification(
         pushSubscription,
         JSON.stringify({
-          title: 'New Notification 📢',
-          body: message,
+          title: title || 'New Notification 📢',
+          body: message || 'New Notification 📢',
           icon: '/logo.png',
-          url: '/', // Add URL if needed
+          vibrate: [200, 100, 200],
+          badge: '/logo.png',
+          tag: 'new-notification',
+          image: '/logo.png',
+          actions: [
+            {
+              action: 'view',
+              title: 'View',
+            },
+            {
+              action: 'close',
+              title: 'Close',
+            },
+          ],
+          renotify: true,
+          requireInteraction: true,
+          url: url || '/',
         })
-      ).catch((err: any) => {
+      ).catch(async (err: any) => {
         if (err.statusCode === 410 || err.statusCode === 404) {
-          // Subscription has expired or is no longer valid
-          console.log('Subscription expired, deleting from DB:', sub.id);
-          return supabase.from('push_subscriptions').delete().eq('id', sub.id);
+          console.log('Removing expired subscription:', sub.id);
+          await supabase.from('push_subscriptions').delete().eq('id', sub.id);
+        } else {
+          console.error('Push error for user', sub.user_id, err);
         }
-        console.error('Error sending notification to', sub.user_id, err);
       });
     });
 
     await Promise.all(notifications);
-    return { success: true }
-  } catch (error) {
-    console.error('Error sending push notification:', error)
-    return { success: false, error: 'Failed to send notification' }
+    return { success: true };
+  } catch (err) {
+    console.error('Unexpected push failure:', err);
+    return { success: false, error: 'Failed to send notification' };
   }
 }

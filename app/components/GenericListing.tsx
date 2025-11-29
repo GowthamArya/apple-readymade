@@ -1,6 +1,6 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal } from 'antd';
-import { MenuOutlined, PlusCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal, Form, Upload } from 'antd';
+import { MenuOutlined, PlusCircleOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ const HEADER_HEIGHT = 50;
 
 const GenericListing = ({ entityName, allEntities }: { entityName: string, allEntities: [] }) => {
   const { token } = useToken();
+  const [form] = Form.useForm();
 
   const [entities, setEntities] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,22 +31,26 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
   const [total, setTotal] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [notifiyMessage, setNotifyMessage] = useState("");
-  const [notifiyTitle, setNotifyTitle] = useState("");
+
   const showModal = () => {
     setIsModalOpen(true);
   };
+
   const handleOk = () => {
-    setIsModalOpen(false);
-    notifiyMessage && sendNotification(notifiyMessage);
-    setNotifyTitle("");
-    setNotifyMessage("");
+    form.validateFields().then((values) => {
+      sendNotification(values.title, values.message, values.email, values.url, values.image);
+      setIsModalOpen(false);
+      form.resetFields();
+    }).catch((info) => {
+      console.log('Validate Failed:', info);
+    });
   };
+
   const handleCancel = () => {
     setIsModalOpen(false);
-    setNotifyTitle("");
-    setNotifyMessage("");
+    form.resetFields();
   };
+
   const handleEditClick = (record: any) => {
     setEditRecord(record);
     setModalVisible(true);
@@ -179,8 +184,68 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
                 onOk={handleOk}
                 onCancel={handleCancel}
               >
-                <Input placeholder='Title of the notification' value={notifiyTitle} className='mb-3!' onChange={(e) => setNotifyTitle(e.currentTarget.value)}></Input>
-                <Input.TextArea placeholder='Please enter a message to notify' value={notifiyMessage} onChange={(e) => setNotifyMessage(e.currentTarget.value)}></Input.TextArea>
+                <Form form={form} size='middle' layout="vertical" name="notify_form">
+                  <Form.Item
+                    name="title"
+                    label="Title"
+                  >
+                    <Input placeholder='Title of the notification' />
+                  </Form.Item>
+                  <Form.Item
+                    name="message"
+                    label="Message"
+                    rules={[{ required: true, message: 'Please input the message!' }]}
+                  >
+                    <Input.TextArea placeholder='Please enter a message to notify' />
+                  </Form.Item>
+                  <Form.Item
+                    name="email"
+                    label="User Email (Optional)"
+                  >
+                    <Input placeholder='Specific user email' />
+                  </Form.Item>
+                  <Form.Item
+                    name="url"
+                    label="URL (Optional)"
+                  >
+                    <Input placeholder='Specific url to navigate' />
+                  </Form.Item>
+                  <Form.Item
+                    name="image"
+                    label="Image (Optional)"
+                  >
+                    <Upload
+                      action="/api/upload"
+                      listType="picture-card"
+                      maxCount={1}
+                      accept="image/*"
+                      onChange={(info: any) => {
+                        if (info.file.status === 'done') {
+                          form.setFieldsValue({ image: info.file.response.url });
+                        } else if (info.file.status === 'removed') {
+                          form.setFieldsValue({ image: '' });
+                        }
+                      }}
+                      onRemove={() => {
+                        form.setFieldsValue({ image: '' });
+                      }}
+                    >
+                      <div>
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}>Upload</div>
+                      </div>
+                    </Upload>
+                  </Form.Item>
+                  {/* Hidden input to ensure the value is submitted if needed, though Form.Item handles it if we used getValueFromEvent. 
+                      Here we manually set the value on the Form.Item above, but Upload doesn't display the string value. 
+                      So we might need a hidden input or just rely on the internal form state which we set manually.
+                      Actually, Form.Item with name="image" will try to control Upload. 
+                      Let's decouple them.
+                  */}
+                  <Form.Item name="image" hidden>
+                    <Input />
+                  </Form.Item>
+                </Form>
               </Modal>
               <Input.Search
                 placeholder={`Search in ${entityName}`}
