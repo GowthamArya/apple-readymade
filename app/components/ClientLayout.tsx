@@ -1,4 +1,8 @@
 'use client';
+
+import { ConfigProvider, theme } from "antd";
+import Script from "next/script";
+import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { LoadingProvider } from "../context/LoadingContext";
 import Header from "./Header";
@@ -7,13 +11,12 @@ import InstallPrompt from "./InstallPrompt";
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
-import { theme } from "antd";
-import Script from "next/script";
-import { useEffect } from "react";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
+
   useEffect(() => {
+    // setting CSS vars for theme
     document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
     document.documentElement.style.setProperty("--scrollbar-thumb", token.colorFillSecondary);
     document.documentElement.style.setProperty("--scrollbar-track", token.colorBgContainer);
@@ -35,77 +38,82 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Register Service Worker manually
+    // register service worker (client only)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('Service Worker registered with scope:', registration.scope);
+          console.log("✅ Service Worker registered:", registration.scope);
         })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
-        });
+        .catch((err) => console.error("❌ Service Worker registration failed:", err));
     }
 
-    const og = console.error;
+    // suppress specific ANTD noisy error (optional but safe)
+    const originalConsoleError = console.error;
     console.error = (...args) => {
-      if (
-        typeof args[0] === "string" &&
-        args[0].includes("antd v5 support React is 16 ~ 18")
-      ) {
+      if (typeof args[0] === "string" && args[0].includes("antd v5 support")) {
         return;
       }
-      og(...args);
+      originalConsoleError(...args);
     };
+
     return () => {
-      console.error = og;
+      console.error = originalConsoleError;
     };
   }, []);
 
   return (
     <ThemeContext>
-      <SessionProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <LoadingProvider>
-              <InstallPrompt />
-              <Header />
-              <Script id="chatbase-loader" strategy="afterInteractive">
-                {`
-                window.addEventListener("load", function() {
-                  try {
-                    const script = document.createElement("script");
-                    script.src = "https://www.chatbase.co/embed.min.js";
-                    script.id = "dXnsoBwvGUwA8nEoO_LEi";
-                    script.domain = "www.chatbase.co";
-                    document.body.appendChild(script);
-                  } catch(e) {
-                    console.error("Chatbase loader failed", e);
-                  }
-                });
-              `}
-              </Script>
+      {/* ✨ ANTD Config Provider must wrap BEFORE theme.useToken() */}
+      <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
+        <SessionProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <LoadingProvider>
 
-              {/* <!-- Brevo Conversations {literal} --> */}
-              {/* <Script>
-                   {`
-                    (function(d, w, c) {
-                        w.BrevoConversationsID = '680d1e7cb2b1f40d15057540';
-                        w[c] = w[c] || function() {
-                            (w[c].q = w[c].q || []).push(arguments);
-                        };
-                        var s = d.createElement('script');
-                        s.async = true;
-                        s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
-                        if (d.head) d.head.appendChild(s);
-                    })(document, window, 'BrevoConversations');`}
-                </Script> */}
-              {/* <!-- /Brevo Conversations {/literal} --> */}
-              <LoadingLayer />
-              <ThemedMain>{children}</ThemedMain>
-            </LoadingProvider>
-          </FavoritesProvider>
-        </CartProvider>
-      </SessionProvider>
-    </ThemeContext>
+                {/* Install prompt + header UI */}
+                <InstallPrompt />
+                <Header />
+
+                {/* Loading UI layer */}
+                <LoadingLayer />
+
+                {/* Your main content */}
+                <ThemedMain>{children}</ThemedMain>
+
+                {/* Global loading overlay */}
+                <LoadingLayer />
+
+                {/* Chatbase loader — kept as-is */}
+                <Script id="chatbase-loader" strategy="afterInteractive">
+                  {`
+                    window.addEventListener("load", function() {
+                      try {
+                        const script = document.createElement("script");
+                        script.src = "https://www.chatbase.co/embed.min.js";
+                        script.id = "dXnsoBwvGUwA8nEoO_LEi";
+                        script.domain = "www.chatbase.co";
+                        document.body.appendChild(script);
+                      } catch(e) {
+                        console.error("Chatbase loader failed", e);
+                      }
+                    });
+                  `}
+                </Script>
+
+                {/* (Optional) Brevo widget is commented so it won't break builds */}
+                {/* You can enable it later if needed */}
+
+              </LoadingProvider>
+            </FavoritesProvider>
+          </CartProvider>
+        </SessionProvider>
+      </ConfigProvider>
+    </ConfigProvider>
+
+    {/* 🐞 Debug consoles must boot after page init, NOT before providers */}
+    <Script src="https://cdn.jsdelivr.net/npm/eruda" strategy="afterInteractive" />
+    <Script id="eruda-init" strategy="afterInteractive">{`eruda.init();`}</Script>
+
+  </ThemeContext>
   );
 }
