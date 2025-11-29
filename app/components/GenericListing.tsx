@@ -8,49 +8,50 @@ import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
 import TextArea from 'antd/es/input/TextArea';
+import { sendNotification } from '@/app/actions';
 const { useToken } = theme;
 
 const { Content } = Layout;
 const HEADER_HEIGHT = 50;
 
 
-const GenericListing = ({entityName, allEntities}:{entityName:string, allEntities: []}) => {
+const GenericListing = ({ entityName, allEntities }: { entityName: string, allEntities: [] }) => {
   const { token } = useToken();
 
-    const [entities, setEntities] = useState<any[]>([]);
-    const [loading,setLoading] = useState(false);
-    const [collapsed, setCollapsed] = useState(false);
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [columnsMetadata,setColumnsMetadata] = useState<any[]>([]);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editRecord, setEditRecord] = useState<any>({id:0});
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [total, setTotal] = useState(0);
-    const [searchText, setSearchText] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [notifiyMessage, setNotifyMessage] = useState("");
-    const [notifiyTitle, setNotifyTitle] = useState("");
-    const showModal = () => {
-      setIsModalOpen(true);
-    };
-    const handleOk = () => {
-      setIsModalOpen(false);
-      notifiyMessage && sendPush(notifiyTitle || "Apple Readymade" , notifiyMessage);
-      setNotifyTitle("");
-      setNotifyMessage("");
-    };
-    const handleCancel = () => {
-      setIsModalOpen(false);
-      setNotifyTitle("");
-      setNotifyMessage("");
-    };
-    const handleEditClick = (record:any) => {
-        setEditRecord(record);
-        setModalVisible(true);
-    };
+  const [entities, setEntities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [columnsMetadata, setColumnsMetadata] = useState<any[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editRecord, setEditRecord] = useState<any>({ id: 0 });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [searchText, setSearchText] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notifiyMessage, setNotifyMessage] = useState("");
+  const [notifiyTitle, setNotifyTitle] = useState("");
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+    notifiyMessage && sendNotification(notifiyMessage);
+    setNotifyTitle("");
+    setNotifyMessage("");
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setNotifyTitle("");
+    setNotifyMessage("");
+  };
+  const handleEditClick = (record: any) => {
+    setEditRecord(record);
+    setModalVisible(true);
+  };
 
-  async function deleteData({id}:any){
+  async function deleteData({ id }: any) {
     (async function updateEntity() {
       const url = `/api/generic/${entityName}?id=${id}`;
       const response = await fetch(url, {
@@ -75,7 +76,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
     setLoading(false);
   }
 
-  const items = allEntities.map(({name} : any) => ({
+  const items = allEntities.map(({ name }: any) => ({
     key: name,
     label: <Link href={`/list/${name}`}>{name.toUpperCase()}</Link>,
   }));
@@ -89,7 +90,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
         const metaDataResponse = await metaData.json();
         fetchData()
         setColumnsMetadata(metaDataResponse.data ? metaDataResponse.data : []);
-        
+
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
       } finally {
@@ -138,7 +139,7 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
           zIndex: 10,
         }}
       >
-        <div className="font-bold p-3 text-xl text-start sticky top-0 z-10" style={{ background: token.colorText, color: token.colorBgContainer   }}>
+        <div className="font-bold p-3 text-xl text-start sticky top-0 z-10" style={{ background: token.colorText, color: token.colorBgContainer }}>
           Master Tables
         </div>
         <Menu theme="dark" mode="inline" className='pb-30!' selectedKeys={[entityName]} items={items} />
@@ -153,14 +154,14 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
         <Content
           style={{
             overflow: 'auto',
-            marginLeft: collapsed ? 0 : 250, 
+            marginLeft: collapsed ? 0 : 250,
             transition: 'margin-left 1s',
           }}
         >
           <div className='flex justify-between! pb-5'>
             <Button
               type="primary"
-              icon={<MenuOutlined className='text-white! p-3' style={{ fontSize: 20}} />}
+              icon={<MenuOutlined className='text-white! p-3' style={{ fontSize: 20 }} />}
               className='md:hidden!'
               onClick={() => setDrawerOpen(true)}
             />
@@ -178,8 +179,8 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
                 onOk={handleOk}
                 onCancel={handleCancel}
               >
-                <Input placeholder='Title of the notification' value={notifiyTitle} className='mb-3!' onChange={(e)=>setNotifyTitle(e.currentTarget.value)}></Input>
-                <Input.TextArea placeholder='Please enter a message to notify' value={notifiyMessage} onChange={(e)=>setNotifyMessage(e.currentTarget.value)}></Input.TextArea>
+                <Input placeholder='Title of the notification' value={notifiyTitle} className='mb-3!' onChange={(e) => setNotifyTitle(e.currentTarget.value)}></Input>
+                <Input.TextArea placeholder='Please enter a message to notify' value={notifiyMessage} onChange={(e) => setNotifyMessage(e.currentTarget.value)}></Input.TextArea>
               </Modal>
               <Input.Search
                 placeholder={`Search in ${entityName}`}
@@ -194,9 +195,9 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
               />
               <Button
                 icon={<PlusCircleOutlined />}
-                type='primary' 
+                type='primary'
                 onClick={() => {
-                  setEditRecord({id:0});
+                  setEditRecord({ id: 0 });
                   setModalVisible(true);
                 }}
               >Add</Button>
@@ -208,45 +209,45 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
               </Button>
             </div>
           </div>
-            <Table
-              bordered
-              columns={generateMetadataColumns(columnsMetadata,handleEditClick,deleteData)}
-              dataSource={entities}
-              rowKey="id"
-              loading={loading}
-              sticky
-              size='small'
-              onRow={(record) => {
-                return {
-                  onDoubleClick: (event) => {
-                    handleEditClick(record);
-                  },
-                };
-              }}
-              pagination={{
-                current: page,
-                pageSize,
-                total,
-                showSizeChanger: true,
-                onChange: (newPage, newSize) => {
-                  setPage(newPage);
-                  setPageSize(newSize);
-                  fetchData(newPage, newSize, searchText);
-                }
-              }}
-              scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
-            />
-            <DynamicFormModal
-              visible={modalVisible}
-              metadata={columnsMetadata}
-              onCancel={()=>setModalVisible(false)}
-              onSubmit={()=>{
-                fetchData(page, pageSize, searchText);
-                setModalVisible(false);
-              }}
-              id={editRecord?.id}
-              entityName={entityName}
-            />
+          <Table
+            bordered
+            columns={generateMetadataColumns(columnsMetadata, handleEditClick, deleteData)}
+            dataSource={entities}
+            rowKey="id"
+            loading={loading}
+            sticky
+            size='small'
+            onRow={(record) => {
+              return {
+                onDoubleClick: (event) => {
+                  handleEditClick(record);
+                },
+              };
+            }}
+            pagination={{
+              current: page,
+              pageSize,
+              total,
+              showSizeChanger: true,
+              onChange: (newPage, newSize) => {
+                setPage(newPage);
+                setPageSize(newSize);
+                fetchData(newPage, newSize, searchText);
+              }
+            }}
+            scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
+          />
+          <DynamicFormModal
+            visible={modalVisible}
+            metadata={columnsMetadata}
+            onCancel={() => setModalVisible(false)}
+            onSubmit={() => {
+              fetchData(page, pageSize, searchText);
+              setModalVisible(false);
+            }}
+            id={editRecord?.id}
+            entityName={entityName}
+          />
         </Content>
       </Layout>
     </Layout>
@@ -254,25 +255,3 @@ const GenericListing = ({entityName, allEntities}:{entityName:string, allEntitie
 }
 
 export default GenericListing;
-
-
-export async function sendPush(title: string, message: string, userId?: string) {
-  try {
-    const res = await fetch("/api/push", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, message, userId }), 
-    });
-
-    const data = await res.json();
-
-    if (!data.ok) {
-      console.error("❌ Push API failed:", data.error);
-      return;
-    }
-
-    console.log("✅ Push request delivered to server");
-  } catch (err) {
-    console.error("🔥 Network error hitting push API:", err);
-  }
-}

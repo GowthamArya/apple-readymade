@@ -22,7 +22,6 @@ import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
-import useApp from "antd/es/app/useApp";
 import subscribeToPush from "@/lib/config/push-subscription";
 
 function ThemeToggle({ token }: { token: any }) {
@@ -270,40 +269,78 @@ export default function AppHeader() {
 
 
 export function NotifPopover({ userId }: { userId: string }) {
-  const [isAllowed, setIsAllowed] = useState(Notification.permission === 'granted');
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setIsAllowed(Notification.permission === 'granted');
+    // Check if already subscribed
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(async (registration) => {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          setIsSubscribed(true);
+        }
+      });
+    }
+
     if (Notification.permission !== 'granted' && userId) {
-      setOpen(true);
+      // Optional: Nudge user if they haven't made a choice yet
+      // setOpen(true); 
     }
   }, [userId]);
 
-  const requestPermission = async () => {
-    const permission = await Notification.requestPermission();
-    const granted = permission === 'granted';
-
-    setIsAllowed(granted);
-    setOpen(!granted);
+  const handleToggle = async () => {
+    if (isSubscribed) {
+      // Unsubscribe
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+        // Optionally call server to remove from DB, though DB handles cleanup on 410
+        // await unsubscribeUser(); 
+      }
+      setIsSubscribed(false);
+    } else {
+      // Subscribe
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        await subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
+        setIsSubscribed(true);
+        setOpen(false);
+      }
+    }
   };
 
   return (
     <Popover
       placement="bottom"
       trigger="click"
-      open={open && !!userId}
+      open={open}
       onOpenChange={setOpen}
-      title={isAllowed ? "Notifications Enabled ✅" : "Allow notifications"}
+      title={isSubscribed ? "Notifications Enabled ✅" : "Enable Notifications"}
       content={
-        <Button type="primary" size="small" onClick={requestPermission}>
-          Enable
-        </Button>
+        <Flex vertical gap={10}>
+          <Text>{isSubscribed ? "You will receive updates." : "Get notified about new products."}</Text>
+          <Button
+            type={isSubscribed ? "default" : "primary"}
+            size="small"
+            onClick={handleToggle}
+            danger={isSubscribed}
+          >
+            {isSubscribed ? "Disable" : "Enable"}
+          </Button>
+        </Flex>
       }
     >
-      {!isAllowed && userId && (
-        <BellOutlined style={{ fontSize: 22, cursor: "pointer" }} />
-      )}
+      <Badge dot={!isSubscribed} offset={[-2, 2]}>
+        <BellFilled
+          style={{
+            fontSize: 22,
+            cursor: "pointer",
+            color: isSubscribed ? undefined : "gray"
+          }}
+        />
+      </Badge>
     </Popover>
   );
 }

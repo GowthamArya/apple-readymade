@@ -1,3 +1,5 @@
+import { subscribeUser } from "@/app/actions";
+
 export default async function subscribeToPush(vapidPublicKey: string, userId: string) {
   if (!('serviceWorker' in navigator)) {
     console.warn("Service workers not supported in this browser");
@@ -24,14 +26,9 @@ export default async function subscribeToPush(vapidPublicKey: string, userId: st
         userVisibleOnly: true,
         applicationServerKey: vapidPublicKey,
       });
-      await fetch('/api/save-subscription', {
-          method: 'POST',
-          body: JSON.stringify({
-              userId: userId,
-              subscription: subscription,
-          }),
-      });
-      console.log("✅ Push subscribed:", subscription);
+      const serializedSub = JSON.parse(JSON.stringify(subscription));
+      await subscribeUser(serializedSub);
+      console.log("✅ Push subscribed and saved to DB:", subscription);
       return subscription;
     }
   } catch (err) {
