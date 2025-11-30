@@ -3,7 +3,7 @@
 
 import { ConfigProvider, theme } from "antd";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { SessionProvider } from "next-auth/react";
 import { LoadingProvider } from "../context/LoadingContext";
 import Header from "./Header";
@@ -56,7 +56,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <LoadingProvider>
               <ErrorLogger />
               <InstallPrompt />
-              <Header />
+              <Suspense fallback={<div style={{ height: 64 }} />}>
+                <Header />
+              </Suspense>
 
               <LoadingLayer />
 
