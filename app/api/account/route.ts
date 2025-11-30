@@ -20,7 +20,7 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { name, phone } = body;
+    const { name, phone, age } = body;
 
     const { data: existingUser, error } = await fetchWithRelations("user")
       .eq("email", session.user.email)
@@ -35,6 +35,7 @@ export async function PUT(req: Request) {
         email: session.user.email,
         name,
         phone,
+        age,
       }).select().single();
 
       if (insertError) {
@@ -47,7 +48,7 @@ export async function PUT(req: Request) {
     // If user exists, update them
     const { data: updatedUser, error: updateError } = await supabase
       .from("user")
-      .update({ name, phone })
+      .update({ name, phone, age })
       .eq("email", session.user.email)
       .select()
       .single();
