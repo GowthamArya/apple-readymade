@@ -116,6 +116,15 @@ export async function sendNotification(
       });
     });
 
+    // Save notification to database for in-app history
+    await supabase.from('notifications').insert({
+      title: title || 'New Notification 📢',
+      message: message || 'New Notification 📢',
+      url: url || '/',
+      image: image || '/logo.png',
+      user_email: userEmail || null, // null means broadcast
+    });
+
     await Promise.all(notifications);
     return { success: true };
   } catch (err) {

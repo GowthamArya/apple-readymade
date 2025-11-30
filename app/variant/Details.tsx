@@ -1,18 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Card, Radio, Image, Typography, Space, Tag, Button, theme, App } from "antd";
-import { ShoppingCartOutlined, ShareAltOutlined } from "@ant-design/icons";
+import { Card, Radio, Image, Typography, Space, Tag, Button, theme, App, Statistic } from "antd";
+import { ShoppingCartOutlined, ShareAltOutlined, ClockCircleOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoriteContext";
 import Footer from "../components/Footer";
 import ProductCard from "../collections/Card";
 
-export default function VariantDetails({ variants, variant_id, productData, recommendedVariants = [] }: { variants: any[], variant_id: any, productData: any, recommendedVariants?: any[] }) {
+import Reviews from "./Reviews";
+
+const { Countdown } = Statistic;
+
+export default function VariantDetails({ variants, variant_id, productData, recommendedVariants = [], flashSale }: { variants: any[], variant_id: any, productData: any, recommendedVariants?: any[], flashSale?: any }) {
   const { token } = theme.useToken();
   const pathname = usePathname();
   const router = useRouter();
   const { addToCart, cart } = useCart();
+  const { addToFavorites, removeFromFavorites, favorites } = useFavorites();
   const { message } = App.useApp();
 
   const setVariantId = (id: number | string, { replace = true } = {}) => {
@@ -35,6 +41,26 @@ export default function VariantDetails({ variants, variant_id, productData, reco
     () => variants.find(v => v.id === selectedId) ?? variants[0],
     [variants, selectedId]
   );
+
+  // Flash Sale Logic
+  const isFlashSaleActive = flashSale && new Date(flashSale.end_time) > new Date();
+  const flashSalePrice = isFlashSaleActive && selected?.price
+    ? Math.floor(selected.price * (1 - flashSale.discount_percentage / 100))
+    : null;
+
+  const currentPrice = flashSalePrice ?? selected?.price;
+
+  const isFavorite = favorites.some(fav => fav.id === selected.id);
+
+  const handleFavorite = () => {
+    if (isFavorite) {
+      removeFromFavorites(selected.id);
+      message.warning("Removed from favorites");
+    } else {
+      addToFavorites(selected);
+      message.success("Added to favorites");
+    }
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -113,6 +139,21 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 <Typography.Title level={3} style={{ marginBottom: token.marginXXS }}>
                   {productData?.name}
                 </Typography.Title>
+
+                {isFlashSaleActive && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-red-600 font-semibold">
+                      <ClockCircleOutlined />
+                      <span>Flash Sale Ends In:</span>
+                    </div>
+                    <Countdown
+                      value={new Date(flashSale.end_time).getTime()}
+                      format="D Day H:m:s"
+                      valueStyle={{ color: '#cf1322', fontSize: '1.2rem', fontWeight: 'bold' }}
+                    />
+                  </div>
+                )}
+
                 {productData?.description && (
                   <Typography.Paragraph type="secondary" ellipsis={{ rows: 2 }}>
                     {productData.description}
@@ -213,15 +254,24 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 Selected variant
               </Typography.Title>
               <Space direction="vertical" size={4}>
-                <Typography.Text>
-                  Price: <strong>₹{selected?.price ?? "-"}</strong>
-                </Typography.Text>
-                {selected?.mrp != null && selected?.price != null && selected.mrp > selected.price && (
-                  <Typography.Text type="secondary">
-                    MRP: <span style={{ textDecoration: "line-through" }}>₹{selected.mrp}</span>{" "}
-                    {discountPct != null && <Tag color="green">Save {discountPct}%</Tag>}
+                <div className="flex items-baseline gap-2">
+                  <Typography.Text className="text-2xl">
+                    Price: <strong>₹{currentPrice ?? "-"}</strong>
                   </Typography.Text>
-                )}
+                  {isFlashSaleActive && (
+                    <Tag color="red" className="text-lg px-2 py-1">
+                      {flashSale.discount_percentage}% OFF
+                    </Tag>
+                  )}
+                </div>
+
+                {(selected?.mrp != null && currentPrice != null && selected.mrp > currentPrice) || isFlashSaleActive ? (
+                  <Typography.Text type="secondary">
+                    MRP: <span style={{ textDecoration: "line-through" }}>₹{isFlashSaleActive ? selected.price : selected.mrp}</span>{" "}
+                    {!isFlashSaleActive && discountPct != null && <Tag color="green">Save {discountPct}%</Tag>}
+                  </Typography.Text>
+                ) : null}
+
                 <Typography.Text type="secondary">
                   Size: {selected?.size ?? "-"} • Color: {selected?.color ?? "-"}
                 </Typography.Text>
@@ -248,7 +298,7 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                   icon={<ShoppingCartOutlined />}
                   size="large"
                   onClick={() => {
-                    addToCart({ ...selected, quantity: 1 });
+                    addToCart({ ...selected, price: currentPrice, quantity: 1 });
                     message.success(`${selected.product?.name || 'Product'} added to cart!`);
                   }}
                 >
@@ -256,9 +306,14 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 </Button>}
               <Button size="large" loading={loading} onClick={() => {
                 setLoading(true);
-                addToCart({ ...selected, quantity: 1 });
+                addToCart({ ...selected, price: currentPrice, quantity: 1 });
                 router.push("/checkout");
               }}>Buy now</Button>
+              <Button
+                size="large"
+                icon={isFavorite ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
+                onClick={handleFavorite}
+              />
               <Button
                 size="large"
                 icon={<ShareAltOutlined />}
@@ -270,6 +325,9 @@ export default function VariantDetails({ variants, variant_id, productData, reco
           </Space>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <Reviews productId={productData?.id} />
 
       {/* Recommended Variants Section */}
       {recommendedVariants && recommendedVariants.length > 0 && (

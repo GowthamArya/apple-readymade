@@ -104,3 +104,10 @@
     animation: none;
   }
 }
+
+/* Chatbase Mobile Adjustment */
+@media (max-width: 768px) {
+  #chatbase-bubble-button {
+    bottom: 80px !important;
+  }
+}

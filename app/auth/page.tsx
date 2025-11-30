@@ -3,9 +3,18 @@
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { useLoading } from "../context/LoadingContext";
-import { Button, Divider, Form, Input, App, theme, Card, Typography } from "antd";
+import { Button, Divider, Form, Input, App, theme, Card, Typography, Space } from "antd";
 
 const { Title, Text } = Typography;
+
+const CompactEmailInput = ({ loading, ...props }: any) => (
+  <Space.Compact style={{ width: '100%' }}>
+    <Input size="large" type="email" placeholder="Enter your email" autoComplete="email" {...props} />
+    <Button type="primary" htmlType="submit" size="large" loading={loading}>
+      Get Link
+    </Button>
+  </Space.Compact>
+);
 
 export default function AuthPage() {
   const pageLoading = useLoading();
@@ -52,13 +61,7 @@ export default function AuthPage() {
             ]}
             extra={<Text type="secondary" style={{ fontSize: '12px' }}>A link will be emailed to you. No password needed.</Text>}
           >
-            <Input size="large" type="email" placeholder="Enter your email" autoComplete="email" />
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" size="large" block loading={pageLoading.loading}>
-              Get Link
-            </Button>
+            <CompactEmailInput loading={pageLoading.loading} />
           </Form.Item>
 
           <Divider plain><Text type="secondary" style={{ fontSize: '12px' }}>OR</Text></Divider>

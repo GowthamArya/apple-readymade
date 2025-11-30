@@ -31,6 +31,7 @@ self.addEventListener('push', (event) => {
                 primaryKey: 1,
                 url: payload.url || self.location.origin,
             },
+            actions: payload.actions || []
         })
     );
 });
@@ -40,36 +41,28 @@ self.addEventListener('notificationclick', function (event) {
     console.log('Notification click received.');
     event.notification.close();
 
-    const urlToOpen = new URL(event.notification.data?.url || '/', self.location.origin).href;
+    // Get the URL to open
+    let urlToOpen = event.notification.data?.url || '/';
+    if (!urlToOpen.startsWith('http')) {
+        urlToOpen = new URL(urlToOpen, self.location.origin).href;
+    }
 
     const promiseChain = clients.matchAll({
         type: 'window',
         includeUncontrolled: true
     }).then((windowClients) => {
-        let matchingClient = null;
-
+        // Check if there is already a window/tab open with the target URL
         for (let i = 0; i < windowClients.length; i++) {
             const client = windowClients[i];
-            if (client.url === urlToOpen) {
-                matchingClient = client;
-                break;
+            // If client is already open and matching URL, focus it
+            if (client.url === urlToOpen && 'focus' in client) {
+                return client.focus();
             }
         }
 
-        if (matchingClient) {
-            return matchingClient.focus();
-        } else {
-            // If no exact match, try to find any window of this origin to focus and navigate
-            for (let i = 0; i < windowClients.length; i++) {
-                const client = windowClients[i];
-                if ('focus' in client) {
-                    return client.focus().then(c => c.navigate(urlToOpen));
-                }
-            }
-
-            if (clients.openWindow) {
-                return clients.openWindow(urlToOpen);
-            }
+        // If not found, open a new window
+        if (clients.openWindow) {
+            return clients.openWindow(urlToOpen);
         }
     });
 

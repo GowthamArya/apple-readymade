@@ -1,10 +1,10 @@
 'use client';
-import { Tabs, Button, InputNumber, Card, Col, Row, theme } from 'antd';
+import { Tabs, Button, InputNumber, Card, Col, Row, theme, Space } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoriteContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCartOutlined, HeartOutlined } from '@ant-design/icons';
+import { ShoppingCartOutlined, HeartOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'next/navigation';
 
 const { Meta } = Card;
@@ -82,31 +82,21 @@ export default function CartPage() {
                     />
 
                     {/* Custom Action Buttons */}
-                    <div className="mt-4 flex flex-wrap flex-row gap-2">
-                      <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                    <div className="mt-4" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                      <Space.Compact>
                         <InputNumber
                           min={1}
                           value={item.quantity}
                           onChange={(value) => handleQuantityChange(value || 1, item.id)}
                         />
-                      </div>
-
-                      <Button danger type="dashed" onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        removeFromCart(item.id);
-                      }}>
-                        Remove
-                      </Button>
-
-                      <Button type="primary" onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        removeFromCart(item.id);
-                        addToFavorites({ ...item, quantity: 1 });
-                      }}>
-                        Move to Wishlist
-                      </Button>
+                        <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
+                        <Button type="primary" onClick={() => {
+                          removeFromCart(item.id);
+                          addToFavorites({ ...item, quantity: 1 });
+                        }}>
+                          Move to Wishlist
+                        </Button>
+                      </Space.Compact>
                     </div>
                   </Card>
                 </Link>
@@ -164,7 +154,7 @@ export default function CartPage() {
                         e.preventDefault();
                         e.stopPropagation();
                         removeFromFavorites(item.id);
-                      }} key="remove">
+                      }} key="remove" icon={<DeleteOutlined />} >
                         Remove
                       </Button>,
                       <Button type="primary" onClick={(e) => {
@@ -173,7 +163,7 @@ export default function CartPage() {
                         item.quantity = 1;
                         removeFromFavorites(item.id);
                         addToCart(item);
-                      }} key="remove">
+                      }} key="remove" icon={<ShoppingCartOutlined />}>
                         Move To Cart
                       </Button>,
                     ]}

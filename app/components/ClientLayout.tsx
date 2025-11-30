@@ -1,7 +1,7 @@
 
 'use client';
 
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider, theme, App } from "antd";
 import Script from "next/script";
 import { useEffect, Suspense } from "react";
 import { SessionProvider } from "next-auth/react";
@@ -13,6 +13,7 @@ import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
 import ErrorLogger from "./ErrorLogger";
+import BottomNav from "./BottomNav";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
@@ -51,40 +52,52 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <ThemeContext>
       <SessionProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <LoadingProvider>
-              <ErrorLogger />
-              <InstallPrompt />
-              <Suspense fallback={<div style={{ height: 64 }} />}>
-                <Header />
-              </Suspense>
+        <ConfigProvider
+          theme={{
+            // Reverted to default theme settings
+          }}
+        >
+          <App>
+            <CartProvider>
+              <FavoritesProvider>
+                <LoadingProvider>
+                  <ErrorLogger />
+                  <InstallPrompt />
+                  <Suspense fallback={<div style={{ height: 64 }} />}>
+                    <Header />
+                  </Suspense>
 
-              <LoadingLayer />
+                  <LoadingLayer />
 
-              <ThemedMain>{children}</ThemedMain>
+                  <ThemedMain>
+                    {children}
+                  </ThemedMain>
 
-              <LoadingLayer />
+                  <BottomNav />
 
-              <Script id="chatbase-loader" strategy="afterInteractive">
-                {`
-                  window.addEventListener("load", function() {
-                    try {
-                      const script = document.createElement("script");
-                      script.src = "https://www.chatbase.co/embed.min.js";
-                      script.id = "dXnsoBwvGUwA8nEoO_LEi";
-                      script.domain = "www.chatbase.co";
-                      document.body.appendChild(script);
-                    } catch(e) {
-                      console.error("Chatbase loader failed", e);
-                    }
-                  });
-                `}
-              </Script>
+                  <LoadingLayer />
 
-            </LoadingProvider>
-          </FavoritesProvider>
-        </CartProvider>
+                  <Script id="chatbase-loader" strategy="afterInteractive">
+                    {`
+                      window.addEventListener("load", function() {
+                        try {
+                          const script = document.createElement("script");
+                          script.src = "https://www.chatbase.co/embed.min.js";
+                          script.id = "dXnsoBwvGUwA8nEoO_LEi";
+                          script.domain = "www.chatbase.co";
+                          document.body.appendChild(script);
+                        } catch(e) {
+                          console.error("Chatbase loader failed", e);
+                        }
+                      });
+                    `}
+                  </Script>
+
+                </LoadingProvider>
+              </FavoritesProvider>
+            </CartProvider>
+          </App>
+        </ConfigProvider>
       </SessionProvider>
     </ThemeContext>
   );

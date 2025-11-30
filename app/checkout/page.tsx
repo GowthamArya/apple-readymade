@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
 
@@ -27,6 +28,18 @@ export default function CheckoutPage() {
   const { message } = App.useApp();
 
   const [paying, setPaying] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [redeemPoints, setRedeemPoints] = useState(false);
+
+  // Fetch points on mount
+  useState(() => {
+    fetch("/api/user/points")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.points) setPoints(data.points);
+      })
+      .catch((err) => console.error("Failed to fetch points", err));
+  });
 
   const subtotal = useMemo(
     () => cart.reduce((acc: number, it: any) => acc + Number(it.price || 0) * Number(it.quantity || 1), 0),
@@ -34,7 +47,11 @@ export default function CheckoutPage() {
   );
   const shipping = 0; // add logic if needed
   const discount = 0; // apply coupon logic if needed
-  const total = Math.max(0, subtotal + shipping - discount);
+
+  // Points logic: 1 Point = 1 INR
+  const pointsValue = redeemPoints ? Math.min(points, subtotal + shipping - discount) : 0;
+
+  const total = Math.max(0, subtotal + shipping - discount - pointsValue);
 
   const handleQtyChange = (value: number, id: number) => {
     const item = cart.find((x: any) => x.id === id);
@@ -43,70 +60,115 @@ export default function CheckoutPage() {
     else addToCart({ ...item, quantity: value - item.quantity });
   };
 
-    const payWithRazorpay = async (customer: { name: string; email: string; contact?: string }) => {
-        if (!cart.length) {
-            message.warning("Your cart is empty.");
-            return;
-        }
-        try {
-            setPaying(true);
-            const ready = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-            if (!ready) throw new Error("Failed to load Razorpay");
+  const payWithRazorpay = async (values: any) => {
+    if (!cart.length) {
+      message.warning("Your cart is empty.");
+      return;
+    }
+    try {
+      setPaying(true);
 
-            // Create order (paise)
-            const amountPaise = Math.round(total * 100);
-            const res = await fetch("/api/razorpay/order", {
+      // If total is 0 (fully paid by points), handle directly
+      if (total === 0 && redeemPoints) {
+        const res = await fetch("/api/razorpay/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: 0, // 0 amount
+            items: cart,
+            shippingAddress: {
+              name: values.name,
+              email: values.email,
+              contact: values.phone,
+              address: values.address,
+              city: values.city,
+              state: values.state,
+              pincode: values.pincode
+            },
+            pointsRedeemed: pointsValue
+          }),
+        });
+        const data = await res.json();
+        if (data.dbOrderId) {
+          message.success("Order placed successfully!");
+          clearCart();
+          window.location.href = "/orders";
+        } else {
+          throw new Error(data.error || "Order placement failed");
+        }
+        return;
+      }
+
+      const ready = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!ready) throw new Error("Failed to load Razorpay");
+
+      // Create order (paise)
+      const amountPaise = Math.round(total * 100);
+      const res = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: amountPaise,
+          items: cart,
+          shippingAddress: {
+            name: values.name,
+            email: values.email,
+            contact: values.phone,
+            address: values.address,
+            city: values.city,
+            state: values.state,
+            pincode: values.pincode
+          },
+          pointsRedeemed: pointsValue
+        }),
+      });
+      const data = await res.json();
+      if (!data.orderId) throw new Error(data.error ?? "Failed to create order");
+
+      const options = {
+        key: "rzp_test_RawNjBLLBDM7q9",                 // make sure this is not undefined
+        amount: amountPaise,
+        currency: "INR",
+        name: "Apple Menswear",
+        description: "Order payment",
+        order_id: data.orderId,
+        prefill: {
+          name: values.name,
+          email: values.email,
+          contact: values.phone ?? "",
+        },
+        theme: { color: token.colorPrimary },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          const verify = await fetch("/api/razorpay/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount: amountPaise }),
-            });
-            const data = await res.json();
-            if (!data.orderId) throw new Error(data.error ?? "Failed to create order");
+            body: JSON.stringify(response),
+          });
+          const vr = await verify.json();
+          if (vr.verified) {
+            message.success("Payment successful!");
+            clearCart();
+            window.location.href = "/orders"; // Redirect to Orders page
+          } else {
+            message.error("Verification failed.");
+            window.location.href = "/checkout/cancel";
+          }
+        },
+        modal: { ondismiss: () => message.info("Payment cancelled") },
+      };
 
-            const options = {
-                key: "rzp_test_RawNjBLLBDM7q9",                 // make sure this is not undefined
-                amount: amountPaise,
-                currency: "INR",
-                name: "Apple Menswear",
-                description: "Order payment",
-                order_id: data.orderId,
-                prefill: {
-                    name: customer.name,
-                    email: customer.email,
-                    contact: customer.contact ?? "",
-                },
-                theme: { color: token.colorPrimary },
-                handler: async (response: {
-                    razorpay_payment_id: string;
-                    razorpay_order_id: string;
-                    razorpay_signature: string;
-                }) => {
-                    const verify = await fetch("/api/razorpay/verify", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(response),
-                    });
-                    const vr = await verify.json();
-                    if (vr.verified) {
-                    message.success("Payment successful!");
-                    clearCart();
-                    window.location.href = "/checkout/success";
-                    } else {
-                    message.error("Verification failed.");
-                    window.location.href = "/checkout/cancel";
-                    }
-                },
-                modal: { ondismiss: () => message.info("Payment cancelled") },
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-        } catch (err: any) {
-            message.error(err.message || "Payment failed");
-        } finally {
-            setPaying(false);
-        }
-    };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err: any) {
+      message.error(err.message || "Payment failed");
+    } finally {
+      setPaying(false);
+    }
+  };
 
   return (
     <div className="px-4 md:px-10 lg:px-16 py-10">
@@ -134,11 +196,7 @@ export default function CheckoutPage() {
               <Form
                 layout="vertical"
                 onFinish={(values: any) => {
-                  void payWithRazorpay({
-                    name: values.name,
-                    email: values.email,
-                    contact: values.phone,
-                  });
+                  void payWithRazorpay(values);
                 }}
               >
                 <Row gutter={16}>
@@ -226,14 +284,14 @@ export default function CheckoutPage() {
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             <Typography.Text>₹{item.price}</Typography.Text>
-                            <InputNumber
-                              min={1}
-                              value={item.quantity}
-                              onChange={(val) => handleQtyChange(Number(val || 1), item.id)}
-                            />
-                            <Button danger type="link" onClick={() => removeFromCart(item.id)}>
-                              Remove
-                            </Button>
+                            <Space.Compact>
+                              <InputNumber
+                                min={1}
+                                value={item.quantity}
+                                onChange={(val) => handleQtyChange(Number(val || 1), item.id)}
+                              />
+                              <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
+                            </Space.Compact>
                           </div>
                         </div>
                       </div>
@@ -261,15 +319,6 @@ export default function CheckoutPage() {
                   <Typography.Text>Subtotal</Typography.Text>
                   <Typography.Text>₹{subtotal}</Typography.Text>
                 </div>
-                <div className="flex justify-between">
-                  <Typography.Text>Shipping</Typography.Text>
-                  <Typography.Text>₹{shipping}</Typography.Text>
-                </div>
-                <div className="flex justify-between">
-                  <Typography.Text>Discount</Typography.Text>
-                  <Typography.Text>- ₹{discount}</Typography.Text>
-                </div>
-                <Divider style={{ margin: `${token.marginSM}px 0` }} />
                 <div className="flex justify-between">
                   <Typography.Text strong>Total</Typography.Text>
                   <Typography.Text strong>₹{total}</Typography.Text>

@@ -1,6 +1,6 @@
 "use client";
-import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal, Form, Upload, message } from 'antd';
-import { MenuOutlined, PlusCircleOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Layout, Menu, Button, Drawer, Input, theme, Modal, Form, Upload, message, Space } from 'antd';
+import { MenuOutlined, PlusCircleOutlined, ReloadOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import Loading from '@/app/loading';
 import Link from 'next/link';
@@ -248,17 +248,26 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
                   </Form.Item>
                 </Form>
               </Modal>
-              <Input.Search
-                placeholder={`Search in ${entityName}`}
-                value={searchText}
-                allowClear
-                onChange={e => setSearchText(e.target.value)}
-                onSearch={value => {
-                  setSearchText(value);
-                  setPage(1);
-                  fetchData(1, pageSize, value);
-                }}
-              />
+              <Space.Compact>
+                <Input
+                  placeholder={`Search in ${entityName}`}
+                  value={searchText}
+                  allowClear
+                  onChange={e => setSearchText(e.target.value)}
+                  onPressEnter={() => {
+                    setPage(1);
+                    fetchData(1, pageSize, searchText);
+                  }}
+                />
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  onClick={() => {
+                    setPage(1);
+                    fetchData(1, pageSize, searchText);
+                  }}
+                />
+              </Space.Compact>
               <Button
                 icon={<PlusCircleOutlined />}
                 type='primary'

@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProductList from "./List";
-import { Button, Input, Select, Radio, Popover, theme, Tag } from 'antd';
+import { Button, Input, Select, Radio, Popover, theme, Tag, Space } from 'antd';
 import { useRouter } from "next/navigation";
 import { TbFilterSearch } from "react-icons/tb";
 import { BiSort } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { useToken } = theme;
 
@@ -275,13 +276,16 @@ function PopUp({
         <div className="space-y-4">
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block">Search</label>
-            <Input.Search
-              placeholder="Search product..."
-              onChange={(e) => setSearch(e.target.value)}
-              value={search}
-              allowClear
-              onSearch={onApply}
-            />
+            <Space.Compact style={{ width: '100%' }}>
+              <Input
+                placeholder="Search product..."
+                onChange={(e) => setSearch(e.target.value)}
+                value={search}
+                allowClear
+                onPressEnter={onApply}
+              />
+              <Button type="primary" icon={<SearchOutlined />} onClick={onApply} />
+            </Space.Compact>
           </div>
 
           <div>

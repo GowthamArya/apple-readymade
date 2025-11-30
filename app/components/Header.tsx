@@ -7,6 +7,7 @@ import {
   Layout, Menu, Input, Badge, Button, Avatar,
   Dropdown, Drawer, theme, Flex, Typography, Segmented,
   Popover,
+  Space,
 } from "antd";
 import {
   ShoppingOutlined, UserOutlined, MenuOutlined, LogoutOutlined, SettingOutlined,
@@ -14,7 +15,9 @@ import {
   BellOutlined,
   CheckCircleFilled,
   BellFilled,
-  CloseCircleFilled
+  CloseCircleFilled,
+  SearchOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
@@ -27,12 +30,23 @@ import subscribeToPush from "@/lib/config/push-subscription";
 function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
 
+  // Ensure mode is one of the valid options, default to 'system' if undefined
+  const currentMode = (mode === 'light' || mode === 'dark' || mode === 'system') ? mode : 'system';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div style={{ width: 100, height: 32 }} />; // Placeholder to prevent layout shift
+  }
+
   return (
     <div style={{ display: "inline-flex" }}>
       <Segmented
         shape="round"
-        style={{ backgroundColor: token.colorPrimary }}
-        value={mode}
+        value={currentMode}
         onChange={(val) => setMode(val as "light" | "dark" | 'system')}
         options={[
           { value: 'light', icon: <SunOutlined /> },
@@ -60,7 +74,10 @@ export default function AppHeader() {
   const { token } = useToken();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     setSearch(searchParams.get("searchQuery") || "");
   }, [searchParams]);
 
@@ -98,12 +115,15 @@ export default function AppHeader() {
     return [
       { key: "/", label: <Link href="/">Home</Link> },
       { key: "/collections", label: <Link href="/collections">Collections</Link> },
+      { key: "/orders", label: <Link href="/orders">Orders</Link> },
     ];
   }, []);
 
   function handleSearch(search: string) {
     router.push(`/collections?searchQuery=${search}`);
   }
+
+  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
 
   return (
     <Header
@@ -113,65 +133,133 @@ export default function AppHeader() {
         top: 0,
         zIndex: 100,
         width: "100%",
+        maxWidth: "100% !important",
         background: token.colorBgContainer,
+        padding: '0 20px',
       }}
     >
-      <Flex align="center" justify="space-between" gap={16}>
-        <Link href="/" aria-label="Go Home" className="inline-flex items-center gap-8">
-          <Image src="/logo.png" alt="Logo" width={45} height={45} priority />
-          <Text
-            strong
-            className="lg:block hidden"
-            style={{
-              fontSize: '1.5rem',
-              transition: 'font-size 0.3s ease'
-            }}
-          >
-            Apple
-          </Text>
-        </Link>
+      <Flex align="center" justify="space-between" gap={16} style={{ height: '100%' }}>
+        {/* Left: Logo */}
+        {!mobileSearchVisible && (
+          <Link href="/" aria-label="Go Home" className="inline-flex items-center gap-2">
+            <Image src="/logo.png" alt="Logo" width={40} height={40} priority />
+            <Text
+              strong
+              className="lg:block hidden"
+              style={{
+                fontSize: '1.5rem',
+              }}
+            >
+              Apple
+            </Text>
+          </Link>
+        )}
+
+        {/* Mobile Search Input (Overlay) */}
+        {mobileSearchVisible && (
+          <div className="flex-1 md:hidden flex items-center gap-2">
+
+            <Space.Compact style={{ width: '100%' }}>
+              <Input
+                autoFocus
+                placeholder="Search..."
+                onPressEnter={() => {
+                  handleSearch(search);
+                  setMobileSearchVisible(false);
+                }}
+                onChange={(e) => {
+                  // We need a state for this if we want to use the button.
+                  // But wait, 'search' state is already there in Header.tsx.
+                  // Let's reuse 'search' state or create a new one if 'search' is for the desktop one.
+                  // 'search' state is initialized from URL.
+                  setSearch(e.target.value);
+                }}
+                value={search}
+              />
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={() => {
+                  handleSearch(search);
+                  setMobileSearchVisible(false);
+                }}
+              />
+              <Button
+                type="text"
+                icon={<CloseCircleFilled />}
+                onClick={() => setMobileSearchVisible(false)}
+              />
+            </Space.Compact>
+          </div>
+        )}
 
         {/* Center: Desktop Menu + Search */}
-        <div className="hidden md:flex items-center">
-          <Menu
-            className="w-50 font-semibold text-2xl"
-            mode="horizontal"
-            items={menuItems}
-            selectedKeys={[pathname]}
-            style={{ borderBottom: "none" }}
-          />
-          <Input.Search
-            placeholder="Search products"
-            onSearch={(search) => {
-              setOpen(false);
-              handleSearch(search);
-            }}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-            value={search}
-            allowClear
-            style={{ width: 200 }}
-          />
+        <div className="hidden md:flex items-center flex-1 justify-center gap-8">
+          {mounted ? (
+            <Menu
+              className="font-semibold text-lg border-b-0 min-w-[300px]"
+              mode="horizontal"
+              items={menuItems}
+              selectedKeys={[pathname]}
+              style={{ background: 'transparent' }}
+            />
+          ) : (
+            <div style={{ width: 300, height: 46 }} /> // Placeholder
+          )}
+          <Space.Compact style={{ width: '100%' }}>
+            <Input
+              placeholder="Search products"
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+              allowClear
+              onPressEnter={() => {
+                setOpen(false);
+                handleSearch(search);
+              }}
+              style={{ width: 'calc(100% - 46px)' }}
+            />
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={() => {
+                setOpen(false);
+                handleSearch(search);
+              }}
+            />
+          </Space.Compact>
         </div>
 
         {/* Right: Actions */}
-        <Flex align="center" gap={18}>
+        <Flex align="center" gap={12}>
+          {/* Mobile Search Trigger */}
+          {!mobileSearchVisible && (
+            <div className="md:hidden">
+              <Button
+                type="text"
+                icon={<SearchOutlined style={{ fontSize: 20 }} />}
+                onClick={() => setMobileSearchVisible(true)}
+              />
+            </div>
+          )}
+
           {/* Cart */}
-          <Link href="/cart?activeTab=wishlist" aria-label="Wishlist">
-            <HeartOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
+          <Link href="/cart?activeTab=wishlist" aria-label="Wishlist" className="hidden sm:block">
+            <HeartOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
           </Link>
           <Link href="/cart?activeTab=cart" aria-label="Cart">
-            <Badge count={cart.length} color={token.colorPrimary} offset={[1, 1]}>
-              <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
+            <Badge count={cart.length} color={token.colorPrimary} offset={[0, 0]} size="small">
+              <ShoppingOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {user && <NotifPopover />}
+
+          {mounted && user && <NotifPopover />}
+
           <div className="hidden md:block">
             <ThemeToggle token={token} />
           </div>
+
           {/* Account */}
-          {user ? (
+          {mounted && user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
               <Avatar
                 src={user.image}
@@ -181,7 +269,7 @@ export default function AppHeader() {
               />
             </Dropdown>
           ) : (
-            <Link href="/auth">
+            <Link href="/auth" className="hidden md:block">
               <Button type="primary" size="small">Login</Button>
             </Link>
           )}
@@ -211,10 +299,6 @@ export default function AppHeader() {
         open={open}
         onClose={() => setOpen(false)}
       >
-        <Input.Search placeholder="Search products" onSearch={(search, e) => {
-          setOpen(false);
-          handleSearch(search);
-        }} allowClear />
         <Menu
           mode="inline"
           className="my-3!"
@@ -267,6 +351,8 @@ export function NotifPopover() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [open, setOpen] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const { token } = useToken();
 
   useEffect(() => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
@@ -285,9 +371,16 @@ export function NotifPopover() {
       console.error(err);
     }
 
-    if (Notification.permission !== 'granted') {
-      // setOpen(true); // Optional: Auto-open if not granted
-    }
+    // Fetch in-app notifications
+    fetch('/api/notifications')
+      .then(res => res.json())
+      .then(data => {
+        if (data.notifications) {
+          setNotifications(data.notifications);
+        }
+      })
+      .catch(err => console.error("Failed to fetch notifications", err));
+
   }, []);
 
   const handleToggle = async () => {
@@ -312,40 +405,98 @@ export function NotifPopover() {
     }
   };
 
+  const handleDelete = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting notification", err);
+    }
+  };
+
   return (
     <Popover
       placement="bottom"
       trigger="click"
       open={open}
       onOpenChange={setOpen}
-      title={!isSupported ? "Not Supported" : (isSubscribed ? "Notifications Enabled ✅" : "Enable Notifications")}
-      content={
-        <Flex vertical gap={10}>
-          {!isSupported ? (
-            <Text type="secondary">Notifications are not supported in this browser.</Text>
-          ) : (
-            <>
-              <Text>{isSubscribed ? "You will receive updates." : "Get notified about new products."}</Text>
-              <Button
-                type={isSubscribed ? "default" : "primary"}
-                size="small"
-                onClick={handleToggle}
-                danger={isSubscribed}
-              >
-                {isSubscribed ? "Disable" : "Enable"}
-              </Button>
-            </>
+      title={
+        <Flex justify="space-between" align="center">
+          <Text strong>Notifications</Text>
+          {isSupported && (
+            <Button
+              type="link"
+              size="small"
+              onClick={handleToggle}
+              danger={isSubscribed}
+              style={{ padding: 0 }}
+            >
+              {isSubscribed ? "Disable Push" : "Enable Push"}
+            </Button>
           )}
         </Flex>
       }
+      content={
+        <div style={{ maxWidth: 250, maxHeight: 400, overflowY: 'auto' }}>
+          {!isSupported && <Text type="secondary" className="block mb-2">Push notifications not supported on this device.</Text>}
+
+          {notifications.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              No notifications yet.
+            </div>
+          ) : (
+            <Flex vertical gap={8}>
+              {notifications.map((notif: any) => (
+                <div
+                  key={notif.id}
+                  className="p-3 rounded transition-colors cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                  onClick={() => {
+                    if (notif.url) window.location.href = notif.url;
+                  }}
+                >
+                  <Flex gap={10} align="start">
+                    {notif.image && (
+                      <Image
+                        src={notif.image}
+                        alt="icon"
+                        width={40}
+                        height={40}
+                        className="rounded object-cover h-10 w-10"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <Text strong className="block text-sm leading-tight mb-1">{notif.title}</Text>
+                      <Text type="secondary" className="text-xs block mb-1">{notif.message}</Text>
+                      <Text type="secondary" style={{ fontSize: 10 }}>{new Date(notif.created_at).toLocaleDateString()}</Text>
+                    </div>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<DeleteOutlined style={{ fontSize: 14 }} />}
+                      danger
+                      onClick={(e) => handleDelete(notif.id, e)}
+                    />
+                  </Flex>
+                </div>
+              ))}
+            </Flex>
+          )}
+        </div>
+      }
     >
-      <Badge dot={isSupported && !isSubscribed} offset={[-2, 2]}>
+      <Badge count={notifications.length} dot={notifications.length > 0} offset={[-2, 2]}>
         <BellFilled
           style={{
             fontSize: 22,
             cursor: "pointer",
-            color: isSubscribed ? undefined : "gray",
-            opacity: isSupported ? 1 : 0.5
+            color: token.colorTextHeading
           }}
         />
       </Badge>
