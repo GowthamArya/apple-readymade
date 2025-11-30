@@ -14,7 +14,6 @@ export default function InstallPrompt() {
       setDeferredPrompt(e);
       setShowButton(true);
     };
-    setShowButton(true);
 
     window.addEventListener("beforeinstallprompt", handler as any);
 
