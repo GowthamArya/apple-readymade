@@ -6,8 +6,9 @@ import { ShoppingCartOutlined, ShareAltOutlined } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import Footer from "../components/Footer";
+import ProductCard from "../collections/Card";
 
-export default function VariantDetails({ variants, variant_id, productData }: { variants: any[], variant_id: any, productData: any }) {
+export default function VariantDetails({ variants, variant_id, productData, recommendedVariants = [] }: { variants: any[], variant_id: any, productData: any, recommendedVariants?: any[] }) {
   const { token } = theme.useToken();
   const pathname = usePathname();
   const router = useRouter();
@@ -269,6 +270,18 @@ export default function VariantDetails({ variants, variant_id, productData }: { 
           </Space>
         </div>
       </div>
+
+      {/* Recommended Variants Section */}
+      {recommendedVariants && recommendedVariants.length > 0 && (
+        <div className="px-4 md:px-8 lg:px-16 py-8" style={{ backgroundColor: token.colorBgContainer }}>
+          <Typography.Title level={3}>Recommended For You</Typography.Title>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+            {recommendedVariants.map((variant) => (
+              <ProductCard key={variant.id} product={variant} token={token} />
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }

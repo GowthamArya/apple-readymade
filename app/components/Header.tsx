@@ -19,7 +19,7 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
 import subscribeToPush from "@/lib/config/push-subscription";
@@ -50,7 +50,8 @@ const { Text } = Typography;
 
 export default function AppHeader() {
   const pathname = usePathname();
-  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("searchQuery") || "");
   const [open, setOpen] = useState(false);
   const pageLoading = useLoading();
   const { cart } = useCart();
@@ -58,6 +59,10 @@ export default function AppHeader() {
   const user = session?.user;
   const { token } = useToken();
   const router = useRouter();
+
+  useEffect(() => {
+    setSearch(searchParams.get("searchQuery") || "");
+  }, [searchParams]);
 
   const handleLogout = () => {
     pageLoading.setLoading(true);

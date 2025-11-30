@@ -46,6 +46,7 @@ export default function Filters({
   const [hasMore, setHasMore] = useState(initialProducts.length < totalCount);
   const [currentPage, setCurrentPage] = useState(page);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
   const { token } = useToken();
@@ -56,9 +57,11 @@ export default function Filters({
     setCurrentPage(1);
     setLocalSearch(searchQuery);
     setLocalCategory(category);
+    setLoading(false);
   }, [searchQuery, category, sortBy, sortOrder, initialProducts, totalCount]);
 
   const updateFilters = (newParams: any) => {
+    setLoading(true);
     const params = new URLSearchParams({
       searchQuery: searchQuery,
       category: category,
@@ -121,6 +124,7 @@ export default function Filters({
   };
 
   const handleReset = () => {
+    setLoading(true);
     setLocalSearch("");
     setLocalCategory("");
     router.push('/collections');
@@ -223,7 +227,13 @@ export default function Filters({
         </div>
       </div>
 
-      <ProductList products={products} token={token} />
+      {loading ? (
+        <div className="h-64 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+        </div>
+      ) : (
+        <ProductList products={products} token={token} />
+      )}
       <div ref={lastProductElementRef} className="h-10 flex justify-center items-center w-full py-4">
         {loadingMore && <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>}
         {!hasMore && products.length <= 0 && <span className="text-gray-400 text-sm">No more products</span>}
