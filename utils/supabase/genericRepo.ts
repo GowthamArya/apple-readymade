@@ -37,7 +37,7 @@ export default class GenericRepo<T extends { id?: number | string }> {
     if (error) throw error;
   }
 
-  static async fetchAll(tableName: string,id?:any,requestData?:{
+  static async fetchAll(tableName: string, id?: any, requestData?: {
     filters?: Record<string, any>;
     search?: { column: string; query: string };
     pagination?: { page: number; limit: number };
@@ -45,10 +45,10 @@ export default class GenericRepo<T extends { id?: number | string }> {
   }) {
     let query = supabase.from(tableName).select("*", { count: "exact" });
 
-    if(id){
+    if (id) {
       query = query.eq("id", id);
     }
-    
+
     if (requestData?.filters) {
       for (const [key, value] of Object.entries(requestData.filters)) {
         if (Array.isArray(value)) {
@@ -63,7 +63,7 @@ export default class GenericRepo<T extends { id?: number | string }> {
       const { column, ascending = true } = requestData.orderBy;
       query = query.order(column, { ascending });
     } else {
-      query = query.order("created_on", {ascending:false});
+      query = query.order("created_on", { ascending: false });
     }
 
     if (requestData?.search) {
@@ -80,8 +80,8 @@ export default class GenericRepo<T extends { id?: number | string }> {
       query = query.range(from, to);
     }
 
-    const { data, error, count  } = await query;
-    if (error) throw error;
+    const { data, error, count } = await query;
+    if (error) console.error(error);
     return {
       data: data ?? [],
       total: count ?? 0
@@ -95,7 +95,7 @@ export default class GenericRepo<T extends { id?: number | string }> {
       query = query.eq("id", id);
     }
 
-    const { data, error, count  } = await query;
+    const { data, error, count } = await query;
     if (error) throw error;
     return {
       data: data ?? [],

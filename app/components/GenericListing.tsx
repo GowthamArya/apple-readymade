@@ -64,6 +64,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
         headers: { "Content-Type": "application/json" },
       });
       setLoading(false);
+      fetchData(page, pageSize, searchText);
       return response.json();
     })();
   }

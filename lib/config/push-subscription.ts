@@ -1,6 +1,6 @@
 import { subscribeUser } from "@/app/actions";
 
-export default async function subscribeToPush(vapidPublicKey: string, userId: string) {
+export default async function subscribeToPush(vapidPublicKey: string) {
   if (!('serviceWorker' in navigator)) {
     console.warn("Service workers not supported in this browser");
     return;

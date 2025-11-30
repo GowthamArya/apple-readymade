@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ConfigProvider, theme } from "antd";
@@ -11,12 +12,12 @@ import InstallPrompt from "./InstallPrompt";
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
+import ErrorLogger from "./ErrorLogger";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
 
   useEffect(() => {
-    // setting CSS vars for theme
     document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
     document.documentElement.style.setProperty("--scrollbar-thumb", token.colorFillSecondary);
     document.documentElement.style.setProperty("--scrollbar-track", token.colorBgContainer);
@@ -38,81 +39,51 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // register service worker (client only)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log("✅ Service Worker registered:", registration.scope);
+          console.log('Service Worker registered with scope:', registration.scope);
         })
         .catch((err) => console.error("❌ Service Worker registration failed:", err));
     }
-
-    // suppress specific ANTD noisy error (optional but safe)
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      if (typeof args[0] === "string" && args[0].includes("antd v5 support")) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
-
-    return () => {
-      console.error = originalConsoleError;
-    };
   }, []);
 
   return (
     <ThemeContext>
-      {/* ✨ ANTD Config Provider must wrap BEFORE theme.useToken() */}
-      <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm }}>
-        <SessionProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <LoadingProvider>
+      <SessionProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <LoadingProvider>
+              <ErrorLogger />
+              <InstallPrompt />
+              <Header />
 
-                {/* Install prompt + header UI */}
-                <InstallPrompt />
-                <Header />
+              <LoadingLayer />
 
-                {/* Loading UI layer */}
-                <LoadingLayer />
+              <ThemedMain>{children}</ThemedMain>
 
-                {/* Your main content */}
-                <ThemedMain>{children}</ThemedMain>
+              <LoadingLayer />
 
-                {/* Global loading overlay */}
-                <LoadingLayer />
+              <Script id="chatbase-loader" strategy="afterInteractive">
+                {`
+                  window.addEventListener("load", function() {
+                    try {
+                      const script = document.createElement("script");
+                      script.src = "https://www.chatbase.co/embed.min.js";
+                      script.id = "dXnsoBwvGUwA8nEoO_LEi";
+                      script.domain = "www.chatbase.co";
+                      document.body.appendChild(script);
+                    } catch(e) {
+                      console.error("Chatbase loader failed", e);
+                    }
+                  });
+                `}
+              </Script>
 
-                {/* Chatbase loader — kept as-is */}
-                <Script id="chatbase-loader" strategy="afterInteractive">
-                  {`
-                    window.addEventListener("load", function() {
-                      try {
-                        const script = document.createElement("script");
-                        script.src = "https://www.chatbase.co/embed.min.js";
-                        script.id = "dXnsoBwvGUwA8nEoO_LEi";
-                        script.domain = "www.chatbase.co";
-                        document.body.appendChild(script);
-                      } catch(e) {
-                        console.error("Chatbase loader failed", e);
-                      }
-                    });
-                  `}
-                </Script>
-
-                {/* (Optional) Brevo widget is commented so it won't break builds */}
-                {/* You can enable it later if needed */}
-
-              </LoadingProvider>
-            </FavoritesProvider>
-          </CartProvider>
-        </SessionProvider>
-    </ConfigProvider>
-
-    {/* 🐞 Debug consoles must boot after page init, NOT before providers */}
-    <Script src="https://cdn.jsdelivr.net/npm/eruda" strategy="afterInteractive" />
-    <Script id="eruda-init" strategy="afterInteractive">{`eruda.init();`}</Script>
-
-  </ThemeContext>
+            </LoadingProvider>
+          </FavoritesProvider>
+        </CartProvider>
+      </SessionProvider>
+    </ThemeContext>
   );
 }

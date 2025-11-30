@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Layout, Menu, Grid, Input, Badge, Button, Avatar,
+  Layout, Menu, Input, Badge, Button, Avatar,
   Dropdown, Drawer, theme, Flex, Typography, Segmented,
   Popover,
 } from "antd";
@@ -46,7 +46,6 @@ function ThemeToggle({ token }: { token: any }) {
 
 const { Header } = Layout;
 const { useToken } = theme;
-const { useBreakpoint } = Grid;
 const { Text } = Typography;
 
 export default function AppHeader() {
@@ -57,9 +56,7 @@ export default function AppHeader() {
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
-  const screens = useBreakpoint();
   const { token } = useToken();
-  const isMobile = screens.md === false;
   const router = useRouter();
 
   const handleLogout = () => {
@@ -93,54 +90,11 @@ export default function AppHeader() {
   );
 
   const menuItems = useMemo(() => {
-    const baseItems = [
+    return [
       { key: "/", label: <Link href="/">Home</Link> },
       { key: "/collections", label: <Link href="/collections">Collections</Link> },
     ];
-
-    const mobileOnlyItems = [
-      { type: "divider" as const },
-      {
-        key: "/cart",
-        label: <Link href="/cart">Cart</Link>,
-        icon: <ShoppingOutlined />,
-      },
-    ];
-
-    const userSpecificItems = user
-      ? [
-        {
-          key: "/account",
-          label: <Link href="/account">Account Settings</Link>,
-          icon: <SettingOutlined />,
-        },
-        ...(user?.role_name === "admin"
-          ? [{
-            key: "/list/variant",
-            label: <Link href="/list/variant">Master Tables</Link>,
-            icon: <AppstoreOutlined />,
-          }]
-          : []),
-        {
-          key: "logout",
-          label: <span onClick={handleLogout}>Log out</span>,
-          icon: <LogoutOutlined />,
-        },
-      ]
-      : [
-        {
-          key: "/auth",
-          label: <Link href="/auth">Login</Link>,
-          icon: <UserOutlined />,
-        },
-      ];
-
-    if (isMobile) {
-      return [...baseItems, ...mobileOnlyItems, ...userSpecificItems];
-    }
-
-    return baseItems;
-  }, [user, isMobile]);
+  }, []);
 
   function handleSearch(search: string) {
     router.push(`/collections?searchQuery=${search}`);
@@ -173,30 +127,28 @@ export default function AppHeader() {
         </Link>
 
         {/* Center: Desktop Menu + Search */}
-        {!isMobile && (
-          <Flex align="center">
-            <Menu
-              className="w-50 font-semibold text-2xl"
-              mode="horizontal"
-              items={menuItems}
-              selectedKeys={[pathname]}
-              style={{ borderBottom: "none" }}
-            />
-            <Input.Search
-              placeholder="Search products"
-              onSearch={(search) => {
-                setOpen(false);
-                handleSearch(search);
-              }}
-              onChange={(e) => {
-                setSearch(e.target.value);
-              }}
-              value={search}
-              allowClear
-              style={{ width: 200 }}
-            />
-          </Flex>
-        )}
+        <div className="hidden md:flex items-center">
+          <Menu
+            className="w-50 font-semibold text-2xl"
+            mode="horizontal"
+            items={menuItems}
+            selectedKeys={[pathname]}
+            style={{ borderBottom: "none" }}
+          />
+          <Input.Search
+            placeholder="Search products"
+            onSearch={(search) => {
+              setOpen(false);
+              handleSearch(search);
+            }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            value={search}
+            allowClear
+            style={{ width: 200 }}
+          />
+        </div>
 
         {/* Right: Actions */}
         <Flex align="center" gap={18}>
@@ -209,8 +161,10 @@ export default function AppHeader() {
               <ShoppingOutlined style={{ fontSize: 25, color: token.colorTextHeading }} />
             </Badge>
           </Link>
-          {user && user?.id && <NotifPopover userId={user.id || ""} />}
-          {!isMobile && <ThemeToggle token={token} />}
+          {user && <NotifPopover />}
+          <div className="hidden md:block">
+            <ThemeToggle token={token} />
+          </div>
           {/* Account */}
           {user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
@@ -228,14 +182,14 @@ export default function AppHeader() {
           )}
 
           {/* Mobile menu trigger */}
-          {isMobile && (
+          <div className="md:hidden">
             <Button
               type="text"
               icon={<MenuOutlined style={{ fontSize: 20 }} />}
               onClick={() => setOpen(true)}
               aria-label="Open menu"
             />
-          )}
+          </div>
         </Flex>
       </Flex>
 
@@ -259,7 +213,42 @@ export default function AppHeader() {
         <Menu
           mode="inline"
           className="my-3!"
-          items={menuItems}
+          items={[
+            ...menuItems,
+            { type: "divider" },
+            {
+              key: "/cart",
+              label: <Link href="/cart">Cart</Link>,
+              icon: <ShoppingOutlined />,
+            },
+            ...(user
+              ? [
+                {
+                  key: "/account",
+                  label: <Link href="/account">Account Settings</Link>,
+                  icon: <SettingOutlined />,
+                },
+                ...(user?.role_name === "admin"
+                  ? [{
+                    key: "/list/variant",
+                    label: <Link href="/list/variant">Master Tables</Link>,
+                    icon: <AppstoreOutlined />,
+                  }]
+                  : []),
+                {
+                  key: "logout",
+                  label: <span onClick={handleLogout}>Log out</span>,
+                  icon: <LogoutOutlined />,
+                },
+              ]
+              : [
+                {
+                  key: "/auth",
+                  label: <Link href="/auth">Login</Link>,
+                  icon: <UserOutlined />,
+                },
+              ])
+          ]}
           selectedKeys={[pathname]}
           onClick={() => setOpen(false)}
         />
@@ -269,43 +258,49 @@ export default function AppHeader() {
 }
 
 
-export function NotifPopover({ userId }: { userId: string }) {
+export function NotifPopover() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isSupported, setIsSupported] = useState(true);
 
   useEffect(() => {
-    // Check if already subscribed
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+      setIsSupported(false);
+      return;
+    }
+
+    try {
       navigator.serviceWorker.ready.then(async (registration) => {
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
           setIsSubscribed(true);
         }
       });
+    } catch (err) {
+      console.error(err);
     }
 
-    if (Notification.permission !== 'granted' && userId) {
-      // Optional: Nudge user if they haven't made a choice yet
-      // setOpen(true); 
+    if (Notification.permission !== 'granted') {
+      // setOpen(true); // Optional: Auto-open if not granted
     }
-  }, [userId]);
+  }, []);
 
   const handleToggle = async () => {
+    if (!isSupported) return;
+
     if (isSubscribed) {
       // Unsubscribe
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       if (subscription) {
         await subscription.unsubscribe();
-        // Optionally call server to remove from DB, though DB handles cleanup on 410
-        // await unsubscribeUser(); 
       }
       setIsSubscribed(false);
     } else {
       // Subscribe
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        await subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!, userId);
+        await subscribeToPush(process.env.NEXT_PUBLIC_VAPID_KEY!);
         setIsSubscribed(true);
         setOpen(false);
       }
@@ -318,27 +313,34 @@ export function NotifPopover({ userId }: { userId: string }) {
       trigger="click"
       open={open}
       onOpenChange={setOpen}
-      title={isSubscribed ? "Notifications Enabled ✅" : "Enable Notifications"}
+      title={!isSupported ? "Not Supported" : (isSubscribed ? "Notifications Enabled ✅" : "Enable Notifications")}
       content={
         <Flex vertical gap={10}>
-          <Text>{isSubscribed ? "You will receive updates." : "Get notified about new products."}</Text>
-          <Button
-            type={isSubscribed ? "default" : "primary"}
-            size="small"
-            onClick={handleToggle}
-            danger={isSubscribed}
-          >
-            {isSubscribed ? "Disable" : "Enable"}
-          </Button>
+          {!isSupported ? (
+            <Text type="secondary">Notifications are not supported in this browser.</Text>
+          ) : (
+            <>
+              <Text>{isSubscribed ? "You will receive updates." : "Get notified about new products."}</Text>
+              <Button
+                type={isSubscribed ? "default" : "primary"}
+                size="small"
+                onClick={handleToggle}
+                danger={isSubscribed}
+              >
+                {isSubscribed ? "Disable" : "Enable"}
+              </Button>
+            </>
+          )}
         </Flex>
       }
     >
-      <Badge dot={!isSubscribed} offset={[-2, 2]}>
+      <Badge dot={isSupported && !isSubscribed} offset={[-2, 2]}>
         <BellFilled
           style={{
             fontSize: 22,
             cursor: "pointer",
-            color: isSubscribed ? undefined : "gray"
+            color: isSubscribed ? undefined : "gray",
+            opacity: isSupported ? 1 : 0.5
           }}
         />
       </Badge>

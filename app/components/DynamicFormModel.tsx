@@ -27,8 +27,8 @@ const normalizeUpload = (e: any): UploadFile[] => {
 export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit, id, entityName }: DynamicFormModalProps) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const isEditing = useMemo(() => id !== undefined && id !== null, [id]);
-  const { message } = App.useApp(); 
+  const isEditing = useMemo(() => id !== undefined && id !== null && id != 0, [id]);
+  const { message } = App.useApp();
 
   // Fetch existing entity when opening in edit mode
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     if (field.type === "number") {
       return (
-        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}> 
+        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
           <InputNumber min={0} style={{ width: "100%" }} />
         </Form.Item>
       );
@@ -98,7 +98,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     if (field.type === "boolean") {
       return (
-        <Form.Item key={name} label={label} name={name} valuePropName="checked" rules={[{ required: !!field.required }]}> 
+        <Form.Item key={name} label={label} name={name} valuePropName="checked" rules={[{ required: !!field.required }]}>
           <Checkbox />
         </Form.Item>
       );
@@ -106,7 +106,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     if (field.type === "string" && name === "description") {
       return (
-        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}> 
+        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
           <Input.TextArea rows={4} />
         </Form.Item>
       );
@@ -114,7 +114,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
 
     if (field.type === "images") {
       return (
-        <Form.Item className="p-5!" key={name} label={label} name="images" valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: !!field.required }]}> 
+        <Form.Item className="p-5!" key={name} label={label} name="images" valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: !!field.required }]}>
           <Upload.Dragger
             name="file"
             action="/api/collections"
@@ -127,7 +127,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
               if (!isImage) {
                 message.error("Only image files are allowed!");
               }
-              return isImage || Upload.LIST_IGNORE; 
+              return isImage || Upload.LIST_IGNORE;
             }}
           >
             <p>
@@ -140,7 +140,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
     }
 
     return (
-      <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}> 
+      <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
         <Input />
       </Form.Item>
     );

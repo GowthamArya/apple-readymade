@@ -34,8 +34,8 @@ export default function InstallPrompt() {
   if (!showButton) return null;
 
   return (
-    <div className="w-full py-2 px-4 flex justify-between items-center z-50 relative" >
-      <div className="flex items-center gap-2" style={{ backgroundColor: token.colorBgContainer, color: token.colorText }}>
+    <div className="w-full py-2 px-4 flex justify-between items-center z-50 relative" style={{ backgroundColor: token.colorBgLayout, color: token.colorText }}>
+      <div className="flex items-center gap-2">
         <GrInstallOption className="text-lg" />
         <Typography.Text>
           Install our app for a better experience
