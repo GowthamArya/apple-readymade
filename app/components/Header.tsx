@@ -1,31 +1,27 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Layout, Menu, Input, Badge, Button, Avatar,
+  Layout, Menu, Badge, Button, Avatar,
   Dropdown, Drawer, theme, Flex, Typography, Segmented,
   Popover,
-  Space,
 } from "antd";
 import {
   ShoppingOutlined, UserOutlined, MenuOutlined, LogoutOutlined, SettingOutlined,
   AppstoreOutlined, SunOutlined, MoonOutlined, HeartOutlined,
-  BellOutlined,
-  CheckCircleFilled,
   BellFilled,
-  CloseCircleFilled,
   SearchOutlined,
   DeleteOutlined
 } from "@ant-design/icons";
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
 import subscribeToPush from "@/lib/config/push-subscription";
+import SearchInput from "./SearchInput";
 
 function ThemeToggle({ token }: { token: any }) {
   const { mode, setMode } = useThemeMode("dark");
@@ -45,7 +41,7 @@ function ThemeToggle({ token }: { token: any }) {
   return (
     <div style={{ display: "inline-flex" }}>
       <Segmented
-        shape="round"
+        size="small"
         value={currentMode}
         onChange={(val) => setMode(val as "light" | "dark" | 'system')}
         options={[
@@ -64,22 +60,18 @@ const { Text } = Typography;
 
 export default function AppHeader() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get("searchQuery") || "");
   const [open, setOpen] = useState(false);
   const pageLoading = useLoading();
   const { cart } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
   const { token } = useToken();
-  const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setSearch(searchParams.get("searchQuery") || "");
-  }, [searchParams]);
+  }, []);
 
   const handleLogout = () => {
     pageLoading.setLoading(true);
@@ -99,6 +91,11 @@ export default function AppHeader() {
             key: "master",
             icon: <AppstoreOutlined />,
             label: <Link href="/list/variant">Master Tables</Link>,
+          },
+          {
+            key: "flash-sales",
+            icon: <AppstoreOutlined />,
+            label: <Link href="/admin/flash-sales">Flash Sales</Link>,
           }]
           : []),
         {
@@ -118,10 +115,6 @@ export default function AppHeader() {
       { key: "/orders", label: <Link href="/orders">Orders</Link> },
     ];
   }, []);
-
-  function handleSearch(search: string) {
-    router.push(`/collections?searchQuery=${search}`);
-  }
 
   const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
 
@@ -158,38 +151,9 @@ export default function AppHeader() {
         {/* Mobile Search Input (Overlay) */}
         {mobileSearchVisible && (
           <div className="flex-1 md:hidden flex items-center gap-2">
-
-            <Space.Compact style={{ width: '100%' }}>
-              <Input
-                autoFocus
-                placeholder="Search..."
-                onPressEnter={() => {
-                  handleSearch(search);
-                  setMobileSearchVisible(false);
-                }}
-                onChange={(e) => {
-                  // We need a state for this if we want to use the button.
-                  // But wait, 'search' state is already there in Header.tsx.
-                  // Let's reuse 'search' state or create a new one if 'search' is for the desktop one.
-                  // 'search' state is initialized from URL.
-                  setSearch(e.target.value);
-                }}
-                value={search}
-              />
-              <Button
-                type="primary"
-                icon={<SearchOutlined />}
-                onClick={() => {
-                  handleSearch(search);
-                  setMobileSearchVisible(false);
-                }}
-              />
-              <Button
-                type="text"
-                icon={<CloseCircleFilled />}
-                onClick={() => setMobileSearchVisible(false)}
-              />
-            </Space.Compact>
+            <Suspense fallback={<div style={{ height: 32, width: '100%' }} />}>
+              <SearchInput mobile onCloseMobile={() => setMobileSearchVisible(false)} />
+            </Suspense>
           </div>
         )}
 
@@ -206,27 +170,9 @@ export default function AppHeader() {
           ) : (
             <div style={{ width: 300, height: 46 }} /> // Placeholder
           )}
-          <Space.Compact style={{ width: '100%' }}>
-            <Input
-              placeholder="Search products"
-              onChange={(e) => setSearch(e.target.value)}
-              value={search}
-              allowClear
-              onPressEnter={() => {
-                setOpen(false);
-                handleSearch(search);
-              }}
-              style={{ width: 'calc(100% - 46px)' }}
-            />
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={() => {
-                setOpen(false);
-                handleSearch(search);
-              }}
-            />
-          </Space.Compact>
+          <Suspense fallback={<div style={{ height: 32, width: 200 }} />}>
+            <SearchInput />
+          </Suspense>
         </div>
 
         {/* Right: Actions */}
@@ -321,6 +267,11 @@ export default function AppHeader() {
                   ? [{
                     key: "/list/variant",
                     label: <Link href="/list/variant">Master Tables</Link>,
+                    icon: <AppstoreOutlined />,
+                  },
+                  {
+                    key: "/admin/flash-sales",
+                    label: <Link href="/admin/flash-sales">Flash Sales</Link>,
                     icon: <AppstoreOutlined />,
                   }]
                   : []),

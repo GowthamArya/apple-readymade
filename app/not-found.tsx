@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, theme, Typography } from "antd";
+import { useLoading } from "./context/LoadingContext";
 
 const { Title, Text } = Typography;
 
@@ -11,21 +12,21 @@ export default function NotFound() {
   const [seconds, setSeconds] = useState<number>(5);
   const router = useRouter();
   const { token } = theme.useToken();
-
+  const pageLoading = useLoading();
   useEffect(() => {
     const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          router.push("/");
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setSeconds((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, []);
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      pageLoading.setLoading(true);
+      window.location.href = "/";
+    }
+  }, [seconds]);
 
   return (
     <div

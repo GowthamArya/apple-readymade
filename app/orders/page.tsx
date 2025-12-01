@@ -25,7 +25,7 @@ export default async function OrdersPage() {
 
     return (
         <div className="px-4 md:px-8 lg:px-16 py-5">
-            <h1 className="text-2xl text-center font-bold mb-4">My Orders</h1>
+            <h1 className="text-2xl font-bold mb-4">My Orders</h1>
             <OrdersList orders={orders || []} />
         </div>
     );

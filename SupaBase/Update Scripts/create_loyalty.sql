@@ -13,17 +13,6 @@ create table if not exists public.loyalty_points (
 -- Enable RLS
 alter table public.loyalty_points enable row level security;
 
--- Policy: Users can view their own points history
-create policy "Users can view own points"
-on public.loyalty_points for select
-using (auth.uid() = user_id);
-
--- Policy: Only server/admin can insert (we'll restrict via API logic, but for RLS we can allow authenticated insert if needed, or better, keep it restricted and use service role)
--- For simplicity in this setup, we'll allow authenticated insert but ideally this should be service-role only.
-create policy "Authenticated users can insert points"
-on public.loyalty_points for insert
-with check (auth.uid() = user_id);
-
 -- Function to calculate user's total points
 create or replace function get_user_points(user_uuid uuid)
 returns int

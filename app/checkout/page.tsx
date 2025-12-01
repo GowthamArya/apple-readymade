@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                     >
                       <div className="flex gap-3">
                         <img
-                          src={item.image_urls?.[0] || "/placeholder.png"}
+                          src={item.image_urls?.[0] || "/no-image.png"}
                           alt={item.product?.name}
                           className="w-20 h-20 object-cover rounded"
                         />

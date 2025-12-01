@@ -16,18 +16,3 @@ alter table public.reviews enable row level security;
 create policy "Reviews are public"
 on public.reviews for select
 using (true);
-
--- Policy: Authenticated users can create reviews
-create policy "Authenticated users can create reviews"
-on public.reviews for insert
-with check (auth.uid() = user_id);
-
--- Policy: Users can update their own reviews
-create policy "Users can update own reviews"
-on public.reviews for update
-using (auth.uid() = user_id);
-
--- Policy: Users can delete their own reviews
-create policy "Users can delete own reviews"
-on public.reviews for delete
-using (auth.uid() = user_id);

@@ -161,6 +161,7 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 )}
               </div>
               <Radio.Group
+                name="variant-selector"
                 value={selectedId}
                 onChange={(e) => {
                   const id = e.target.value;
