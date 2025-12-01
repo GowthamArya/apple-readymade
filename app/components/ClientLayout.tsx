@@ -67,8 +67,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <ThemedMain>
                 {children}
               </ThemedMain>
-
-              <FlashSaleBanner />
               <BottomNav />
 
               <LoadingLayer />

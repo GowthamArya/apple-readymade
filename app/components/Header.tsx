@@ -389,7 +389,7 @@ export function NotifPopover() {
               danger={isSubscribed}
               style={{ padding: 0 }}
             >
-              {isSubscribed ? "Disable Push" : "Enable Push"}
+              {isSubscribed ? "Disable" : "Enable"}
             </Button>
           )}
         </Flex>

@@ -5,6 +5,7 @@ import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, 
 import { DeleteOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
+import FlashSaleBanner from "../components/FlashSaleBanner";
 
 declare global {
   interface Window {
@@ -205,10 +206,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="px-4 md:px-10 lg:px-16 py-10">
+
       <Typography.Title level={2} style={{ color: token.colorTextHeading, marginBottom: token.marginSM }}>
         Checkout
       </Typography.Title>
 
+      <FlashSaleBanner />
       {!cart.length ? (
         <Card>
           <Space direction="vertical" size="middle">

@@ -7,6 +7,7 @@ import { TbFilterSearch } from "react-icons/tb";
 import { BiSort } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";
 import { SearchOutlined } from "@ant-design/icons";
+import FlashSaleBanner from "../components/FlashSaleBanner";
 
 const { useToken } = theme;
 
@@ -144,7 +145,8 @@ export default function Filters({
 
   return (
     <div className="relative min-h-screen!" style={{ backgroundColor: token.colorBgContainer }}>
-      {/* Top Filter Bar */}
+      <FlashSaleBanner />
+
       <div className="sticky top-0 z-40 w-full shadow-sm py-3 px-4 flex flex-col gap-3" style={{ background: token.colorBgContainer }}>
         <div className="flex md:flex-row md:flex-row-reverse flex-col justify-center md:justify-between items-center gap-2">
           <div className="flex gap-2">

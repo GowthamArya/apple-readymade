@@ -9,6 +9,7 @@ import TrustBuilding from "./components/Home/TrustBuilding";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "./components/Footer";
+import FlashSaleBanner from "./components/FlashSaleBanner";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Page() {
@@ -45,6 +46,7 @@ export default function Page() {
           <HeroSection />
           <ShopByCollection />
           <TrustBuilding />
+          <FlashSaleBanner />
           <Footer />
         </main>
       </div>
