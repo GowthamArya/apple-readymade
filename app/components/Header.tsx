@@ -166,7 +166,7 @@ export default function AppHeader() {
               mode="horizontal"
               items={menuItems}
               selectedKeys={[pathname]}
-              style={{ background: 'transparent' }}
+              style={{ background: 'transparent', border: 'none' }}
             />
           ) : (
             <div className="w-[300px] h-[46px]" /> // Placeholder
