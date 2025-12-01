@@ -1,5 +1,42 @@
 import GenericRepo from "@/utils/supabase/genericRepo";
 import { NextResponse } from "next/server";
+import redis from "@/lib/infrastructure/redis";
+
+async function invalidateCache(entityName: string) {
+  try {
+    // Clear specific entity cache
+    const keys = await redis.keys(`*${entityName}*`);
+    if (keys.length > 0) {
+      await redis.del(...keys);
+      console.log(`Cleared cache for ${entityName}:`, keys);
+    }
+
+    // Also clear flash sales cache if related
+    if (entityName === 'flash_sales') {
+      await redis.del("flash_sales:active");
+    }
+
+    // Clear collections/products cache if variants, products, categories, or reviews are modified
+    if (['variant', 'product', 'product_variant', 'category', 'reviews'].includes(entityName)) {
+      const productKeys = await redis.keys('product:*');
+      if (productKeys.length > 0) {
+        await redis.del(...productKeys);
+        console.log('Cleared products cache');
+      }
+    }
+
+    // Clear similar variants cache if variants are modified
+    if (entityName === 'variant') {
+      const similarKeys = await redis.keys('similar:*');
+      if (similarKeys.length > 0) {
+        await redis.del(...similarKeys);
+        console.log('Cleared similar variants cache');
+      }
+    }
+  } catch (e) {
+    console.error("Cache invalidation error:", e);
+  }
+}
 
 export async function POST(
   req: Request,
@@ -11,6 +48,7 @@ export async function POST(
     const requestData = await req.json();
     const genericRepo = new GenericRepo<typeof requestData>(entityname);
     const createdEntity = await genericRepo.create(requestData);
+    await invalidateCache(entityname);
 
     return NextResponse.json({ createdEntity });
   } catch (err: any) {
@@ -60,6 +98,7 @@ export async function PUT(
     const partialData = await req.json();
     const genericRepo = new GenericRepo<typeof partialData>(entityname, id);
     await genericRepo.update(partialData);
+    await invalidateCache(entityname);
 
     return NextResponse.json({ message: "Update successful" });
   } catch (err: any) {
@@ -84,6 +123,7 @@ export async function DELETE(
 
     const genericRepo = new GenericRepo(entityname, id);
     await genericRepo.delete();
+    await invalidateCache(entityname);
 
     return NextResponse.json({ message: "Deletion successful" });
   } catch (err: any) {

@@ -45,7 +45,7 @@ export class ProductService {
         page?: number;
         pageSize?: number;
     }) {
-        const cacheKey = `products:${JSON.stringify(params)}`;
+        const cacheKey = `product:${JSON.stringify(params)}`;
         const cached = await this.getFromCache<any>(cacheKey);
         if (cached) return cached;
 
