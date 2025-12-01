@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart } from "../context/CartContext";
 import { useEffect, useState } from "react";
+import { GiClothes } from "react-icons/gi";
 
 export default function BottomNav() {
     const pathname = usePathname();
@@ -44,6 +45,11 @@ export default function BottomNav() {
             icon: <HomeOutlined style={{ fontSize: 24 }} />,
             label: "Home",
             href: "/",
+        },{
+            key: "/collections",
+            icon: <GiClothes style={{ fontSize: 24 }} />,
+            label: "Collections",
+            href: "/collections",
         },
         {
             key: "/cart",

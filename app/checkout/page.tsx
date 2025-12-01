@@ -30,6 +30,9 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false);
   const [points, setPoints] = useState(0);
   const [redeemPoints, setRedeemPoints] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   // Fetch points on mount
   useState(() => {
@@ -46,12 +49,42 @@ export default function CheckoutPage() {
     [cart]
   );
   const shipping = 0; // add logic if needed
-  const discount = 0; // apply coupon logic if needed
+
+  const discountAmount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    return Math.floor(subtotal * (appliedCoupon.discount_percentage / 100));
+  }, [subtotal, appliedCoupon]);
 
   // Points logic: 1 Point = 1 INR
-  const pointsValue = redeemPoints ? Math.min(points, subtotal + shipping - discount) : 0;
+  const pointsValue = redeemPoints ? Math.min(points, subtotal + shipping - discountAmount) : 0;
 
-  const total = Math.max(0, subtotal + shipping - discount - pointsValue);
+  const total = Math.max(0, subtotal + shipping - discountAmount - pointsValue);
+
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    setCouponLoading(true);
+    try {
+      const res = await fetch(`/api/flash-sales?code=${couponCode}`);
+      const data = await res.json();
+      if (data.sale) {
+        setAppliedCoupon(data.sale);
+        message.success(`Coupon applied! ${data.sale.discount_percentage}% off.`);
+      } else {
+        message.error("Invalid or expired coupon.");
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      message.error("Failed to apply coupon.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    message.info("Coupon removed.");
+  };
 
   const handleQtyChange = (value: number, id: number) => {
     const item = cart.find((x: any) => x.id === id);
@@ -319,6 +352,26 @@ export default function CheckoutPage() {
                   <Typography.Text>Subtotal</Typography.Text>
                   <Typography.Text>₹{subtotal}</Typography.Text>
                 </div>
+
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    disabled={!!appliedCoupon}
+                  />
+                  {appliedCoupon ? (
+                    <Button danger onClick={removeCoupon}>Remove</Button>
+                  ) : (
+                    <Button type="primary" onClick={applyCoupon} loading={couponLoading}>Apply</Button>
+                  )}
+                </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <Typography.Text type="success">Discount ({appliedCoupon.coupon_code})</Typography.Text>
+                    <Typography.Text type="success">-₹{discountAmount}</Typography.Text>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <Typography.Text strong>Total</Typography.Text>
                   <Typography.Text strong>₹{total}</Typography.Text>

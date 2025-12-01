@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Select, InputNumber, DatePicker, message, Tag, Typography, Card } from "antd";
+import { Table, Button, Modal, Form, Select, InputNumber, DatePicker, message, Tag, Typography, Card, Input } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
@@ -11,7 +11,6 @@ export default function FlashSalesAdmin() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [sales, setSales] = useState([]);
-    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form] = Form.useForm();
@@ -21,7 +20,6 @@ export default function FlashSalesAdmin() {
             router.push("/auth");
         } else if (status === "authenticated") {
             fetchSales();
-            fetchProducts();
         }
     }, [status, router]);
 
@@ -37,36 +35,13 @@ export default function FlashSalesAdmin() {
         }
     };
 
-    const fetchProducts = async () => {
-        try {
-            // Assuming we have a products API or we can use supabase client if available
-            // For now, let's try to fetch from a product list API or similar
-            // If not, we might need to create one or use the existing collections API
-            const res = await fetch("/api/products?limit=100"); // Need to ensure this API exists or use alternative
-            // If /api/products doesn't exist, we might fail.
-            // Let's check if we have a way to get products.
-            // We have `app/api/products/route.ts`? No, we have `lib/productService.ts`.
-            // We can use a server action or just fetch from collections API.
-            const res2 = await fetch("/api/products"); // Try this
-            if (res2.ok) {
-                const data = await res2.json();
-                setProducts(data.products || []);
-            } else {
-                // Fallback: fetch from collections page API if possible, or just mock for now/fix later
-                console.warn("Product fetch failed");
-            }
-        } catch (error) {
-            console.error("Failed to fetch products", error);
-        }
-    };
-
     const handleCreate = async (values: any) => {
         try {
             const res = await fetch("/api/flash-sales", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    product_id: values.product_id,
+                    coupon_code: values.coupon_code,
                     discount_percentage: values.discount_percentage,
                     start_time: values.timeRange[0].toISOString(),
                     end_time: values.timeRange[1].toISOString(),
@@ -79,7 +54,8 @@ export default function FlashSalesAdmin() {
                 form.resetFields();
                 fetchSales();
             } else {
-                message.error("Failed to create sale");
+                const err = await res.json();
+                message.error(err.error || "Failed to create sale");
             }
         } catch (error) {
             message.error("Error creating sale");
@@ -88,9 +64,10 @@ export default function FlashSalesAdmin() {
 
     const columns = [
         {
-            title: "Product",
-            dataIndex: ["product", "name"],
-            key: "product",
+            title: "Coupon Code",
+            dataIndex: "coupon_code",
+            key: "coupon_code",
+            render: (text: string) => <Typography.Text strong>{text}</Typography.Text>,
         },
         {
             title: "Discount",
@@ -141,16 +118,8 @@ export default function FlashSalesAdmin() {
                 onOk={() => form.submit()}
             >
                 <Form form={form} layout="vertical" onFinish={handleCreate}>
-                    <Form.Item name="product_id" label="Product" rules={[{ required: true }]}>
-                        <Select
-                            showSearch
-                            placeholder="Select a product"
-                            optionFilterProp="children"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={products.map((p: any) => ({ value: p.id, label: p.name }))}
-                        />
+                    <Form.Item name="coupon_code" label="Coupon Code" rules={[{ required: true, message: 'Please enter coupon code' }]}>
+                        <Input placeholder="e.g. FLASH50" />
                     </Form.Item>
                     <Form.Item name="discount_percentage" label="Discount (%)" rules={[{ required: true }]}>
                         <InputNumber min={1} max={100} style={{ width: "100%" }} />

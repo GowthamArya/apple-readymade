@@ -13,7 +13,7 @@ import Reviews from "./Reviews";
 
 const { Countdown } = Statistic;
 
-export default function VariantDetails({ variants, variant_id, productData, recommendedVariants = [], flashSale }: { variants: any[], variant_id: any, productData: any, recommendedVariants?: any[], flashSale?: any }) {
+export default function VariantDetails({ variants, variant_id, productData, recommendedVariants = [] }: { variants: any[], variant_id: any, productData: any, recommendedVariants?: any[] }) {
   const { token } = theme.useToken();
   const pathname = usePathname();
   const router = useRouter();
@@ -42,13 +42,7 @@ export default function VariantDetails({ variants, variant_id, productData, reco
     [variants, selectedId]
   );
 
-  // Flash Sale Logic
-  const isFlashSaleActive = flashSale && new Date(flashSale.end_time) > new Date();
-  const flashSalePrice = isFlashSaleActive && selected?.price
-    ? Math.floor(selected.price * (1 - flashSale.discount_percentage / 100))
-    : null;
-
-  const currentPrice = flashSalePrice ?? selected?.price;
+  const currentPrice = selected?.price;
 
   const isFavorite = favorites.some(fav => fav.id === selected.id);
 
@@ -139,20 +133,6 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 <Typography.Title level={3} style={{ marginBottom: token.marginXXS }}>
                   {productData?.name}
                 </Typography.Title>
-
-                {isFlashSaleActive && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-red-600 font-semibold">
-                      <ClockCircleOutlined />
-                      <span>Flash Sale Ends In:</span>
-                    </div>
-                    <Countdown
-                      value={new Date(flashSale.end_time).getTime()}
-                      format="D Day H:m:s"
-                      valueStyle={{ color: '#cf1322', fontSize: '1.2rem', fontWeight: 'bold' }}
-                    />
-                  </div>
-                )}
 
                 {productData?.description && (
                   <Typography.Paragraph type="secondary" ellipsis={{ rows: 2 }}>
@@ -259,17 +239,12 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                   <Typography.Text className="text-2xl">
                     Price: <strong>₹{currentPrice ?? "-"}</strong>
                   </Typography.Text>
-                  {isFlashSaleActive && (
-                    <Tag color="red" className="text-lg px-2 py-1">
-                      {flashSale.discount_percentage}% OFF
-                    </Tag>
-                  )}
                 </div>
 
-                {(selected?.mrp != null && currentPrice != null && selected.mrp > currentPrice) || isFlashSaleActive ? (
+                {(selected?.mrp != null && currentPrice != null && selected.mrp > currentPrice) ? (
                   <Typography.Text type="secondary">
-                    MRP: <span style={{ textDecoration: "line-through" }}>₹{isFlashSaleActive ? selected.price : selected.mrp}</span>{" "}
-                    {!isFlashSaleActive && discountPct != null && <Tag color="green">Save {discountPct}%</Tag>}
+                    MRP: <span style={{ textDecoration: "line-through" }}>₹{selected.mrp}</span>{" "}
+                    {discountPct != null && <Tag color="green">Save {discountPct}%</Tag>}
                   </Typography.Text>
                 ) : null}
 

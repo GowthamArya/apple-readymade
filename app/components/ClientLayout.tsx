@@ -14,6 +14,7 @@ import { ThemeContext } from "../context/ThemeContext";
 import ErrorLogger from "./ErrorLogger";
 import BottomNav from "./BottomNav";
 import ScrollToTop from "./ScrollToTop";
+import FlashSaleBanner from "./FlashSaleBanner";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
@@ -67,6 +68,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 {children}
               </ThemedMain>
 
+              <FlashSaleBanner />
               <BottomNav />
 
               <LoadingLayer />

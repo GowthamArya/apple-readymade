@@ -13,18 +13,7 @@ export default async function VariantPage(props: PageProps<"/variant/[id]">) {
 
     const recommendedVariants = await getSimilarVariants(Number(id));
 
-    // Fetch active flash sale
-    const now = new Date().toISOString();
-    const { data: flashSale } = await supabase
-      .from('flash_sales')
-      .select('*')
-      .eq('product_id', product_id)
-      .eq('active', true)
-      .lte('start_time', now)
-      .gte('end_time', now)
-      .single();
-
-    return { variants: data || [], product: productData?.product, recommendedVariants, flashSale };
+    return { variants: data || [], product: productData?.product, recommendedVariants };
   }
   const variantData = await fetchVariant();
   return <>
@@ -33,7 +22,6 @@ export default async function VariantPage(props: PageProps<"/variant/[id]">) {
       variant_id={id}
       productData={variantData.product}
       recommendedVariants={variantData.recommendedVariants}
-      flashSale={variantData.flashSale}
     />
   </>;
 }

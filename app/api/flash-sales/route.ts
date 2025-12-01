@@ -6,14 +6,32 @@ import { supabase } from "@/lib/supabaseServer";
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
-    const showAll = searchParams.get('all') === 'true';
+    const code = searchParams.get('code');
 
     let query = supabase
         .from('flash_sales')
-        .select('*, product(*)');
+        .select('*') as any;
+
+    const now = new Date().toISOString();
+
+    if (code) {
+        query = query
+            .eq('coupon_code', code)
+            .eq('active', true)
+            .lte('start_time', now)
+            .gte('end_time', now)
+            .single();
+
+        const { data: sale, error } = await query;
+        if (error || !sale) {
+            return NextResponse.json({ error: 'Invalid coupon' }, { status: 404 });
+        }
+        return NextResponse.json({ sale });
+    }
+
+    const showAll = searchParams.get('all') === 'true';
 
     if (!showAll) {
-        const now = new Date().toISOString();
         query = query
             .eq('active', true)
             .lte('start_time', now)
@@ -38,16 +56,16 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { product_id, discount_percentage, start_time, end_time } = body;
+        const { coupon_code, discount_percentage, start_time, end_time } = body;
 
-        if (!product_id || !discount_percentage || !start_time || !end_time) {
+        if (!coupon_code || !discount_percentage || !start_time || !end_time) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const { data, error } = await supabase
             .from('flash_sales')
             .insert({
-                product_id,
+                coupon_code,
                 discount_percentage,
                 start_time,
                 end_time,

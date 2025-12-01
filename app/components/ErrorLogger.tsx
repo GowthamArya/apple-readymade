@@ -31,7 +31,8 @@ export default function ErrorLogger() {
             // Filter out specific Ant Design warning
             if (
                 typeof args[0] === "string" &&
-                args[0].includes("antd v5 support React is 16 ~ 18")
+                (args[0].includes("antd v5 support React is 16 ~ 18") ||
+                    args[0].includes("Static function can not consume context"))
             ) {
                 return;
             }
