@@ -22,8 +22,9 @@ import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
 import subscribeToPush from "@/lib/config/push-subscription";
 import SearchInput from "./SearchInput";
+import { id } from "zod/v4/locales";
 
-function ThemeToggle({ token }: { token: any }) {
+function ThemeToggle() {
   const { mode, setMode } = useThemeMode("dark");
 
   // Ensure mode is one of the valid options, default to 'system' if undefined
@@ -193,14 +194,14 @@ export default function AppHeader() {
             <HeartOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
           </Link>
           <Link href="/cart?activeTab=cart" aria-label="Cart">
-            <Badge count={cart.length} color={token.colorPrimary} offset={[0, 0]} size="small">
+            <Badge count={cart.length} color={token.colorPrimary} size="small">
               <ShoppingOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
             </Badge>
           </Link>
 
 
           <div className="hidden md:block">
-            <ThemeToggle token={token} />
+            <ThemeToggle />
           </div>
 
           {mounted && user && <NotifPopover />}
@@ -238,7 +239,7 @@ export default function AppHeader() {
           <Flex justify="space-between" align="center" gap={8}>
             <Image src="/logo.png" alt="Logo" width={28} height={28} />
             <Text strong style={{ fontSize: '1.1rem' }}>Apple</Text>
-            <ThemeToggle token={token} />
+            <ThemeToggle />
           </Flex>
         }
         placement="left"
@@ -356,16 +357,17 @@ export function NotifPopover() {
     }
   };
 
-  const handleDelete = async (id: number, e: React.MouseEvent) => {
+  const handleDelete = async (notif: any, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
+      console.log(notif);
       const res = await fetch('/api/notifications', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: notif?.id }),
       });
       if (res.ok) {
-        setNotifications(prev => prev.filter(n => n.id !== id));
+        setNotifications(prev => prev.filter(n => n.id !== notif?.id));
       }
     } catch (err) {
       console.error("Error deleting notification", err);
@@ -432,7 +434,7 @@ export function NotifPopover() {
                       size="small"
                       icon={<DeleteOutlined style={{ fontSize: 14 }} />}
                       danger
-                      onClick={(e) => handleDelete(notif.id, e)}
+                      onClick={(e) => handleDelete(notif, e)}
                     />
                   </Flex>
                 </div>

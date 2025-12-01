@@ -62,7 +62,6 @@ export async function sendNotification(
       .select('*, user:user(email)');
 
     if (userEmail) {
-      // ✅ Correct join filter
       query = query.eq('user.email', userEmail);
     }
 
@@ -101,6 +100,10 @@ export async function sendNotification(
               action: 'close',
               title: 'Close',
             },
+            {
+              action: 'mark-as-read',
+              title: 'Mark as Read',
+            },
           ],
           renotify: true,
           requireInteraction: true,
@@ -116,15 +119,23 @@ export async function sendNotification(
       });
     });
 
-    // Save notification to database for in-app history
-    await supabase.from('notifications').insert({
-      title: title || 'New Notification 📢',
-      message: message || 'New Notification 📢',
-      url: url || '/',
-      image: image || '/logo.png',
-      user_email: userEmail || null, // null means broadcast
+    let { data } = await supabase.from('user').select('email') as any;
+    console.log(data);
+    if (userEmail) {
+      data.push({ email: userEmail });
+      data = data.filter(({ email }: { email: string }) => email !== userEmail);
+    }
+    data.map(async ({ email }: { email: string }) => {
+      console.log(email);
+      await supabase.from('notifications').insert({
+        title: title || 'New Notification 📢',
+        message: message || 'New Notification 📢',
+        url: url || '/',
+        image: image || '/logo.png',
+        user_email: email,
+        is_read: false,
+      });
     });
-
     await Promise.all(notifications);
     return { success: true };
   } catch (err) {
