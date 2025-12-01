@@ -36,7 +36,7 @@ function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div style={{ width: 100, height: 32 }} />; // Placeholder to prevent layout shift
+    return <div className="w-[100px] h-8" />; // Placeholder to prevent layout shift
   }
 
   return (
@@ -121,7 +121,7 @@ export default function AppHeader() {
 
   return (
     <Header
-      className="px-5!"
+      className="p-2!"
       style={{
         position: "sticky",
         top: 0,
@@ -152,7 +152,7 @@ export default function AppHeader() {
         {/* Mobile Search Input (Overlay) */}
         {mobileSearchVisible && (
           <div className="flex-1 md:hidden flex items-center gap-2">
-            <Suspense fallback={<div style={{ height: 32, width: '100%' }} />}>
+            <Suspense fallback={<div className="h-8 w-full" />}>
               <SearchInput mobile onCloseMobile={() => setMobileSearchVisible(false)} />
             </Suspense>
           </div>
@@ -169,9 +169,9 @@ export default function AppHeader() {
               style={{ background: 'transparent' }}
             />
           ) : (
-            <div style={{ width: 300, height: 46 }} /> // Placeholder
+            <div className="w-[300px] h-[46px]" /> // Placeholder
           )}
-          <Suspense fallback={<div style={{ height: 32, width: 200 }} />}>
+          <Suspense fallback={<div className="h-8 w-[200px]" />}>
             <SearchInput />
           </Suspense>
         </div>
@@ -398,7 +398,7 @@ export function NotifPopover() {
         </Flex>
       }
       content={
-        <div style={{ maxWidth: 250, maxHeight: 400, overflowY: 'auto' }}>
+        <div className="max-w-[250px] max-h-[400px] overflow-y-auto">
           {!isSupported && <Text type="secondary" className="block mb-2">Push notifications not supported on this device.</Text>}
 
           {notifications.length === 0 ? (

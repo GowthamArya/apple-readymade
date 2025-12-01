@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProduct } from '@/lib/productService';
+import { productService } from '@/lib/services/product.service';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const pageSize = parseInt(searchParams.get('pageSize') || '20');
 
   try {
-    const result = await getProduct({
+    const result = await productService.getProducts({
       searchQuery,
       category,
       sortBy,

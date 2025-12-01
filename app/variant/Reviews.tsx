@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Rate, Input, Button, List, Avatar, Typography, Form, message, theme, Modal } from "antd";
+import { Rate, Input, Button, Avatar, Typography, Form, theme, Modal, App } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 
 export default function Reviews({ productId }: { productId: number }) {
     const { token } = theme.useToken();
     const { data: session } = useSession();
+    const { message } = App.useApp();
     const [reviews, setReviews] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -91,31 +92,37 @@ export default function Reviews({ productId }: { productId: number }) {
                 )}
             </div>
 
-            <List
-                loading={loading}
-                itemLayout="horizontal"
-                dataSource={reviews}
-                renderItem={(item) => (
-                    <List.Item>
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.user?.image} icon={<UserOutlined />} />}
-                            title={
-                                <div className="flex justify-between items-center">
-                                    <span>{item.user?.name || "Anonymous"}</span>
-                                    <Rate disabled defaultValue={item.rating} style={{ fontSize: 14 }} />
+            {loading ? (
+                <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-4">
+                    {reviews.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            No reviews yet. Be the first to review!
+                        </div>
+                    ) : (
+                        reviews.map((item) => (
+                            <div key={item.id} className="border-b pb-4 last:border-0">
+                                <div className="flex gap-3">
+                                    <Avatar src={item.user?.image} icon={<UserOutlined />} />
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="font-semibold">{item.user?.name || "Anonymous"}</span>
+                                            <Rate disabled defaultValue={item.rating} style={{ fontSize: 14 }} />
+                                        </div>
+                                        <div>
+                                            <p className="mb-1">{item.comment}</p>
+                                            <span className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                            }
-                            description={
-                                <div>
-                                    <p>{item.comment}</p>
-                                    <span className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</span>
-                                </div>
-                            }
-                        />
-                    </List.Item>
-                )}
-                locale={{ emptyText: "No reviews yet. Be the first to review!" }}
-            />
+                            </div>
+                        ))
+                    )}
+                </div>
+            )}
 
             <Modal
                 title="Write a Review"

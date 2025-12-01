@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
@@ -37,14 +37,15 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
 
   // Fetch points on mount
-  useState(() => {
+  // Fetch points on mount
+  useEffect(() => {
     fetch("/api/user/points")
       .then((res) => res.json())
       .then((data) => {
         if (data.points) setPoints(data.points);
       })
       .catch((err) => console.error("Failed to fetch points", err));
-  });
+  }, []);
 
   const subtotal = useMemo(
     () => cart.reduce((acc: number, it: any) => acc + Number(it.price || 0) * Number(it.quantity || 1), 0),
@@ -220,7 +221,7 @@ export default function CheckoutPage() {
       <FlashSaleBanner />
       {!cart.length ? (
         <Card>
-          <Space direction="vertical" size="middle">
+          <Space orientation="vertical" size="middle">
             <Typography.Text>Your cart is empty.</Typography.Text>
             <Link href="/collections">
               <Button type="primary">Browse Products</Button>
@@ -305,7 +306,7 @@ export default function CheckoutPage() {
                   Review items
                 </Typography.Title>
 
-                <Space direction="vertical" style={{ width: "100%" }} size="middle">
+                <Space orientation="vertical" style={{ width: "100%" }} size="middle">
                   {cart.map((item: any) => (
                     <Card
                       key={item.id}
@@ -356,7 +357,7 @@ export default function CheckoutPage() {
           {/* Right: Order summary */}
           <Col xs={24} md={8}>
             <Card title="Order summary">
-              <Space direction="vertical" style={{ width: "100%" }}>
+              <Space orientation="vertical" style={{ width: "100%" }}>
                 <div className="flex justify-between">
                   <Typography.Text>Subtotal</Typography.Text>
                   <Typography.Text>₹{subtotal}</Typography.Text>

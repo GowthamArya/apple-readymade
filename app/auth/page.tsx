@@ -1,6 +1,8 @@
 'use client';
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useLoading } from "../context/LoadingContext";
 import { Button, Divider, Form, Input, App, theme, Card, Typography, Space } from "antd";
@@ -20,6 +22,18 @@ export default function AuthPage() {
   const pageLoading = useLoading();
   const { token } = theme.useToken();
   const { message } = App.useApp();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return null;
+  }
 
   const handleSignIn = async (provider: "email" | "google", email?: string) => {
     pageLoading.setLoading(true);

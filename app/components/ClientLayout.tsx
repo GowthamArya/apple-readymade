@@ -15,6 +15,7 @@ import ErrorLogger from "./ErrorLogger";
 import BottomNav from "./BottomNav";
 import ScrollToTop from "./ScrollToTop";
 import FlashSaleBanner from "./FlashSaleBanner";
+import SessionHandler from "./SessionHandler";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
@@ -57,6 +58,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <FavoritesProvider>
             <LoadingProvider>
               <ErrorLogger />
+              <SessionHandler />
               <InstallPrompt />
               <ScrollToTop />
 

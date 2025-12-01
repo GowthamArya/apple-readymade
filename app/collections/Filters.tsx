@@ -7,7 +7,6 @@ import { TbFilterSearch } from "react-icons/tb";
 import { BiSort } from "react-icons/bi";
 import { CgClose } from "react-icons/cg";
 import { SearchOutlined } from "@ant-design/icons";
-import FlashSaleBanner from "../components/FlashSaleBanner";
 
 const { useToken } = theme;
 
@@ -21,6 +20,7 @@ interface FilterProps {
   initialProducts: any[];
   totalCount: number;
   categories: any[];
+  flashSales?: any[];
   searchQuery?: string;
   category?: string;
   sortBy?: string;
@@ -32,6 +32,7 @@ export default function Filters({
   initialProducts,
   totalCount,
   categories = [],
+  flashSales = [],
   searchQuery = "",
   category = "",
   sortBy = "created_on",
@@ -145,8 +146,6 @@ export default function Filters({
 
   return (
     <div className="relative min-h-screen!" style={{ backgroundColor: token.colorBgContainer }}>
-      <FlashSaleBanner />
-
       <div className="sticky top-0 z-40 w-full shadow-sm py-3 px-4 flex flex-col gap-3" style={{ background: token.colorBgContainer }}>
         <div className="flex md:flex-row md:flex-row-reverse flex-col justify-center md:justify-between items-center gap-2">
           <div className="flex gap-2">
@@ -235,7 +234,7 @@ export default function Filters({
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        <ProductList products={products} token={token} />
+        <ProductList products={products} token={token} flashSales={flashSales} />
       )}
       <div ref={lastProductElementRef} className="h-10 flex justify-center items-center w-full py-4">
         {loadingMore && <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>}
@@ -264,7 +263,7 @@ function PopUp({
 
   if (currentPopupType === "filter") {
     return (
-      <div style={{ width: 300 }}>
+      <div className="w-72 sm:w-[300px] max-w-[90vw]">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold text-base">Filters</h3>
           <Button
@@ -318,7 +317,7 @@ function PopUp({
 
   if (currentPopupType === "sort") {
     return (
-      <div style={{ width: 280 }}>
+      <div className="w-64 sm:w-[280px] max-w-[90vw]">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold text-base">Sort By</h3>
           <Button

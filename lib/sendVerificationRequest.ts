@@ -1,27 +1,29 @@
 import { render } from "@react-email/render";
 import VerificationEmail from "@/emails/VerificationEmail";
+import nodemailer from "nodemailer";
 
-export async function sendVerificationRequest({ identifier: email, url } : any) {
+export async function sendVerificationRequest({ identifier: email, url }: any) {
   try {
-    const SibApiV3Sdk = require("@sendinblue/client");
-    const client = new SibApiV3Sdk.TransactionalEmailsApi();
-    client.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY!);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
 
     // Convert React Email component to HTML
-    const htmlContent : string = await render(VerificationEmail({ url }));
+    const htmlContent: string = await render(VerificationEmail({ url }));
 
-    await client.sendTransacEmail({
-      sender: {
-        name: "Apple Menswear",
-        email: process.env.EMAIL_FROM!
-      },
-      to: [{ email }],
+    await transporter.sendMail({
+      from: `"Apple Menswear" <${process.env.GMAIL_USER}>`,
+      to: email,
       subject: "Login to Apple Menswear",
-      htmlContent,
+      html: htmlContent,
     });
 
   } catch (error) {
-    console.error("Brevo Email Error:", error);
+    console.error("Gmail SMTP Email Error:", error);
     throw new Error("Could not send verification email");
   }
 }

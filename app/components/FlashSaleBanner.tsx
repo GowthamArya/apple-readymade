@@ -28,7 +28,7 @@ export default function FlashSaleBanner() {
 
     return (
         <Alert
-            message={
+            description={
                 <div className="flex justify-between items-center w-full">
                     <span>
                         <strong>Flash Sale!</strong> Use code <strong>{sale.coupon_code}</strong> for {sale.discount_percentage}% OFF!
