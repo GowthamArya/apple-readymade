@@ -120,13 +120,11 @@ export async function sendNotification(
     });
 
     let { data } = await supabase.from('user').select('email') as any;
-    console.log(data);
     if (userEmail) {
       data.push({ email: userEmail });
       data = data.filter(({ email }: { email: string }) => email !== userEmail);
     }
     data.map(async ({ email }: { email: string }) => {
-      console.log(email);
       await supabase.from('notifications').insert({
         title: title || 'New Notification 📢',
         message: message || 'New Notification 📢',
