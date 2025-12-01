@@ -6,6 +6,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
 import FlashSaleBanner from "../components/FlashSaleBanner";
+import { signOut } from "next-auth/react";
 
 declare global {
   interface Window {
@@ -128,6 +129,7 @@ export default function CheckoutPage() {
           clearCart();
           window.location.href = "/orders";
         } else {
+
           throw new Error(data.error || "Order placement failed");
         }
         return;
@@ -156,11 +158,14 @@ export default function CheckoutPage() {
           pointsRedeemed: pointsValue
         }),
       });
+      if (res.status === 401) {
+        signOut({ callbackUrl: "/auth" });
+      }
       const data = await res.json();
       if (!data.orderId) throw new Error(data.error ?? "Failed to create order");
 
       const options = {
-        key: "rzp_test_RawNjBLLBDM7q9",                 // make sure this is not undefined
+        key: "rzp_test_RawNjBLLBDM7q9",
         amount: amountPaise,
         currency: "INR",
         name: "Apple Menswear",
@@ -198,6 +203,7 @@ export default function CheckoutPage() {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err: any) {
+      console.error(err);
       message.error(err.message || "Payment failed");
     } finally {
       setPaying(false);
@@ -382,10 +388,7 @@ export default function CheckoutPage() {
                 <Button
                   block
                   type="primary"
-                  onClick={() =>
-                    // Submit the form programmatically by triggering the primary action
-                    document.querySelector<HTMLButtonElement>('button[type="submit"]')?.click()
-                  }
+                  htmlType="submit"
                   loading={paying}
                 >
                   Pay ₹{total}

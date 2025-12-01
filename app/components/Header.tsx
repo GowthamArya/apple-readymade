@@ -198,12 +198,12 @@ export default function AppHeader() {
             </Badge>
           </Link>
 
-          {mounted && user && <NotifPopover />}
 
           <div className="hidden md:block">
             <ThemeToggle token={token} />
           </div>
 
+          {mounted && user && <NotifPopover />}
           {/* Account */}
           {mounted && user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
@@ -445,7 +445,7 @@ export function NotifPopover() {
       <Badge count={notifications.length} dot={notifications.length > 0} offset={[-2, 2]}>
         <BellFilled
           style={{
-            fontSize: 22,
+            fontSize: 18,
             cursor: "pointer",
             color: token.colorTextHeading
           }}

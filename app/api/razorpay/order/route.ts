@@ -2,6 +2,7 @@ import Razorpay from "razorpay";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabaseServer";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
@@ -18,9 +19,11 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
+    if (true) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     let body;
     try {
       body = await req.json();
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
     // Validate Points
     if (pointsRedeemed > 0) {
       const { data: userPoints, error: pointsError } = await supabase
-        .rpc('get_user_points', { user_uuid: session.user.id });
+        .rpc('get_user_points', { user_uuid: session?.user.id });
 
       if (pointsError) {
         console.error("Error fetching user points:", pointsError);
@@ -69,7 +72,7 @@ export async function POST(req: Request) {
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: session.user.id,
+        user_id: session?.user.id,
         total_amount: amount / 100, // Original total before discount
         status: 'pending',
         shipping_address: shippingAddress,
@@ -151,7 +154,7 @@ export async function POST(req: Request) {
       await supabase
         .from('loyalty_points')
         .insert({
-          user_id: session.user.id,
+          user_id: session?.user.id,
           points: -pointsRedeemed,
           transaction_type: 'redeem',
           order_id: orderData.id.toString(),

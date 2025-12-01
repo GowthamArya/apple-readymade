@@ -44,7 +44,6 @@ export default function SearchInput({ mobile, onCloseMobile }: SearchInputProps)
                 style={!mobile ? { width: 'calc(100% - 46px)' } : undefined}
             />
             <Button
-                type="primary"
                 icon={<SearchOutlined />}
                 onClick={() => handleSearch(search)}
             />
