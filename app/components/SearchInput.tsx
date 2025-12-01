@@ -20,14 +20,20 @@ export default function SearchInput({ mobile, onCloseMobile }: SearchInputProps)
     }, [searchParams]);
 
     function handleSearch(val: string) {
-        router.push(`/collections?searchQuery=${val}`);
+        const params = new URLSearchParams(searchParams.toString());
+        if (val) {
+            params.set("searchQuery", val);
+        } else {
+            params.delete("searchQuery");
+        }
+        router.push(`/collections?${params.toString()}`);
         if (mobile && onCloseMobile) {
             onCloseMobile();
         }
     }
 
     return (
-        <Space.Compact style={{ width: '100%' }}>
+        <Space.Compact style={{ width: '100%' }} onBlur={() => mobile && onCloseMobile && onCloseMobile()}>
             <Input
                 autoFocus={mobile}
                 placeholder={mobile ? "Search..." : "Search products"}
@@ -38,16 +44,10 @@ export default function SearchInput({ mobile, onCloseMobile }: SearchInputProps)
                 style={!mobile ? { width: 'calc(100% - 46px)' } : undefined}
             />
             <Button
+                type="primary"
                 icon={<SearchOutlined />}
                 onClick={() => handleSearch(search)}
             />
-            {mobile && onCloseMobile && (
-                <Button
-                    type="default"
-                    icon={<CloseCircleFilled />}
-                    onClick={onCloseMobile}
-                />
-            )}
         </Space.Compact>
     );
 }
