@@ -322,17 +322,18 @@ export function NotifPopover() {
     } catch (err) {
       console.error(err);
     }
-
-    // Fetch in-app notifications
-    fetch('/api/notifications')
-      .then(res => res.json())
-      .then(data => {
-        if (data.notifications) {
-          setNotifications(data.notifications);
-        }
-      })
-      .catch(err => console.error("Failed to fetch notifications", err));
-
+    const fetchNotifications = async () => {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.notifications) {
+        setNotifications(data.notifications);
+      }
+    }
+    fetchNotifications();
+    const interval = setInterval(() => {
+      fetchNotifications();
+    }, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleToggle = async () => {
