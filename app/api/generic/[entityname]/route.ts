@@ -4,34 +4,16 @@ import redis from "@/lib/infrastructure/redis";
 
 async function invalidateCache(entityName: string) {
   try {
-    // Clear specific entity cache
-    const keys = await redis.keys(`*${entityName}*`);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-      console.log(`Cleared cache for ${entityName}:`, keys);
-    }
-
-    // Also clear flash sales cache if related
     if (entityName === 'flash_sales') {
       await redis.del("flash_sales:active");
-    }
-
-    // Clear collections/products cache if variants, products, categories, or reviews are modified
-    if (['variant', 'product', 'product_variant', 'category', 'reviews'].includes(entityName)) {
-      const productKeys = await redis.keys('product:*');
-      if (productKeys.length > 0) {
-        await redis.del(...productKeys);
-        console.log('Cleared products cache');
+      console.log('Cleared flash_sales cache');
+    } else {
+      const flashSales = await redis.get("flash_sales:active");
+      await redis.flushdb();
+      if (flashSales) {
+        await redis.set("flash_sales:active", flashSales, "EX", 3600);
       }
-    }
-
-    // Clear similar variants cache if variants are modified
-    if (entityName === 'variant') {
-      const similarKeys = await redis.keys('similar:*');
-      if (similarKeys.length > 0) {
-        await redis.del(...similarKeys);
-        console.log('Cleared similar variants cache');
-      }
+      console.log(`Full cache flush triggered by ${entityName} update`);
     }
   } catch (e) {
     console.error("Cache invalidation error:", e);

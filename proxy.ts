@@ -6,8 +6,6 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const pathname = url.pathname;
 
-  // --- Exclude paths we don't want to process ---
-  // static files (contains a dot), next internals, API routes, favicon
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -17,16 +15,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // --- Normalize case: redirect to lowercase if any uppercase letter present ---
   if (/[A-Z]/.test(pathname)) {
-    // nextUrl already contains the origin + search params
     url.pathname = pathname.toLowerCase();
     return NextResponse.redirect(url, 308);
   }
 
-  // --- Auth check for the protected area (only /list routes) ---
-  // skip auth for /auth pages
-  if ((pathname.startsWith('/list') || pathname.startsWith('/api/push')) && !pathname.startsWith('/auth')) {
+  if ((pathname.startsWith('/list') || pathname.startsWith('/api/push') || pathname.startsWith('/api/generic')) && !pathname.startsWith('/auth')) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
@@ -43,6 +37,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // run middleware for all pages, but we're excluding internals above
   matcher: '/:path*',
 };
