@@ -24,7 +24,7 @@ export default async function VariantPage(props: PageProps<"/variant/[id]">) {
     const result = { variants: data || [], product: productData?.product, recommendedVariants };
 
     try {
-      await redis.set(cacheKey, JSON.stringify(result), 'EX', 3600);
+      await redis.set(cacheKey, JSON.stringify(result), 'EX', 60 * 60 * 24);
     } catch (e) {
       console.error("Redis set error:", e);
     }

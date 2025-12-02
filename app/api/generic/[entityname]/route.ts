@@ -11,7 +11,7 @@ async function invalidateCache(entityName: string) {
       const flashSales = await redis.get("flash_sales:active");
       await redis.flushdb();
       if (flashSales) {
-        await redis.set("flash_sales:active", flashSales, "EX", 3600);
+        await redis.set("flash_sales:active", flashSales, "EX", 60*60*24);
       }
       console.log(`Full cache flush triggered by ${entityName} update`);
     }

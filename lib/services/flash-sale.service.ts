@@ -20,7 +20,7 @@ export class FlashSaleService {
         const sales = await this.repo.getActiveSales();
 
         try {
-            await redis.set(cacheKey, JSON.stringify(sales), "EX", 3600);
+            await redis.set(cacheKey, JSON.stringify(sales), "EX", 60*60*24);
         } catch (e) {
             console.warn("Redis set error", e);
         }
