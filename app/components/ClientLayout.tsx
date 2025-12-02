@@ -12,10 +12,10 @@ import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
 import ErrorLogger from "./ErrorLogger";
-import BottomNav from "./BottomNav";
 import ScrollToTop from "./ScrollToTop";
 import FlashSaleBanner from "./FlashSaleBanner";
 import SessionHandler from "./SessionHandler";
+import BottomNav from "./BottomNav";
 
 function ThemedMain({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
@@ -32,7 +32,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
       style={{
         backgroundColor: token.colorBgLayout,
-        minHeight: "92dvh",
+        minHeight: "92dvh"
       }}
     >
       {children}
@@ -40,7 +40,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout({ children, initialTheme }: { children: React.ReactNode; initialTheme?: string }) {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
@@ -52,7 +52,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <ThemeContext>
+    <ThemeContext initialMode={initialTheme}>
       <SessionProvider>
         <CartProvider>
           <FavoritesProvider>

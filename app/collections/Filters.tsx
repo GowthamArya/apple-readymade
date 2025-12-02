@@ -145,7 +145,7 @@ export default function Filters({
   };
 
   return (
-    <div className="relative min-h-screen!" style={{ backgroundColor: token.colorBgContainer }}>
+    <div className="relative min-h-screen! pb-20 md:pb-0" style={{ backgroundColor: token.colorBgContainer }}>
       <div className="sticky top-0 z-40 w-full shadow-sm py-3 px-4 flex flex-col gap-3" style={{ background: token.colorBgContainer }}>
         <div className="flex md:flex-row md:flex-row-reverse flex-col justify-center md:justify-between items-center gap-2">
           <div className="flex gap-2">

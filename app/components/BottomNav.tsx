@@ -76,7 +76,7 @@ export default function BottomNav() {
             style={{
                 backgroundColor: token.colorBgContainer,
                 borderTop: `1px solid ${token.colorBorderSecondary}`,
-                paddingBottom: "env(safe-area-inset-bottom)", // Handle iPhone home bar
+                paddingBottom: "env(safe-area-inset-bottom)",
                 height: "60px",
             }}
         >

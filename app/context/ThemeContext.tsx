@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { App, ConfigProvider, theme as antdTheme } from "antd";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+
 
 type Mode = "light" | "dark" | "system";
 
@@ -13,23 +13,18 @@ type ThemeCtxValue = {
 
 const ThemeCtx = createContext<ThemeCtxValue>({
   mode: "system",
-  setMode: () => {},
+  setMode: () => { },
   isDark: false,
 });
 
-export function ThemeContext({ children }: { children: React.ReactNode }) {
-  // SSR-safe init: hydrate from localStorage on client
-  const [mode, setMode] = useState<Mode>("system");
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("mode") as Mode | null;
-      if (saved) setMode(saved);
-    } catch {}
-  }, []);
+export function ThemeContext({ children, initialMode = "system" }: { children: React.ReactNode; initialMode?: string }) {
+  const [mode, setMode] = useState<Mode>(initialMode as Mode);
+
   useEffect(() => {
     try {
       localStorage.setItem("mode", mode);
-    } catch {}
+      document.cookie = `theme=${mode}; path=/; max-age=31536000`;
+    } catch { }
   }, [mode]);
 
   const [prefersDark, setPrefersDark] = useState(false);
@@ -44,7 +39,7 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
 
   const isDark = mode === "dark" || (mode === "system" && prefersDark);
 
-  const algorithm = isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm; 
+  const algorithm = isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm;
 
   const theme = useMemo(
     () => ({
@@ -57,9 +52,9 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
         colorBorderSecondary: isDark ? "#18230F" : "#E4EFE7",
         colorBorder: isDark ? "#374151" : "#B8C4A9",
         colorPrimary: "#3A6F43",
-        colorLink: isDark ? "#3A6F43": "#276749",
+        colorLink: isDark ? "#3A6F43" : "#276749",
         colorLinkHover: "#2f5735",
-        colorLinkActive: "#25462b",   
+        colorLinkActive: "#25462b",
         borderRadius: 8,
       },
     }),
@@ -68,11 +63,9 @@ export function ThemeContext({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
-      <AntdRegistry>
-        <ConfigProvider theme={theme} componentSize="large" >
-          <App>{children}</App>
-        </ConfigProvider>
-      </AntdRegistry>
+      <ConfigProvider theme={theme} componentSize="large" >
+        <App>{children}</App>
+      </ConfigProvider>
     </ThemeCtx.Provider>
   );
 }

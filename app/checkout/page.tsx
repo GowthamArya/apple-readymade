@@ -28,6 +28,7 @@ export default function CheckoutPage() {
   const { token } = theme.useToken();
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
   const { message } = App.useApp();
+  const [form] = Form.useForm();
 
   const [paying, setPaying] = useState(false);
   const [points, setPoints] = useState(0);
@@ -237,6 +238,7 @@ export default function CheckoutPage() {
               styles={{ header: { borderBottom: `1px solid ${token.colorBorderSecondary}` } }}
             >
               <Form
+                form={form}
                 layout="vertical"
                 onFinish={(values: any) => {
                   void payWithRazorpay(values);
@@ -387,10 +389,10 @@ export default function CheckoutPage() {
                   <Typography.Text strong>₹{total}</Typography.Text>
                 </div>
                 <Button
-                  block
                   type="primary"
-                  htmlType="submit"
+                  onClick={() => form.submit()}
                   loading={paying}
+                  block
                 >
                   Pay ₹{total}
                 </Button>

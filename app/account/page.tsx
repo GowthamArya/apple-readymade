@@ -13,7 +13,7 @@ export default async function AccountPage() {
     }
     const user = await getUser();
     return (
-        <div className="min-h-[80vh] flex items-center justify-center p-4">
+        <div className="min-h-[90vh] flex items-center justify-center p-4">
             <Account user={user} sessionUser={session.user} />
         </div>
     );

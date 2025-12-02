@@ -114,7 +114,7 @@ export default function Footer() {
       </Row>
 
       {/* Bottom line */}
-      <div className="mt-10 pt-6 text-center text-sm" style={{ borderTop: `1px solid ${token.colorBorder}`, color: token.colorTextTertiary }}>
+      <div className="mt-10 pt-6 pb-2 text-center text-sm" style={{ borderTop: `1px solid ${token.colorBorder}`, color: token.colorTextTertiary }}>
         Copyright &copy; {new Date().getFullYear()} Apple Menswear Co. All rights reserved.
       </div>
     </footer>

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+html,
+body {
+  background-color: var(--bg-layout);
+}
+
 @keyframes custom-shine {
   from {
     background-position: 100%;

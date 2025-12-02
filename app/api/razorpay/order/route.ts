@@ -21,9 +21,7 @@ export async function POST(req: Request) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (true) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+
     let body;
     try {
       body = await req.json();
@@ -131,21 +129,6 @@ export async function POST(req: Request) {
         .update({ razorpay_order_id: razorpayOrderId })
         .eq('id', orderData.id);
     } else {
-      // Fully paid by points
-      // Mark as paid immediately? Or wait for verify?
-      // Verify route expects razorpay_order_id.
-      // If fully paid, we skip razorpay flow on client.
-      // We should handle this.
-      // For now, let's assume partial payment or handle 0 amount in client.
-      // If 0, we can just return success and client redirects to success page.
-      // But we need to deduct points.
-
-      // Deduct points immediately if fully paid?
-      // Better to deduct points in verify step or here if no payment needed.
-
-      // Let's stick to standard flow: if amount > 0, create razorpay order.
-      // If amount == 0, mark as paid and deduct points here.
-
       await supabase
         .from('orders')
         .update({ status: 'paid' })

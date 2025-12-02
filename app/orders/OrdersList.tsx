@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Tag, Typography, Button, List, Card, Space, theme, Empty } from "antd";
+import { Tag, Typography, Button, Card, Space, theme, Empty } from "antd";
 import { ShoppingOutlined, CalendarOutlined, FileTextOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -28,11 +28,9 @@ export default function OrdersList({ orders }: { orders: any[] }) {
     }
 
     return (
-        <List
-            grid={{ gutter: 16, xs: 1, sm: 1, md: 2, lg: 2, xl: 2, xxl: 3 }}
-            dataSource={orders}
-            renderItem={(order) => (
-                <List.Item>
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+            {orders.map((order) => (
+                <div key={order.id}>
                     <Link href={`/orders/${order.id}`}>
                         <Card
                             hoverable
@@ -76,8 +74,8 @@ export default function OrdersList({ orders }: { orders: any[] }) {
                             </div>
                         </Card>
                     </Link>
-                </List.Item>
-            )}
-        />
+                </div>
+            ))}
+        </div>
     );
 }

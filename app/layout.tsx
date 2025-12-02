@@ -9,6 +9,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Viewport } from 'next';
 import { Roboto } from "next/font/google";
 import { Analytics } from '@vercel/analytics/next';
+import { cookies } from 'next/headers';
+import AntdRegistry from "@/lib/AntdRegistry";
 
 
 const roboto = Roboto({
@@ -35,7 +37,7 @@ const geistMono = Geist_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: light)', color: '#E4EFE7' },
     { media: '(prefers-color-scheme: dark)', color: '#000000' },
   ],
 }
@@ -70,7 +72,12 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+
+
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value || "system";
+
   return (
     <html lang="en" suppressHydrationWarning >
       <head>
@@ -79,7 +86,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
       </head>
       <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
-        <ClientLayout>{children}</ClientLayout>
+        <AntdRegistry>
+          <ClientLayout initialTheme={theme}>{children}</ClientLayout>
+        </AntdRegistry>
         <SpeedInsights />
         <Analytics />
       </body>
