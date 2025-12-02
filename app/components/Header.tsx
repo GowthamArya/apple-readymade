@@ -410,7 +410,12 @@ export function NotifPopover() {
               {notifications.map((notif: any) => (
                 <div
                   key={notif.id}
-                  className="p-3 rounded transition-colors cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                  className="p-3 rounded transition-colors cursor-pointer last:border-0"
+                  style={{
+                    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = token.colorFillTertiary}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   onClick={() => {
                     if (notif.url) window.location.href = notif.url;
                   }}
