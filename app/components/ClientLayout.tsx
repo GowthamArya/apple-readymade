@@ -24,6 +24,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty("--bg-layout", token.colorBgLayout);
     document.documentElement.style.setProperty("--scrollbar-thumb", token.colorFillSecondary);
     document.documentElement.style.setProperty("--scrollbar-track", token.colorBgContainer);
+    document.documentElement.style.setProperty("--text-placeholder", token.colorTextPlaceholder);
   }, [token]);
 
   return (

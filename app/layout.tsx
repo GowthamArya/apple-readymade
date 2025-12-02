@@ -86,9 +86,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
       </head>
       <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>
-        <AntdRegistry>
-          <ClientLayout initialTheme={theme}>{children}</ClientLayout>
-        </AntdRegistry>
+        <ClientLayout initialTheme={theme}>{children}</ClientLayout>
         <SpeedInsights />
         <Analytics />
       </body>

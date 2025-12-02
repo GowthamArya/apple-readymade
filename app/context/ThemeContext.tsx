@@ -39,15 +39,26 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
 
   const isDark = mode === "dark" || (mode === "system" && prefersDark);
 
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
+
   const algorithm = isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm;
 
   const theme = useMemo(
     () => ({
       algorithm,
       token: {
-        colorText: isDark ? "#D1D5DB" : "#374151",
+        colorText: isDark ? "#E5E7EB" : "#374151", // Light gray for dark mode text
+        colorTextSecondary: isDark ? "#9CA3AF" : "#6B7280",
+        colorTextPlaceholder: isDark ? "#6B7280" : "#9CA3AF",
         colorBackground: isDark ? "#000000" : "#E4EFE7",
         colorBgContainer: isDark ? "#000000" : "#E4EFE7",
+        colorBgElevated: isDark ? "#18230F" : "#ffffff",
         colorBgLayout: isDark ? "#18230F" : "#CEE5D0",
         colorBorderSecondary: isDark ? "#18230F" : "#E4EFE7",
         colorBorder: isDark ? "#374151" : "#B8C4A9",
@@ -56,6 +67,7 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
         colorLinkHover: "#2f5735",
         colorLinkActive: "#25462b",
         borderRadius: 8,
+        controlItemBgActive: isDark ? "#18230F" : "#E4EFE7",
       },
     }),
     [algorithm]

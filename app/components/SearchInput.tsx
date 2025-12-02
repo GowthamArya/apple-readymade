@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Button, Space } from "antd";
+import { Input, Button, Space, theme } from "antd";
 import { SearchOutlined, CloseCircleFilled } from "@ant-design/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ export default function SearchInput({ mobile, onCloseMobile }: SearchInputProps)
     const router = useRouter();
     const searchParams = useSearchParams();
     const [search, setSearch] = useState(searchParams.get("searchQuery") || "");
+    const { token } = theme.useToken();
 
     useEffect(() => {
         setSearch(searchParams.get("searchQuery") || "");
@@ -41,11 +42,21 @@ export default function SearchInput({ mobile, onCloseMobile }: SearchInputProps)
                 onChange={(e) => setSearch(e.target.value)}
                 onPressEnter={() => handleSearch(search)}
                 allowClear
-                style={!mobile ? { width: 'calc(100% - 46px)' } : undefined}
+                style={{
+                    width: !mobile ? 'calc(100% - 46px)' : undefined,
+                    backgroundColor: token.colorBgContainer,
+                    color: token.colorText,
+                    borderColor: token.colorBorder,
+                }}
             />
             <Button
                 icon={<SearchOutlined />}
                 onClick={() => handleSearch(search)}
+                style={{
+                    backgroundColor: token.colorBgContainer,
+                    color: token.colorText,
+                    borderColor: token.colorBorder,
+                }}
             />
         </Space.Compact>
     );

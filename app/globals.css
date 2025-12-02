@@ -104,6 +104,112 @@ body {
   }
 }
 
+@import "tailwindcss";
+
+html,
+body {
+  background-color: var(--bg-layout);
+}
+
+@keyframes custom-shine {
+  from {
+    background-position: 100%;
+  }
+
+  to {
+    background-position: -100%;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f1f1f1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #888);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+.text-shine {
+  animation: custom-shine 2s linear infinite;
+  background-image: linear-gradient(90deg,
+      rgba(240, 253, 244, 0.75) 0%,
+      /* Dark background color at start */
+      #c0c0c0 20%,
+      /* White light start */
+      rgb(225, 255, 236) 50%,
+      /* Bright white light center */
+      #747474 80%,
+      /* White light end */
+      rgba(240, 253, 244, 0.75) 100%
+      /* Dark background color at end */
+    );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Zoom the first background layer (your image) as you scroll the page */
+@supports (animation-timeline: scroll(root block)) {
+  .bg-zoom-on-scroll {
+    background-size: 80% auto, cover;
+    animation: bgZoom linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 10 150vh;
+    transform: translate3d(0, 0, 0);
+    /* Force hardware acceleration for iOS */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  @keyframes bgZoom {
+    from {
+      background-size: 35% auto, cover;
+      background-repeat: no-repeat, no-repeat;
+    }
+
+    to {
+      background-size: 0% auto, cover;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  @supports (animation-timeline: scroll(root block)) {
+    .bg-zoom-on-scroll {
+      background-size: 80% auto, cover;
+      animation: bgZoom linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 150vh;
+    }
+
+    @keyframes bgZoom {
+      from {
+        background-size: 85% auto, cover;
+        background-repeat: no-repeat, no-repeat;
+      }
+
+      to {
+        background-size: 0% auto, cover;
+      }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bg-zoom-on-scroll {
     animation: none;
@@ -115,4 +221,9 @@ body {
   #chatbase-bubble-button {
     bottom: 80px !important;
   }
+}
+
+.ant-input::placeholder {
+  color: var(--text-placeholder) !important;
+  opacity: 1;
 }
