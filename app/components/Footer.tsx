@@ -52,24 +52,7 @@ export default function Footer() {
           </Text>
         </Col>
 
-        {/* Shop Links */}
-        <Col xs={24} sm={12} md={6}>
-          <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Shop</Title>
-          <ul className="space-y-2 text-sm">
-            {[
-              { href: "/collections/new-arrivals", label: "New Arrivals" },
-              { href: "/collections/shirts", label: "Shirts" },
-              { href: "/collections/accessories", label: "Accessories" },
-              { href: "/collections/sale", label: "Sale" },
-            ].map(({ href, label }) => (
-              <li key={href}>
-                <Link href={href} style={{ color: token.colorTextSecondary }}>
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Col>
+        
 
         {/* Customer Service */}
         <Col xs={24} sm={12} md={6}>
