@@ -67,19 +67,25 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
         colorLinkHover: "#2f5735",
         colorLinkActive: "#25462b",
         borderRadius: 8,
-        controlItemBgActive: isDark ? "#18230F" : "#E4EFE7",
+        controlItemBgActive: isDark ? "#2C3E22" : "#E4EFE7",
+      },
+      components: {
+        Segmented: {
+          itemSelectedBg: isDark ? "#2C3E22" : "#ffffff",
+          trackBg: isDark ? "#18230F" : "rgba(0, 0, 0, 0.04)",
+        },
       },
     }),
     [algorithm]
   );
 
   return (
-  <AntdRegistry>
-    <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
-      <ConfigProvider theme={theme} componentSize="large" >
-        <App>{children}</App>
-      </ConfigProvider>
-    </ThemeCtx.Provider>
+    <AntdRegistry>
+      <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
+        <ConfigProvider theme={theme} componentSize="large" >
+          <App>{children}</App>
+        </ConfigProvider>
+      </ThemeCtx.Provider>
     </AntdRegistry>
   );
 }
