@@ -34,7 +34,7 @@ export default function Footer() {
   return (
     <footer data-scroll className="p-6" style={{ backgroundColor: token.colorBgContainer, borderTop: `1px solid ${token.colorBorder}` }}>
       <Row gutter={[32, 32]} justify="center" className="max-w-7xl mx-auto">
-        <Col xs={24} md={6}>
+        <Col xs={24} md={8}>
           <div className="flex items-center space-x-3 mb-4">
             <Image
               src="/logo.png"
@@ -52,16 +52,15 @@ export default function Footer() {
           </Text>
         </Col>
 
-        
+
 
         {/* Customer Service */}
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24} sm={12} md={8}>
           <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Customer Service</Title>
           <ul className="space-y-2 text-sm">
             {[
               { href: "/contact", label: "Contact Us" },
               { href: "/shipping", label: "Shipping" },
-              // { href: "/returns", label: "Returns" }, 
               { href: "/refund-cancellation", label: "Refund-cancellation policy" },
               { href: "/privacy", label: "Privacy" },
               { href: "/terms", label: "Terms" },
@@ -75,8 +74,7 @@ export default function Footer() {
           </ul>
         </Col>
 
-        {/* Social & Newsletter */}
-        <Col xs={24} md={6}>
+        <Col xs={24} md={8}>
           <Title level={5} className="mb-3" style={{ color: token.colorTextHeading }}>Stay Connected</Title>
           <SubscribeForm />
           <div className="flex space-x-6 text-xl" style={{ color: token.colorTextSecondary }}>

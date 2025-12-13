@@ -2,7 +2,7 @@
 
 import { theme } from "antd";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { LoadingProvider } from "../context/LoadingContext";
 import Header from "./Header";
@@ -13,7 +13,6 @@ import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
 import ErrorLogger from "./ErrorLogger";
 import ScrollToTop from "./ScrollToTop";
-import FlashSaleBanner from "./FlashSaleBanner";
 import SessionHandler from "./SessionHandler";
 import BottomNav from "./BottomNav";
 
@@ -42,6 +41,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
 }
 
 export default function ClientLayout({ children, initialTheme }: { children: React.ReactNode; initialTheme?: string }) {
+
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
@@ -71,8 +71,6 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
                 {children}
               </ThemedMain>
               <BottomNav />
-
-              <LoadingLayer />
 
               <Script id="chatbase-loader" strategy="afterInteractive">
                 {`

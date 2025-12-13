@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/accountService";
-import Account from "../components/Account";
+import Account from "../components/Account/Account";
 
 
 export default async function AccountPage() {

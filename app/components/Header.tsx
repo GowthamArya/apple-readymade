@@ -27,7 +27,6 @@ import { id } from "zod/v4/locales";
 function ThemeToggle() {
   const { mode, setMode } = useThemeMode("dark");
 
-  // Ensure mode is one of the valid options, default to 'system' if undefined
   const currentMode = (mode === 'light' || mode === 'dark' || mode === 'system') ? mode : 'system';
   const [mounted, setMounted] = useState(false);
 
@@ -36,7 +35,7 @@ function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return <div className="w-[100px] h-8" />; // Placeholder to prevent layout shift
+    return <div className="w-[100px] h-8" />;
   }
 
   return (

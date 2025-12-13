@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { App, ConfigProvider, theme as antdTheme } from "antd";
-
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 
 type Mode = "light" | "dark" | "system";
 
@@ -74,11 +74,13 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
   );
 
   return (
+  <AntdRegistry>
     <ThemeCtx.Provider value={{ mode, setMode, isDark }}>
       <ConfigProvider theme={theme} componentSize="large" >
         <App>{children}</App>
       </ConfigProvider>
     </ThemeCtx.Provider>
+    </AntdRegistry>
   );
 }
 
