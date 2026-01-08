@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { App, ConfigProvider, theme as antdTheme } from "antd";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { useSession } from "next-auth/react";
 
 type Mode = "light" | "dark" | "system";
 
@@ -19,13 +20,23 @@ const ThemeCtx = createContext<ThemeCtxValue>({
 
 export function ThemeContext({ children, initialMode = "system" }: { children: React.ReactNode; initialMode?: string }) {
   const [mode, setMode] = useState<Mode>(initialMode as Mode);
+  const { status } = useSession();
 
   useEffect(() => {
     try {
       localStorage.setItem("mode", mode);
       document.cookie = `theme=${mode}; path=/; max-age=31536000`;
+
+      // Sync to DB if logged in
+      if (status === 'authenticated') {
+        fetch('/api/user/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: mode })
+        });
+      }
     } catch { }
-  }, [mode]);
+  }, [mode, status]);
 
   const [prefersDark, setPrefersDark] = useState(false);
   useEffect(() => {
@@ -38,6 +49,11 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
   }, []);
 
   const isDark = mode === "dark" || (mode === "system" && prefersDark);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isDark) {
@@ -47,11 +63,18 @@ export function ThemeContext({ children, initialMode = "system" }: { children: R
     }
   }, [isDark]);
 
-  const algorithm = isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm;
+  const algorithm =
+    mounted && isDark
+      ? antdTheme.darkAlgorithm
+      : antdTheme.defaultAlgorithm;
 
   const theme = useMemo(
     () => ({
       algorithm,
+      cssVar: {
+        prefix: 'ant',
+      },
+      hashed: false,
       token: {
         colorText: isDark ? "#E5E7EB" : "#374151", // Light gray for dark mode text
         colorTextSecondary: isDark ? "#9CA3AF" : "#6B7280",

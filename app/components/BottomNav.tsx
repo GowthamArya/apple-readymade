@@ -1,11 +1,12 @@
 "use client";
 
-import { HomeOutlined, SearchOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
+import { HomeOutlined, SearchOutlined, ShoppingCartOutlined, UserOutlined, HeartOutlined } from "@ant-design/icons";
 import { Badge, theme } from "antd";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoriteContext";
 import { useEffect, useState } from "react";
 import { GiClothes } from "react-icons/gi";
 
@@ -13,6 +14,7 @@ export default function BottomNav() {
     const pathname = usePathname();
     const { token } = theme.useToken();
     const { cart } = useCart();
+    const { favorites } = useFavorites();
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const [mounted, setMounted] = useState(false);
@@ -45,11 +47,21 @@ export default function BottomNav() {
             icon: <HomeOutlined style={{ fontSize: 24 }} />,
             label: "Home",
             href: "/",
-        },{
+        }, {
             key: "/collections",
             icon: <GiClothes style={{ fontSize: 24 }} />,
             label: "Collections",
             href: "/collections",
+        },
+        {
+            key: "/wishlist",
+            icon: (
+                <Badge count={favorites.length} size="small" offset={[0, -5]}>
+                    <HeartOutlined style={{ fontSize: 24, color: pathname.includes("activeTab=wishlist") ? token.colorPrimary : token.colorTextSecondary }} />
+                </Badge>
+            ),
+            label: "Wishlist",
+            href: "/cart?activeTab=wishlist",
         },
         {
             key: "/cart",

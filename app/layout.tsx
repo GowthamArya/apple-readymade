@@ -74,15 +74,36 @@ export const metadata: Metadata = {
 
 
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { supabase } from "@/lib/supabaseServer";
+
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   const cookieStore = await cookies();
-  const theme = cookieStore.get("theme")?.value || "system";
+  const session = await getServerSession(authOptions);
+
+  let theme = cookieStore.get("theme")?.value;
+
+  if (!theme && session?.user?.email) {
+    const { data } = await supabase
+      .from('user')
+      .select('theme_preference')
+      .eq('email', session.user.email)
+      .single();
+    if (data?.theme_preference) {
+      theme = data.theme_preference;
+    }
+  }
+
+  theme = theme || "system";
 
   return (
     <html lang="en" suppressHydrationWarning >
       <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Apple Readymade" />
         <link rel="apple-touch-icon" href="/Icons/logo-192x192.png" />
       </head>
       <body className={`${roboto.className} ${geistMono.variable} ${ibmPlexMono.variable} antialiased w-full`}>

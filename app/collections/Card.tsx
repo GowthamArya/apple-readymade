@@ -50,7 +50,7 @@ export default function ProductCard({ product, token, flashSale }: { product: an
           Flash Sale {flashSale.discount_percentage}% OFF
         </div>
       )}
-      {user && <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
+      <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
         <Button
           shape="round"
           size="middle"
@@ -69,7 +69,7 @@ export default function ProductCard({ product, token, flashSale }: { product: an
             <GrFavorite className="text-xl cursor-pointer" />
           }
         </Button>
-      </div>}
+      </div>
 
       <ProductCarousel product={product} />
 

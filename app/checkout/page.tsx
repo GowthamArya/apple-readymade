@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App, Radio, Spin } from "antd";
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
 import FlashSaleBanner from "../components/FlashSaleBanner";
@@ -36,9 +36,17 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
+  const [addressesLoading, setAddressesLoading] = useState(false);
+  const [shippingRates, setShippingRates] = useState<any>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingAmount, setShippingAmount] = useState(0);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
-  // Fetch points on mount
-  // Fetch points on mount
   useEffect(() => {
     fetch("/api/user/points")
       .then((res) => res.json())
@@ -46,13 +54,152 @@ export default function CheckoutPage() {
         if (data.points) setPoints(data.points);
       })
       .catch((err) => console.error("Failed to fetch points", err));
+
+    // Fetch saved addresses
+    setAddressesLoading(true);
+    fetch("/api/user/addresses")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.addresses) {
+          setAddresses(data.addresses);
+          if (data.addresses.length > 0) {
+            setSelectedAddressId(data.addresses[0].id);
+            fillFormWithAddress(data.addresses[0]);
+          }
+        }
+      })
+      .catch((err) => console.error("Failed to fetch addresses", err))
+      .finally(() => setAddressesLoading(false));
   }, []);
+
+  const fillFormWithAddress = (addr: any) => {
+    form.setFieldsValue({
+      address: addr.line1,
+      line2: addr.line2 || "",
+      street: addr.street || "",
+      city: addr.city,
+      pincode: addr.pincode,
+      state: addr.state || "",
+    });
+    fetchShippingRates(addr.pincode);
+  };
+
+  const fetchPincodeDetails = async (pincode: string) => {
+    if (pincode.length !== 6) return;
+    setPincodeLoading(true);
+    try {
+      const res = await fetch(`/api/shipping/pincode?pincode=${pincode}`);
+      const data = await res.json();
+      if (data.city) {
+        form.setFieldsValue({
+          city: data.city,
+          state: data.state
+        });
+        message.success(`Found: ${data.city}, ${data.state}`);
+        fetchShippingRates(pincode);
+      } else if (data.error) {
+        message.warning(data.error);
+      }
+    } catch (err) {
+      console.error("Failed to fetch pincode details", err);
+    } finally {
+      setPincodeLoading(false);
+    }
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      message.error("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // Use OpenStreetMap Nominatim for free reverse geocoding
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
+          const data = await res.json();
+          if (data.address) {
+            const addr = data.address;
+            form.setFieldsValue({
+              pincode: addr.postcode,
+              city: addr.city || addr.town || addr.village || addr.suburb,
+              state: addr.state,
+              address: addr.road || addr.suburb || "",
+            });
+            if (addr.postcode) {
+              fetchPincodeDetails(addr.postcode);
+            }
+          }
+        } catch (err) {
+          message.error("Failed to get address from location");
+        } finally {
+          setLocationLoading(false);
+        }
+      },
+      () => {
+        message.error("Unable to retrieve your location");
+        setLocationLoading(false);
+      }
+    );
+  };
+
+  const handleEditAddress = (addr: any) => {
+    setEditingAddressId(addr.id);
+    setIsEditingAddress(true);
+    setSelectedAddressId("new"); // Show the form
+    fillFormWithAddress(addr);
+  };
+
+  const handleDeleteAddress = async (id: number) => {
+    try {
+      const res = await fetch(`/api/user/addresses?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setAddresses(prev => prev.filter(a => a.id !== id));
+        if (selectedAddressId === id) {
+          setSelectedAddressId("new");
+          form.resetFields(["address", "line2", "street", "pincode", "city", "state"]);
+        }
+        message.success("Address deleted");
+      }
+    } catch (err) {
+      message.error("Failed to delete address");
+    }
+  };
+
+  const fetchShippingRates = async (pincode: string) => {
+    if (!pincode || pincode.length < 6) return;
+    setShippingLoading(true);
+    try {
+      // Calculate total weight (default 0.5kg per item)
+      const totalWeight = cart.reduce((acc: number, item: any) => acc + (item.quantity * 0.5), 0);
+      const res = await fetch(`/api/shipping/rates?pincode=${pincode}&weight=${totalWeight}`);
+      const data = await res.json();
+      if (data.data?.available_courier_companies) {
+        setShippingRates(data.data.available_courier_companies);
+        // Automatically pick the cheapest rate
+        const cheapest = data.data.available_courier_companies.reduce((prev: any, curr: any) =>
+          (prev.freight_charge < curr.freight_charge) ? prev : curr
+        );
+        setShippingAmount(cheapest.freight_charge);
+      } else {
+        setShippingRates(null);
+        setShippingAmount(0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch shipping rates", err);
+    } finally {
+      setShippingLoading(false);
+    }
+  };
 
   const subtotal = useMemo(
     () => cart.reduce((acc: number, it: any) => acc + Number(it.price || 0) * Number(it.quantity || 1), 0),
     [cart]
   );
-  const shipping = 0; // add logic if needed
+  const shipping = shippingAmount;
 
   const discountAmount = useMemo(() => {
     if (!appliedCoupon) return 0;
@@ -105,6 +252,77 @@ export default function CheckoutPage() {
     try {
       setPaying(true);
 
+      // 0. Resolve the shipping address details
+      let finalAddressObj = {
+        name: values.name,
+        email: values.email,
+        contact: values.phone,
+        address: values.address,
+        line2: values.line2,
+        street: values.street,
+        city: values.city,
+        state: values.state,
+        pincode: values.pincode
+      };
+
+      if (selectedAddressId !== "new") {
+        const addr = addresses.find(a => a.id === selectedAddressId);
+        if (addr) {
+          finalAddressObj = {
+            ...finalAddressObj,
+            address: addr.line1,
+            line2: addr.line2,
+            street: addr.street,
+            city: addr.city,
+            state: addr.state,
+            pincode: addr.pincode
+          };
+        }
+      }
+
+      // 1. If it's a new or edited address, save it to the database
+      let finalAddressId = selectedAddressId;
+      if (selectedAddressId === "new") {
+        try {
+          const method = editingAddressId ? "PUT" : "POST";
+          const addrRes = await fetch("/api/user/addresses", {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: editingAddressId,
+              line1: values.address,
+              line2: values.line2,
+              street: values.street,
+              city: values.city,
+              pincode: values.pincode,
+              state: values.state,
+            }),
+          });
+          const addrData = await addrRes.json();
+          if (addrData.address) {
+            if (editingAddressId) {
+              setAddresses(prev => prev.map(a => a.id === editingAddressId ? addrData.address : a));
+            } else {
+              setAddresses(prev => [addrData.address, ...prev]);
+            }
+            finalAddressId = addrData.address.id;
+            setSelectedAddressId(addrData.address.id);
+            setEditingAddressId(null);
+            setIsEditingAddress(false);
+          }
+        } catch (err) {
+          console.error("Failed to save address", err);
+        }
+      }
+
+      // Check if shipping rates are available
+      if (!shippingRates && finalAddressObj.pincode) {
+        message.error("No shipping service available for this pincode.");
+        console.log(shippingRates, finalAddressObj);
+        setPaying(false);
+        return;
+      }
+
       // If total is 0 (fully paid by points), handle directly
       if (total === 0 && redeemPoints) {
         const res = await fetch("/api/razorpay/order", {
@@ -113,15 +331,8 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             amount: 0, // 0 amount
             items: cart,
-            shippingAddress: {
-              name: values.name,
-              email: values.email,
-              contact: values.phone,
-              address: values.address,
-              city: values.city,
-              state: values.state,
-              pincode: values.pincode
-            },
+            address_id: finalAddressId === "new" ? null : finalAddressId,
+            shippingAddress: finalAddressObj,
             pointsRedeemed: pointsValue
           }),
         });
@@ -131,7 +342,6 @@ export default function CheckoutPage() {
           clearCart();
           window.location.href = "/orders";
         } else {
-
           throw new Error(data.error || "Order placement failed");
         }
         return;
@@ -148,15 +358,8 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           amount: amountPaise,
           items: cart,
-          shippingAddress: {
-            name: values.name,
-            email: values.email,
-            contact: values.phone,
-            address: values.address,
-            city: values.city,
-            state: values.state,
-            pincode: values.pincode
-          },
+          address_id: finalAddressId === "new" ? null : finalAddressId,
+          shippingAddress: finalAddressObj,
           pointsRedeemed: pointsValue
         }),
       });
@@ -191,9 +394,18 @@ export default function CheckoutPage() {
           });
           const vr = await verify.json();
           if (vr.verified) {
-            message.success("Payment successful!");
+            if (vr.shiprocket_error) {
+              message.warning({
+                content: `Payment successful, but shipment creation failed: ${vr.shiprocket_error}. Our team will handle it manually.`,
+                duration: 10,
+              });
+            } else {
+              message.success("Payment successful and order placed!");
+            }
             clearCart();
-            window.location.href = "/orders"; // Redirect to Orders page
+            setTimeout(() => {
+              window.location.href = "/orders";
+            }, 2000);
           } else {
             message.error("Verification failed.");
             window.location.href = "/checkout/cancel";
@@ -264,8 +476,16 @@ export default function CheckoutPage() {
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={12}>
-                    <Form.Item label="Phone" name="phone">
-                      <Input placeholder="9876543210" />
+                    <Form.Item
+                      label="Phone"
+                      name="phone"
+                      normalize={(value) => value.replace(/\D/g, "")}
+                      rules={[
+                        { required: true, message: "Enter your phone number" },
+                        { pattern: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number" },
+                      ]}
+                    >
+                      <Input placeholder="9876543210" maxLength={10} type="tel" />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -275,32 +495,173 @@ export default function CheckoutPage() {
                 <Typography.Title level={5} style={{ marginBottom: token.marginSM }}>
                   Shipping address
                 </Typography.Title>
-                <Row gutter={16}>
-                  <Col xs={24} md={16}>
-                    <Form.Item
-                      label="Address"
-                      name="address"
-                      rules={[{ required: true, message: "Please enter address" }]}
+
+                {addresses.length > 0 && (
+                  <div className="mb-6">
+                    <Typography.Text type="secondary" className="mb-2 block">Choose from saved addresses:</Typography.Text>
+                    <Radio.Group
+                      value={selectedAddressId}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        setSelectedAddressId(id);
+                        if (id === "new") {
+                          form.resetFields(["address", "pincode", "city", "state"]);
+                          setShippingAmount(0);
+                          setShippingRates(null);
+                        } else {
+                          const addr = addresses.find(a => a.id === id);
+                          fillFormWithAddress(addr);
+                        }
+                      }}
+                      className="w-full flex flex-col "
                     >
-                      <Input placeholder="Street, Area" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Form.Item label="Pincode" name="pincode" rules={[{ required: true }]}>
-                      <Input placeholder="500001" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Form.Item label="City" name="city" rules={[{ required: true }]}>
-                      <Input placeholder="Hyderabad" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Form.Item label="State" name="state" rules={[{ required: true }]}>
-                      <Input placeholder="Telangana" />
-                    </Form.Item>
-                  </Col>
-                </Row>
+                      {addresses.map((addr) => (
+                        <div key={addr.id} className="group relative">
+                          <Radio value={addr.id} className="border mb-2! px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
+                            <div className="inline-block ml-2 pr-16">
+                              <Typography.Text strong className="block">{addr.line1}</Typography.Text>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {addr.line2 && `${addr.line2}, `}{addr.street && `${addr.street}, `}{addr.city} - {addr.pincode}
+                                {addr.state && `, ${addr.state}`}
+                              </div>
+                            </div>
+                          </Radio>
+                          <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<EditOutlined className="text-blue-500" />}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleEditAddress(addr);
+                              }}
+                            />
+                            <Button
+                              type="text"
+                              size="small"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleDeleteAddress(addr.id);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <Radio value="new" className="border px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
+                        <span className="ml-2 font-medium flex items-center gap-2">
+                          <PlusOutlined className="text-xs" />
+                          {isEditingAddress ? "Editing Address" : "Add New Address"}
+                        </span>
+                      </Radio>
+                    </Radio.Group>
+                  </div>
+                )}
+
+                {selectedAddressId === "new" && (
+                  <div className="bg-gray-50/50 p-4 rounded-lg border border-dashed border-gray-300 mb-6">
+                    <div className="mb-4 flex justify-between items-center">
+                      <Typography.Text strong>{isEditingAddress ? "Edit Details" : "Enter Details"}</Typography.Text>
+                      <Button
+                        size="small"
+                        icon={<EnvironmentOutlined />}
+                        onClick={getCurrentLocation}
+                        loading={locationLoading}
+                      >
+                        Use Current Location
+                      </Button>
+                    </div>
+                    <Row gutter={16}>
+                      <Col xs={24} md={24}>
+                        <Form.Item
+                          label="Address (Flat, House no., Building, Company, Apartment)"
+                          name="address"
+                          rules={[{ required: true, message: "Please enter address" }]}
+                        >
+                          <Input placeholder="Flat 101, Apple Residency" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item label="Area, Street, Sector, Village" name="line2">
+                          <Input placeholder="Madhapur" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item label="Landmark (Optional)" name="street">
+                          <Input placeholder="Near Hitech City Metro" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item
+                          label="Pincode"
+                          name="pincode"
+                          normalize={(value) => value.replace(/\D/g, "")}
+                          rules={[
+                            { required: true, message: "Enter pincode" },
+                            { pattern: /^[1-9][0-9]{5}$/, message: "Enter a valid 6-digit pincode" },
+                          ]}
+                        >
+                          <Input
+                            placeholder="508207"
+                            onChange={(e) => {
+                              if (e.target.value.length === 6) {
+                                fetchPincodeDetails(e.target.value);
+                              }
+                            }}
+                            maxLength={6}
+                            disabled={pincodeLoading}
+                            suffix={pincodeLoading ? <Spin size="small" /> : null}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item label="City" name="city" rules={[{ required: true }]}>
+                          <Input placeholder="Hyderabad" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item label="State" name="state" rules={[{ required: true }]}>
+                          <Input placeholder="Telangana" />
+                        </Form.Item>
+                      </Col>
+                      {isEditingAddress && (
+                        <Col xs={24}>
+                          <Button
+                            type="link"
+                            className="p-0 h-auto"
+                            onClick={() => {
+                              setIsEditingAddress(false);
+                              setEditingAddressId(null);
+                              form.resetFields(["address", "line2", "street", "pincode", "city", "state"]);
+                            }}
+                          >
+                            Cancel editing and add new instead
+                          </Button>
+                        </Col>
+                      )}
+                    </Row>
+                  </div>
+                )}
+
+                {shippingLoading && (
+                  <div className="my-4 text-center">
+                    <Spin size="small" /> Calculating shipping rates...
+                  </div>
+                )}
+
+                {shippingRates && (
+                  <div className="my-4 p-3 border rounded" style={{ borderColor: token.colorPrimary }}>
+                    <Typography.Text strong className="block mb-1">
+                      Shipping estimated: ₹{shippingAmount}
+                    </Typography.Text>
+                    <Typography.Text type="secondary" className="text-xs">
+                      Delivery expected in {shippingRates[0]?.etd || "3-5 days"} via {shippingRates[0]?.courier_name}
+                    </Typography.Text>
+                  </div>
+                )}
 
                 <Divider />
 
@@ -363,6 +724,11 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <Typography.Text>Subtotal</Typography.Text>
                   <Typography.Text>₹{subtotal}</Typography.Text>
+                </div>
+
+                <div className="flex justify-between">
+                  <Typography.Text>Shipping</Typography.Text>
+                  <Typography.Text>{shippingAmount > 0 ? `₹${shippingAmount}` : (shippingLoading ? <Spin size="small" /> : 'Calculated at next step')}</Typography.Text>
                 </div>
 
                 <div className="flex gap-2">

@@ -1,6 +1,7 @@
 // app/api/razorpay/verify/route.ts
 import crypto from "crypto";
 import { supabase } from "@/lib/supabaseServer";
+import { createShiprocketOrder } from "@/lib/shiprocket";
 
 export const runtime = "nodejs";          // use Node runtime for crypto
 
@@ -82,6 +83,61 @@ export async function POST(req: Request) {
           if (pointsError) {
             console.error("Failed to award points:", pointsError);
           }
+        }
+
+        // 4. Create Shiprocket Shipment
+        try {
+          const { data: orderItems, error: itemsError } = await supabase
+            .from('order_items')
+            .select('*, variant:variant_id(*, product:product_id(name))')
+            .eq('order_id', orderData.id);
+
+          if (itemsError) throw itemsError;
+
+          const shiprocketOrder = await createShiprocketOrder({
+            order_id: orderData.id.toString(),
+            order_date: new Date().toISOString().split('T')[0],
+            pickup_location: "Home",
+            billing_customer_name: orderData.shipping_address.name.split(' ')[0],
+            billing_last_name: orderData.shipping_address.name.split(' ').slice(1).join(' ') || '.',
+            billing_address: orderData.shipping_address.address || "N/A",
+            billing_city: orderData.shipping_address.city || "N/A",
+            billing_pincode: orderData.shipping_address.pincode || "000000",
+            billing_state: orderData.shipping_address.state || "N/A",
+            billing_country: "India",
+            billing_email: orderData.shipping_address.email || "customer@example.com",
+            billing_phone: orderData.shipping_address.contact,
+            shipping_is_billing: true,
+            order_items: orderItems.map((it: any) => ({
+              name: it.variant?.product?.name || "Product",
+              sku: it.variant_id.toString(),
+              units: it.quantity,
+              selling_price: it.price,
+            })),
+            payment_method: "Prepaid",
+            sub_total: orderData.total_amount,
+            length: 20,
+            width: 20,
+            height: orderItems.length * 5,
+            breadth: orderItems.length * 5,
+            weight: (orderItems.length * 1),
+          });
+
+          // Update order with Shiprocket IDs if columns exist
+          await supabase.from('orders').update({
+            shiprocket_order_id: shiprocketOrder.order_id,
+            shiprocket_shipment_id: shiprocketOrder.shipment_id,
+            status: 'paid' // Or a specific status like 'ready_to_ship'
+          }).eq('id', orderData.id);
+
+          console.log("Shiprocket order created:", shiprocketOrder.order_id);
+          return Response.json({ verified: true, shiprocket_order_id: shiprocketOrder.order_id }, { status: 200 });
+        } catch (srError: any) {
+          console.error("Shiprocket integration failed:", srError);
+          return Response.json({
+            verified: true,
+            shiprocket_error: srError.message || "Shiprocket order creation failed. Our team will process it manually."
+          }, { status: 200 });
         }
       }
     }

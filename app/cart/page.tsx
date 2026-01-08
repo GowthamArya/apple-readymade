@@ -90,9 +90,9 @@ export default function CartPage() {
                           onChange={(value) => handleQuantityChange(value || 1, item.id)}
                         />
                         <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
-                        <Button type="primary" onClick={() => {
-                          removeFromCart(item.id);
-                          addToFavorites({ ...item, quantity: 1 });
+                        <Button type="primary" onClick={async () => {
+                          await removeFromCart(item.id);
+                          await addToFavorites({ ...item, quantity: 1 });
                         }}>
                           Move to Wishlist
                         </Button>
@@ -150,21 +150,22 @@ export default function CartPage() {
                       />
                     }
                     actions={[
-                      <Button type="dashed" danger onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        removeFromFavorites(item.id);
-                      }} key="remove" icon={<DeleteOutlined />} >
-                        Remove
+                      <Button type="primary"
+                        size="small"
+                        danger onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeFromFavorites(item.id);
+                        }} key="remove" icon={<DeleteOutlined />} >
                       </Button>,
-                      <Button type="primary" onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        item.quantity = 1;
-                        removeFromFavorites(item.id);
-                        addToCart(item);
-                      }} key="remove" icon={<ShoppingCartOutlined />}>
-                        Move To Cart
+                      <Button type="primary"
+                        size="small"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          await removeFromFavorites(item.id);
+                          await addToCart(item, 1);
+                        }} key="remove" icon={<ShoppingCartOutlined />}>
                       </Button>,
                     ]}
                   >

@@ -53,8 +53,8 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
   }, []);
 
   return (
-    <ThemeContext initialMode={initialTheme}>
-      <SessionProvider>
+    <SessionProvider>
+      <ThemeContext initialMode={initialTheme}>
         <CartProvider>
           <FavoritesProvider>
             <LoadingProvider>
@@ -91,7 +91,7 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
             </LoadingProvider>
           </FavoritesProvider>
         </CartProvider>
-      </SessionProvider>
-    </ThemeContext>
+      </ThemeContext>
+    </SessionProvider>
   );
 }

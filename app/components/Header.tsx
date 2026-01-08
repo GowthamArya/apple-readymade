@@ -18,9 +18,11 @@ import {
 import { useSession, signOut } from "next-auth/react";
 import { useThemeMode } from "../context/ThemeContext";
 import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoriteContext";
 import { useLoading } from "../context/LoadingContext";
 import { usePathname } from "next/navigation";
 import subscribeToPush from "@/lib/config/push-subscription";
+import { createClient } from "@/utils/supabase/client";
 import SearchInput from "./SearchInput";
 import { id } from "zod/v4/locales";
 
@@ -63,6 +65,7 @@ export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const pageLoading = useLoading();
   const { cart } = useCart();
+  const { favorites } = useFavorites();
   const { data: session } = useSession();
   const user = session?.user;
   const { token } = useToken();
@@ -190,7 +193,9 @@ export default function AppHeader() {
 
           {/* Cart */}
           <Link href="/cart?activeTab=wishlist" aria-label="Wishlist" className="hidden sm:block">
-            <HeartOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
+            <Badge count={favorites.length} color={token.colorPrimary} size="small">
+              <HeartOutlined style={{ fontSize: 22, color: token.colorTextHeading }} />
+            </Badge>
           </Link>
           <Link href="/cart?activeTab=cart" aria-label="Cart">
             <Badge count={cart.length} color={token.colorPrimary} size="small">
@@ -203,7 +208,7 @@ export default function AppHeader() {
             <ThemeToggle />
           </div>
 
-          {mounted && user && <NotifPopover />}
+          {mounted && user && <NotifPopover user={user} />}
           {/* Account */}
           {mounted && user ? (
             <Dropdown menu={accountMenu} trigger={["click"]}>
@@ -256,6 +261,11 @@ export default function AppHeader() {
               label: <Link href="/cart">Cart</Link>,
               icon: <ShoppingOutlined />,
             },
+            {
+              key: "/cart?activeTab=wishlist",
+              label: <Link href="/cart?activeTab=wishlist">Wishlist</Link>,
+              icon: <HeartOutlined />,
+            },
             ...(user
               ? [
                 {
@@ -298,7 +308,7 @@ export default function AppHeader() {
 }
 
 
-export function NotifPopover() {
+export function NotifPopover({ user }: { user: any }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [open, setOpen] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
@@ -328,12 +338,39 @@ export function NotifPopover() {
         setNotifications(data.notifications);
       }
     }
+
     fetchNotifications();
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
+
+    // Supabase Realtime listener
+    const supabase = createClient();
+    const channel = supabase
+      .channel('notifications-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+        },
+        (payload) => {
+          console.log('New notification received!', payload);
+          setNotifications((prev) => [payload.new, ...prev]);
+
+          // Show browser notification if possible
+          if (Notification.permission === 'granted') {
+            new Notification(payload.new.title, {
+              body: payload.new.message,
+              icon: payload.new.image || '/logo.png'
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.email]);
 
   const handleToggle = async () => {
     if (!isSupported) return;

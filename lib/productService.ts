@@ -119,3 +119,17 @@ export async function getSimilarVariants(variantId: number) {
     return [];
   }
 }
+
+export async function getCartDetails(variantIds: number[]) {
+  if (!variantIds || variantIds.length === 0) return [];
+
+  const { data, error } = await fetchWithRelations("variant", ["product"])
+    .in('id', variantIds);
+
+  if (error) {
+    console.error("Error fetching cart details:", error);
+    return [];
+  }
+
+  return data || [];
+}

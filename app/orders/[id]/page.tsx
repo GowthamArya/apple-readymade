@@ -1,9 +1,7 @@
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabaseServer";
-import { redirect } from "next/navigation";
-import { Card, Typography, Divider, Tag, Image, Row, Col } from "antd";
+import { redirect } from "next/navigation"
 import OrderDetails from "@/app/components/OrderDetails";
 
 export default async function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {

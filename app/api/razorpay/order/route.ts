@@ -29,17 +29,18 @@ export async function POST(req: Request) {
       return Response.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { amount, currency = "INR", receipt, notes, items, shippingAddress, pointsRedeemed = 0 } = body as {
+    const { amount, currency = "INR", receipt, notes, items, shippingAddress, address_id, pointsRedeemed = 0 } = body as {
       amount: number;
       currency?: string;
       receipt?: string;
       notes?: Record<string, string>;
       items: any[];
       shippingAddress: any;
+      address_id?: number | null;
       pointsRedeemed?: number;
     };
 
-    if (!Number.isFinite(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount < 0) {
       return Response.json({ error: "Invalid amount" }, { status: 400 });
     }
 
@@ -66,6 +67,20 @@ export async function POST(req: Request) {
       finalAmount = Math.max(0, amount - discountPaise);
     }
 
+    // Strict Shipment Serviceability Check
+    try {
+      if (!shippingAddress || !shippingAddress.pincode) {
+        throw new Error("Pincode is required for shipping serviceability check.");
+      }
+      const { getShiprocketPincodeDetails } = await import("@/lib/shiprocket");
+      await getShiprocketPincodeDetails(shippingAddress.pincode);
+    } catch (err: any) {
+      return Response.json({
+        error: `Shipment unavailable for this location: ${err.message}`,
+        shipment_error: true
+      }, { status: 400 });
+    }
+
     // 1. Create Order in DB (Pending)
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
@@ -73,6 +88,7 @@ export async function POST(req: Request) {
         user_id: session?.user.id,
         total_amount: amount / 100, // Original total before discount
         status: 'pending',
+        address_id: address_id || null,
         shipping_address: shippingAddress,
         points_redeemed: pointsRedeemed,
         points_amount: pointsAmount
