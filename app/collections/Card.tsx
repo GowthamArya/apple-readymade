@@ -1,7 +1,7 @@
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 import ProductCarousel from "../components/Carousel";
 import { GrFavorite } from "react-icons/gr";
-import { App, Button } from "antd";
+import { App, Button, Typography } from "antd";
 import { useCart } from '../context/CartContext';
 import { MdFavorite } from "react-icons/md";
 import { useFavorites } from "../context/FavoriteContext";
@@ -9,6 +9,9 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowRightOutlined } from "@ant-design/icons";
+
+const { Text, Title } = Typography;
 
 export default function ProductCard({ product, token, flashSale }: { product: any, token: any, flashSale?: any }) {
   const router = useRouter();
@@ -26,90 +29,98 @@ export default function ProductCard({ product, token, flashSale }: { product: an
     ? Math.floor(product.price * (1 - flashSale.discount_percentage / 100))
     : product.price;
 
-  const handleFavorite = (action: string) => {
-    if (action === 'remove' && favorites.some((fav) => fav.id === product.id)) {
-      removeFromFavorites(product.id);
-      message.warning(`${product.product?.name || 'Product'} removed from favorites!`);
-      return;
-    } else if (action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
-      addToFavorites(product);
-      message.success(`${product.product?.name || 'Product'} added to favorites!`);
-      return;
+  const [loadingCart, setLoadingCart] = useState(false);
+  const [loadingFav, setLoadingFav] = useState(false);
+
+  const handleFavorite = async (action: string) => {
+    setLoadingFav(true);
+    try {
+      if (action === 'remove' && favorites.some((fav) => fav.id === product.id)) {
+        await removeFromFavorites(product.id);
+        message.warning(`${product.product?.name || 'Product'} removed from favorites!`);
+      } else if (action === 'add' && !favorites?.some((fav) => fav.id === product.id)) {
+        await addToFavorites(product);
+        message.success(`${product.product?.name || 'Product'} added to favorites!`);
+      }
+    } finally {
+      setLoadingFav(false);
     }
   }
 
-  const handleAdd = () => {
-    addToCart({ ...product, price: discountedPrice, quantity: 1 }); // Use discounted price
-    message.success(`${product.product?.name || 'Product'} added to cart!`);
+  const handleAdd = async () => {
+    setLoadingCart(true);
+    try {
+      await addToCart({ ...product, price: discountedPrice, quantity: 1 });
+      message.success(`${product.product?.name || 'Product'} added to cart!`);
+    } finally {
+      setLoadingCart(false);
+    }
   };
 
   return (
-    <Link href={`/variant/${product.id}`} className="relative p-2 col-span-1 rounded-md shadow-lg duration-3000! hover:shadow-green-900/30 dark:shadow-green-50/25 transition-shadow" style={{ border: `1px solid ${token.colorBorder}` }}>
+    <Link href={`/variant/${product.id}`} className="relative p-3 col-span-1 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group" style={{ border: `1px solid ${token.colorBorderSecondary}`, backgroundColor: token.colorBgContainer }}>
       {flashSale && (
-        <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-2 py-1 rounded-br-md z-10">
-          Flash Sale {flashSale.discount_percentage}% OFF
+        <div className="absolute top-0 left-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-br-xl rounded-tl-xl z-10 shadow-md">
+          {flashSale.discount_percentage}% OFF
         </div>
       )}
-      <div className="absolute top-2 right-2 z-50" tabIndex={-1}>
+      <div className="absolute top-3 right-3 z-50">
         <Button
-          shape="round"
+          shape="circle"
           size="middle"
           aria-label="Add to wishlist"
-          tabIndex={-1}
           type="text"
+          loading={loadingFav}
+          className="bg-white/80 dark:bg-black/20 backdrop-blur-sm border-none shadow-sm hover:scale-110 transition-transform"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')
           }}
-        >
-          {favorites.some((fav) => fav.id === product.id) ?
-            <MdFavorite className="text-xl cursor-pointer text-red-600!" />
+          icon={favorites.some((fav) => fav.id === product.id) ?
+            <MdFavorite className="text-xl text-red-500 animate-in zoom-in" />
             :
-            <GrFavorite className="text-xl cursor-pointer" />
+            <GrFavorite className="text-xl" />
           }
-        </Button>
+        />
       </div>
 
-      <ProductCarousel product={product} />
+      <div className="rounded-xl overflow-hidden">
+        <ProductCarousel product={product} />
+      </div>
 
-      <h2 className="mt-3 font-semibold text-sm md:text-base leading-tight" style={{ color: token.colorText }}>
-        {product.product.name}
-      </h2>
+      <div className="px-1">
+        <h2 className="mt-4 font-bold text-sm md:text-base leading-tight truncate group-hover:text-blue-600 transition-colors" style={{ color: token.colorText }}>
+          {product.product.name}
+        </h2>
 
-      <div className="flex items-center mt-2 justify-between" style={{ color: token.colorText }}>
-        <p className="text-sm md:text-base">
-          ₹{discountedPrice}{" "}
-          {
-            (product.mrp && product.mrp > discountedPrice) || (flashSale && product.price > discountedPrice) ? (
-              <span className="text-xs line-through ml-1">
-                ₹{flashSale ? product.price : product.mrp}
-              </span>
-            ) : null
-          }
-        </p>
-        {cart.some((item) => item.id === product.id) ?
+        <div className="flex items-center mt-3 justify-between">
+          <div className="flex flex-col">
+            <Text strong className="text-sm md:text-lg">₹{discountedPrice.toLocaleString()}</Text>
+            {((product.mrp && product.mrp > discountedPrice) || (flashSale && product.price > discountedPrice)) && (
+              <Text delete type="secondary" className="text-xs">
+                ₹{flashSale ? product.price.toLocaleString() : product.mrp.toLocaleString()}
+              </Text>
+            )}
+          </div>
+
           <Button
-            type="primary"
-            icon={<MdOutlineAddShoppingCart />}
-            size="small"
+            type={cart.some((item) => item.id === product.id) ? "primary" : "default"}
+            shape="circle"
+            icon={cart.some((item) => item.id === product.id) ? <ArrowRightOutlined /> : <MdOutlineAddShoppingCart className="text-lg" />}
+            loading={loadingCart}
+            className="shadow-md hover:scale-110 transition-all"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              router.push("/cart");
+              if (cart.some((item) => item.id === product.id)) {
+                router.push("/cart");
+              } else {
+                handleAdd();
+              }
             }}
-          >
-          </Button>
-          :
-          <MdOutlineAddShoppingCart
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleAdd();
-            }}
-            className={`text-xl cursor-pointer transition-colors }`}
           />
-        }
+        </div>
       </div>
     </Link>
   );
