@@ -4,7 +4,7 @@ const SHIPROCKET_API_URL = "https://apiv2.shiprocket.in/v1/external";
 export async function getShiprocketToken() {
     const email = process.env.SHIPROCKET_EMAIL;
     let password = process.env.SHIPROCKET_PASSWORD;
-    console.log("password: ", password);
+    console.log({ email, password });
     if (!email || !password) {
         throw new Error("Shiprocket credentials missing (SHIPROCKET_EMAIL, SHIPROCKET_PASSWORD)");
     }
