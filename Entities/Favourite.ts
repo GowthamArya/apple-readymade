@@ -9,6 +9,6 @@ export class Favourite extends BaseEntity {
     "payment_status",
   ];
   variant_id!: number;
-  customer_id!: number;
+  user_id!: string;
   status_id?: number;
 }

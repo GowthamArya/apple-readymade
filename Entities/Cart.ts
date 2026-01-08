@@ -1,6 +1,6 @@
 import { BaseEntity } from "./BaseEntity";
 
-export class Cart extends BaseEntity  {
+export class Cart extends BaseEntity {
     static propertyKeys = [
         "id",
         "order_id",
@@ -9,6 +9,6 @@ export class Cart extends BaseEntity  {
         "payment_status",
     ];
     variant_id?: number;
-    customer_id?: number;
+    user_id?: string;
     status_id?: number;
 }
