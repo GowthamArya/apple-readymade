@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Sider from 'antd/es/layout/Sider';
 import { generateMetadataColumns } from '@/helper/genericcolumns';
 import DynamicFormModal from '@/app/components/DynamicFormModel';
-import { sendNotification } from '@/app/actions';
+import { sendNotification, triggerAbandonedCartReminders } from '@/app/actions';
 const { useToken } = theme;
 
 const { Content } = Layout;
@@ -179,6 +179,24 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
             <div className='flex items-center gap-2 md:flex-nowrap flex-wrap'>
               <Button type="primary" onClick={showModal}>
                 Notify Users
+              </Button>
+              <Button
+                type="primary"
+                danger
+                onClick={async () => {
+                  try {
+                    const res = await triggerAbandonedCartReminders();
+                    if (res.success) {
+                      message.success(`Sent ${res.sent} reminders!`);
+                    } else {
+                      message.error("Failed: " + res.error);
+                    }
+                  } catch (e) {
+                    message.error("Error sending reminders");
+                  }
+                }}
+              >
+                Trigger Reminders
               </Button>
               <Modal
                 title="Notify Users"
