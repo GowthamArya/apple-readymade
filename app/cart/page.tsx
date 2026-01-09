@@ -1,216 +1,320 @@
 'use client';
-import { Tabs, Button, InputNumber, Card, Col, Row, theme, Space } from 'antd';
+
+import React, { useEffect, useMemo, useState } from 'react';
+import { Tabs, Button, Card, Col, Row, theme, Space, Typography, Empty, Image, Divider, Badge } from 'antd';
+import {
+  ShoppingCartOutlined,
+  HeartOutlined,
+  DeleteOutlined,
+  ArrowRightOutlined,
+} from '@ant-design/icons';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoriteContext';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ShoppingCartOutlined, HeartOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useSearchParams } from 'next/navigation';
 
-const { Meta } = Card;
+const { Title, Text } = Typography;
 
 export default function CartPage() {
   const { token } = theme.useToken();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState("cart");
 
-  useEffect(() => {
-    const tab = searchParams.get("activeTab");
-    if (tab) setActiveTab(tab);
-  }, [searchParams]);
+  const [activeTab, setActiveTab] = useState('cart');
+  const [total, setTotal] = useState(0);
 
   const { cart, removeFromCart, clearCart, addToCart } = useCart();
-  const { favorites, removeFromFavorites, clearFavorites, addToFavorites } = useFavorites();
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  const { favorites, removeFromFavorites, addToFavorites } = useFavorites();
 
+  /* ---------------- URL tab sync ---------------- */
   useEffect(() => {
-    const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    setTotal(totalPrice);
+    const tab = searchParams.get('activeTab');
+    if (tab === 'cart' || tab === 'wishlist') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  /* ---------------- Total calculation ---------------- */
+  useEffect(() => {
+    setTotal(
+      cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    );
   }, [cart]);
 
-  const handleQuantityChange = (value: number, id: number) => {
-    const item = cart.find((item) => item.id === id);
-    if (!item) return;
-    if (value <= 0) {
-      removeFromCart(id);
-    } else {
-      addToCart({ ...item, quantity: value - item.quantity });
+  /* ---------------- Quantity handling ---------------- */
+  const updateQuantity = (id: number, newQty: number) => {
+    const item = cart.find((i) => i.id === id);
+    if (!item || newQty < 1) return;
+
+    const delta = newQty - item.quantity;
+    if (delta !== 0) {
+      addToCart(item, delta);
     }
   };
 
-  const CartTab = () => (
-    <>
-      {cart.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center mt-20 p-4">
-          <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
-          <Link href="/collections">
-            <Button type="primary">Browse Products</Button>
-          </Link>
-        </div>
-      ) : (
-        <>
-          <Row gutter={16} justify="start">
-            {cart.map((item) => (
-              <Col
-                key={item.id}
-                xs={{ flex: '100%' }}
-                sm={{ flex: '50%' }}
-                md={{ flex: '50%' }}
-                lg={{ flex: '25%' }}
-                xl={{ flex: '25%' }}
-              >
-                <Link href={`/variant/${item.id}`}>
-                  <Card
-                    className="m-2! w-full shadow-lg"
-                    hoverable
-                    loading={isLoading}
-                    cover={
-                      <img
-                        alt={item.product?.name}
-                        src={item.image_urls?.[0] ?? '/no-image.png'}
-                        className="h-48 w-full object-cover"
-                      />
-                    }
-                  >
-                    <Meta
-                      title={item.product?.name}
-                      description={`₹${item.price} x ${item.quantity}`}
-                    />
+  /* ---------------- Cart Tab ---------------- */
+  const CartTab = useMemo(
+    () => (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {cart.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed">
+            <Empty
+              image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+              styles={{
+                image: {
+                  height: 120,
+                },
+              }}
+              description={
+                <Space orientation="vertical">
+                  <Title level={4}>Your shopping bag is empty</Title>
+                  <Text type="secondary">
+                    Looks like you haven&apos;t added anything yet.
+                  </Text>
+                </Space>
+              }
+            >
+              <Link href="/collections">
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<ArrowRightOutlined />}
+                >
+                  Start Shopping
+                </Button>
+              </Link>
+            </Empty>
+          </div>
+        ) : (
+          <Row gutter={[32, 32]}>
+            <Col xs={24} lg={16}>
+              <div className="rounded-3xl border overflow-hidden">
+                <div className="p-6 border-b flex justify-between">
+                  <Title level={4} style={{ margin: 0 }}>
+                    Items ({cart.length})
+                  </Title>
+                  <Button type="text" danger onClick={clearCart}>
+                    Clear All
+                  </Button>
+                </div>
 
-                    {/* Custom Action Buttons */}
-                    <div className="mt-4" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                      <Space.Compact>
-                        <InputNumber
-                          min={1}
-                          value={item.quantity}
-                          onChange={(value) => handleQuantityChange(value || 1, item.id)}
+                <div className="p-6">
+                  {cart.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-col md:flex-row gap-4 mb-6 p-4 rounded-2xl"
+                    >
+                      <div className="h-32 w-32 rounded-xl overflow-hidden">
+                        <Image
+                          src={item.image_urls?.[0] ?? '/no-image.png'}
+                          alt={item.product?.name ?? 'Product'}
+                          preview={false}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
                         />
-                        <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
-                        <Button type="primary" onClick={async () => {
-                          await removeFromCart(item.id);
-                          await addToFavorites({ ...item, quantity: 1 });
-                        }}>
-                          Move to Wishlist
-                        </Button>
-                      </Space.Compact>
+                      </div>
+
+                      <div className="flex-1">
+                        <Link href={`/variant/${item.id}`}>
+                          <Title level={5} className="cursor-pointer">
+                            {item.product?.name}
+                          </Title>
+                        </Link>
+
+                        <Text type="secondary">
+                          {item.size && `Size: ${item.size}`}
+                          {item.color && ` • Color: ${item.color}`}
+                        </Text>
+
+                        <div className="mt-3 flex items-center gap-4">
+                          <Space.Compact>
+                            <Button
+                              disabled={item.quantity <= 1}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
+                            >
+                              -
+                            </Button>
+                            <div className="px-4 flex items-center">
+                              <Text strong>{item.quantity}</Text>
+                            </div>
+                            <Button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                            >
+                              +
+                            </Button>
+                          </Space.Compact>
+
+                          <Button
+                            type="text"
+                            icon={<HeartOutlined />}
+                            onClick={() => {
+                              removeFromCart(item.id);
+                              addToFavorites(item);
+                            }}
+                          >
+                            Save for later
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="text-right flex flex-col justify-between">
+                        <Title level={4}>
+                          ₹{(item.price * item.quantity).toLocaleString()}
+                        </Title>
+                        <Button
+                          danger
+                          type="text"
+                          icon={<DeleteOutlined />}
+                          onClick={() => removeFromCart(item.id)}
+                        />
+                      </div>
                     </div>
-                  </Card>
-                </Link>
-              </Col>
-            ))}
-          </Row>
+                  ))}
+                </div>
+              </div>
+            </Col>
 
-          <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-lg font-semibold">
-              Total: <span className="text-green-700 dark:text-green-300">₹{total}</span>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={clearCart}>Clear Cart</Button>
-              <Link href="/checkout"><Button type="primary">Proceed to Checkout</Button></Link>
-            </div>
-          </div>
-        </>
-      )}
-    </>
+            <Col xs={24} lg={8}>
+              <div className="sticky top-24">
+                <div className="p-8 rounded-3xl border">
+                  <Title level={3}>Order Summary</Title>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <Text>Subtotal</Text>
+                      <Text strong>₹{total.toLocaleString()}</Text>
+                    </div>
+                  </div>
+
+                  <Divider />
+
+                  <div className="flex justify-between text-xl font-bold">
+                    <Text>Total</Text>
+                    <Text style={{ color: token.colorPrimary }}>
+                      ₹{total.toLocaleString()}
+                    </Text>
+                  </div>
+
+                  <Link href="/checkout">
+                    <Button
+                      type="primary"
+                      block
+                      size="large"
+                      className="mt-6"
+                      icon={<ShoppingCartOutlined />}
+                    >
+                      Checkout
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        )}
+      </div>
+    ),
+    [cart, total, token]
   );
-  const WishlistTab = () => (
-    <>
-      {favorites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center mt-20 p-4">
-          <h1 className="text-2xl font-semibold mb-2">Your wishlist is empty</h1>
-          <Link href="/collections">
-            <Button type="primary">Browse Products</Button>
-          </Link>
-        </div>
-      ) : (
-        <>
-          <Row gutter={16} justify="start">
+
+  /* ---------------- Wishlist Tab ---------------- */
+  const WishlistTab = useMemo(
+    () => (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {favorites.length === 0 ? (
+          <Empty description="Your wishlist is empty" />
+        ) : (
+          <Row gutter={[16, 16]}>
             {favorites.map((item) => (
-              <Col
-                key={item.id}
-                xs={{ flex: '100%' }}
-                sm={{ flex: '50%' }}
-                md={{ flex: '50%' }}
-                lg={{ flex: '25%' }}
-                xl={{ flex: '25%' }}
-              >
-                <Link href={`/variant/${item.id}`}>
-                  <Card
-                    className="m-2! w-full shadow-lg"
-                    hoverable
-                    cover={
-                      <img
-                        alt={item.product?.name}
-                        src={item.image_urls?.[0] ?? '/no-image.png'}
-                        className="h-48 w-full object-cover"
-                      />
-                    }
-                    actions={[
-                      <Button type="primary"
-                        size="small"
-                        danger onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          removeFromFavorites(item.id);
-                        }} key="remove" icon={<DeleteOutlined />} >
-                      </Button>,
-                      <Button type="primary"
-                        size="small"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          await removeFromFavorites(item.id);
-                          await addToCart(item, 1);
-                        }} key="remove" icon={<ShoppingCartOutlined />}>
-                      </Button>,
-                    ]}
-                  >
-                    <Meta
-                      title={item.product?.name}
-                      description={`₹${item.price}`}
+              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+                <Card
+                  hoverable
+                  cover={
+                    <img
+                      src={item.image_urls?.[0] ?? '/no-image.png'}
+                      alt={item.product?.name}
+                      className="h-56 w-full object-cover"
                     />
-                  </Card>
-                </Link>
+                  }
+                >
+                  <Title level={5}>{item.product?.name}</Title>
+                  <Text strong>₹{item.price}</Text>
+
+                  <Space className="mt-3">
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => removeFromFavorites(item.id)}
+                    />
+                    <Button
+                      type="primary"
+                      icon={<ShoppingCartOutlined />}
+                      onClick={() => {
+                        removeFromFavorites(item.id);
+                        addToCart(item, 1);
+                      }}
+                    >
+                      Move to Bag
+                    </Button>
+                  </Space>
+                </Card>
               </Col>
             ))}
           </Row>
-          <div className="mt-8 flex justify-end">
-            <Button onClick={clearFavorites}>Clear Wishlist</Button>
-          </div>
-        </>
-      )}
-    </>
+        )}
+      </div>
+    ),
+    [favorites]
   );
-
 
   return (
-    <div className="min-h-screen px-4 py-20 md:px-20" style={{ backgroundColor: token.colorBgContainer }}>
-      <Tabs activeKey={activeTab} onChange={setActiveTab} centered items={[
-        {
-          key: 'cart',
-          label: (
-            <span className="flex items-center gap-1">
-              <ShoppingCartOutlined />
-              Your Bag ({cart.length})
-            </span>
-          ),
-          children: <CartTab />,
-        },
-        {
-          key: 'wishlist',
-          label: (
-            <span className="flex items-center gap-1">
-              <HeartOutlined />
-              Your Wishlist ({favorites.length})
-            </span>
-          ),
-          children: <WishlistTab />,
-        }
-      ]} />
+    <div
+      className="min-h-screen py-24"
+      style={{ backgroundColor: token.colorBgContainer }}
+    >
+      <div className="max-w-7xl mx-auto px-4">
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          centered
+          items={[
+            {
+              key: 'cart',
+              label: (
+                <span className="flex items-center gap-2">
+                  <ShoppingCartOutlined />
+                  Cart
+                  {cart.length > 0 && (
+                    <Badge count={cart.length} color={token.colorPrimary} />
+                  )}
+                </span>
+              ),
+              children: CartTab,
+            },
+            {
+              key: 'wishlist',
+              label: (
+                <span className="flex items-center gap-2">
+                  <HeartOutlined />
+                  Wishlist
+                  {favorites.length > 0 && (
+                    <Badge
+                      count={favorites.length}
+                      color={token.colorPrimary}
+                    />
+                  )}
+                </span>
+              ),
+              children: WishlistTab,
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 }
