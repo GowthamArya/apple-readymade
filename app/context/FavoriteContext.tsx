@@ -99,36 +99,58 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
   }, [status, refreshFavorites]);
 
   const addToFavorites = async (item: Partial<VariantCartItem> & { id: number }) => {
-    if (status === 'authenticated') {
-      await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variant_id: item.id, action: 'add' })
-      });
-      await refreshFavorites();
-    } else {
-      const currentItems = JSON.parse(getCookie('favorites') || '[]');
-      if (!currentItems.find((i: any) => i.variant_id === item.id)) {
-        currentItems.push({ variant_id: item.id });
-        setCookie('favorites', JSON.stringify(currentItems));
+    // 1. Optimistic Update
+    const currentFavs = [...favorites];
+    if (!favorites.find(i => i.id === item.id)) {
+      setFavorites(prev => [...prev, item as VariantCartItem]);
+    }
+
+    // 2. Server Sync
+    try {
+      if (status === 'authenticated') {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variant_id: item.id, action: 'add' })
+        });
         await refreshFavorites();
+      } else {
+        const currentItems = JSON.parse(getCookie('favorites') || '[]');
+        if (!currentItems.find((i: any) => i.variant_id === item.id)) {
+          currentItems.push({ variant_id: item.id });
+          setCookie('favorites', JSON.stringify(currentItems));
+          await refreshFavorites();
+        }
       }
+    } catch (err) {
+      console.error("Favorite add failed, rolling back", err);
+      setFavorites(currentFavs);
     }
   };
 
   const removeFromFavorites = async (id: number) => {
-    if (status === 'authenticated') {
-      await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variant_id: id, action: 'remove' })
-      });
-      await refreshFavorites();
-    } else {
-      const currentItems = JSON.parse(getCookie('favorites') || '[]');
-      const filtered = currentItems.filter((i: any) => i.variant_id !== id);
-      setCookie('favorites', JSON.stringify(filtered));
-      await refreshFavorites();
+    // 1. Optimistic Update
+    const currentFavs = [...favorites];
+    setFavorites(prev => prev.filter(i => i.id !== id));
+
+    // 2. Server Sync
+    try {
+      if (status === 'authenticated') {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ variant_id: id, action: 'remove' })
+        });
+        await refreshFavorites();
+      } else {
+        const currentItems = JSON.parse(getCookie('favorites') || '[]');
+        const filtered = currentItems.filter((i: any) => i.variant_id !== id);
+        setCookie('favorites', JSON.stringify(filtered));
+        await refreshFavorites();
+      }
+    } catch (err) {
+      console.error("Favorite removal failed, rolling back", err);
+      setFavorites(currentFavs);
     }
   };
 
