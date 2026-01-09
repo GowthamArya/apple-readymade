@@ -344,37 +344,28 @@ export function NotifPopover({ user }: { user: any }) {
     // Supabase Realtime listener
     const supabase = createClient();
     const channel = supabase
-      .channel(`notifications-${user?.email || 'broadcast'}`)
+      .channel('notifications-realtime')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_email=eq.${user?.email}&and(isRead=false)`,
         },
-        (payload: any) => {
-          const newNotif = payload.new;
-          if (!newNotif.user_email || newNotif.user_email !== user?.email) return;
-
-          setNotifications((prev) => {
-            // Check if already exists to avoid duplicates
-            if (prev.some(n => n.id === newNotif.id)) return prev;
-            return [newNotif, ...prev];
-          });
+        (payload) => {
+          console.log('New notification received!', payload);
+          setNotifications((prev) => [payload.new, ...prev]);
 
           // Show browser notification if possible
           if (Notification.permission === 'granted') {
-            new Notification(newNotif.title, {
-              body: newNotif.message,
-              icon: newNotif.image || '/logo.png'
+            new Notification(payload.new.title, {
+              body: payload.new.message,
+              icon: payload.new.image || '/logo.png'
             });
           }
         }
       )
-      .subscribe((status) => {
-        console.log('Supabase Realtime Status:', status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);

@@ -15,10 +15,11 @@ create table if not exists public.notifications (
 alter table public.notifications enable row level security;
 
 -- Policy: Users can read broadcast notifications or their own notifications
-CREATE POLICY "Allow realtime read"
-ON public.notifications
-FOR SELECT
-USING (true);
+create policy "Users can read own or broadcast notifications"
+on public.notifications for select
+using (
+  user_email is null or user_email = auth.jwt() ->> 'email'
+);
 
 -- Policy: Only admins can insert (assuming you have an admin role check or similar)
 -- For simplicity in this demo, we might allow authenticated users to insert if it's for testing, 

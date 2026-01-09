@@ -47,7 +47,6 @@ export async function POST(req: Request) {
         }
 
         // 3. Refund via Razorpay if paid
-        let isRefunded = false;
         if (order.status === 'paid' && order.razorpay_payment_id) {
             try {
                 const razorpay = getRazorpay();
@@ -61,7 +60,6 @@ export async function POST(req: Request) {
                     }
                 });
                 console.log(`Refunded ${refundAmount} for order ${order.id}`);
-                isRefunded = true;
             } catch (refundError: any) {
                 console.error("Razorpay Refund Error:", refundError);
                 // We might still want to proceed with DB update if refund fails (or handle it)
@@ -83,7 +81,7 @@ export async function POST(req: Request) {
         // 5. Update Order Status in DB
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ status: isRefunded ? 'refunded' : 'cancelled' })
+            .update({ status: 'cancelled' })
             .eq('id', orderId);
 
         if (updateError) {
