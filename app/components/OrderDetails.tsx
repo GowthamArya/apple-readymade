@@ -101,7 +101,6 @@ export default function OrderDetails({ order }: { order: any }) {
             case 'shipped': return 'blue';
             case 'delivered': return 'success';
             case 'cancelled': return 'red';
-            case 'refunded': return 'magenta';
             case 'return_requested': return 'warning';
             case 'returned': return 'default';
             default: return 'orange';

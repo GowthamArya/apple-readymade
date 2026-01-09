@@ -55,17 +55,7 @@ export default function OrdersList({ orders }: { orders: any[] }) {
                                         {new Date(order.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                                     </div>
                                 </div>
-                                <Tag
-                                    color={
-                                        order.status === "paid" ? "success" :
-                                            order.status === "pending" ? "warning" :
-                                                order.status === "cancelled" ? "error" :
-                                                    order.status === "refunded" ? "magenta" :
-                                                        order.status === "shipped" ? "processing" :
-                                                            "default"
-                                    }
-                                    style={{ margin: 0, borderRadius: 12, padding: '0 10px' }}
-                                >
+                                <Tag color={order.status === "paid" ? "success" : order.status === "pending" ? "warning" : "processing"} style={{ margin: 0, borderRadius: 12, padding: '0 10px' }}>
                                     {order.status?.toUpperCase() || 'UNKNOWN'}
                                 </Tag>
                             </div>

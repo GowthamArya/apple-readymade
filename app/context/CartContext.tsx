@@ -103,71 +103,39 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [status, refreshCart]);
 
   const addToCart = async (item: Partial<VariantCartItem> & { id: number }, quantityDelta: number = 1) => {
-    // 1. Optimistic Update
-    const currentCart = [...cart];
-    const existingIndex = cart.findIndex(i => i.id === item.id);
-
-    if (existingIndex > -1) {
-      const updatedCart = [...cart];
-      updatedCart[existingIndex] = {
-        ...updatedCart[existingIndex],
-        quantity: updatedCart[existingIndex].quantity + quantityDelta
-      };
-      setCart(updatedCart);
+    if (status === 'authenticated') {
+      await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant_id: item.id, quantity: quantityDelta, action: 'add' })
+      });
+      await refreshCart();
     } else {
-      // We need minimal item info for optimistic UI if it's new
-      setCart(prev => [...prev, { ...item, quantity: Math.max(1, quantityDelta) } as VariantCartItem]);
-    }
-
-    // 2. Server Sync
-    try {
-      if (status === 'authenticated') {
-        await fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ variant_id: item.id, quantity: quantityDelta, action: 'add' })
-        });
-        await refreshCart();
+      const currentItems = JSON.parse(getCookie('cart') || '[]');
+      const existing = currentItems.find((i: any) => i.variant_id === item.id);
+      if (existing) {
+        existing.quantity += quantityDelta;
       } else {
-        const currentItems = JSON.parse(getCookie('cart') || '[]');
-        const existing = currentItems.find((i: any) => i.variant_id === item.id);
-        if (existing) {
-          existing.quantity += quantityDelta;
-        } else {
-          currentItems.push({ variant_id: item.id, quantity: Math.max(1, quantityDelta) });
-        }
-        setCookie('cart', JSON.stringify(currentItems));
-        await refreshCart();
+        currentItems.push({ variant_id: item.id, quantity: Math.max(1, quantityDelta) });
       }
-    } catch (err) {
-      console.error("Cart update failed, rolling back", err);
-      setCart(currentCart); // Rollback on error
+      setCookie('cart', JSON.stringify(currentItems));
+      await refreshCart();
     }
   };
 
   const removeFromCart = async (id: number) => {
-    // 1. Optimistic Update
-    const currentCart = [...cart];
-    setCart(prev => prev.filter(i => i.id !== id));
-
-    // 2. Server Sync
-    try {
-      if (status === 'authenticated') {
-        await fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ variant_id: id, action: 'remove' })
-        });
-        await refreshCart();
-      } else {
-        const currentItems = JSON.parse(getCookie('cart') || '[]');
-        const filtered = currentItems.filter((i: any) => i.variant_id !== id);
-        setCookie('cart', JSON.stringify(filtered));
-        await refreshCart();
-      }
-    } catch (err) {
-      console.error("Cart removal failed, rolling back", err);
-      setCart(currentCart);
+    if (status === 'authenticated') {
+      await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant_id: id, action: 'remove' })
+      });
+      await refreshCart();
+    } else {
+      const currentItems = JSON.parse(getCookie('cart') || '[]');
+      const filtered = currentItems.filter((i: any) => i.variant_id !== id);
+      setCookie('cart', JSON.stringify(filtered));
+      refreshCart();
     }
   };
 
