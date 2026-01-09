@@ -162,4 +162,16 @@ export default class GenericRepo<T extends { id?: number | string }> {
     if (error) throw error;
     return data ?? [];
   }
+
+  static async fetchEntityConfig(tableName: string) {
+    const { data, error } = await supabase.from("entity")
+      .select("references, name, id")
+      .eq("name", tableName)
+      .single();
+    if (error) {
+      console.error("Error fetching entity config", error);
+      return null;
+    }
+    return data;
+  }
 }

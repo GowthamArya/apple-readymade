@@ -25,7 +25,12 @@ export async function GET(
   try {
     const { entityname } = await params;
     const allEntities = await GenericRepo.fetchMetaData(entityname);
-    return NextResponse.json({ data: allEntities });
+    const entityConfig = await GenericRepo.fetchEntityConfig(entityname);
+
+    return NextResponse.json({
+      data: allEntities,
+      references: entityConfig?.references || []
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Failed to fetch data' }, { status: 500 });
   }

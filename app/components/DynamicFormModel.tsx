@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Form, Input, InputNumber, Button, Checkbox, Upload, UploadFile, message, App } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DynamicDropdown from "./DynamicDropdown";
+import RelatedEntityList from "./RelatedEntityList";
 
 // ---- Types ----
 interface MetaField {
@@ -17,6 +18,7 @@ interface DynamicFormModalProps {
   onSubmit: (result?: any) => void;
   id?: number | string | null;
   entityName: string;
+  references?: any[];
 }
 
 const normalizeUpload = (e: any): UploadFile[] => {
@@ -24,10 +26,22 @@ const normalizeUpload = (e: any): UploadFile[] => {
   return e?.fileList ?? [];
 };
 
-export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit, id, entityName }: DynamicFormModalProps) {
+export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit, id, entityName, references = [] }: DynamicFormModalProps) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const isEditing = useMemo(() => id !== undefined && id !== null && id != 0, [id]);
+  const safeReferences = useMemo(() => {
+    if (Array.isArray(references)) return references;
+    if (typeof references === "string") {
+      try {
+        const parsed = JSON.parse(references);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }, [references]);
   const { message } = App.useApp();
 
   // Fetch existing entity when opening in edit mode
@@ -117,7 +131,7 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
         <Form.Item className="p-5!" key={name} label={label} name="images" valuePropName="fileList" getValueFromEvent={normalizeUpload} rules={[{ required: !!field.required }]}>
           <Upload.Dragger
             name="file"
-            action="/api/collections"
+            action="/api/upload"
             method="POST"
             listType="picture-card"
             multiple
@@ -210,6 +224,16 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
           </Button>
         </Form.Item>
       </Form>
+
+      {isEditing && safeReferences.map((ref, idx) => (
+        <RelatedEntityList
+          key={idx}
+          tableName={ref.table}
+          foreignKey={ref.fk}
+          parentId={id!}
+          label={ref.label || ref.table}
+        />
+      ))}
     </Modal>
   );
 }

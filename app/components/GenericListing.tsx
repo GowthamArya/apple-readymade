@@ -30,6 +30,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
   const [total, setTotal] = useState(0);
   const [searchText, setSearchText] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [references, setReferences] = useState<any[]>([]);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -96,6 +97,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
         const metaDataResponse = await metaData.json();
         fetchData()
         setColumnsMetadata(metaDataResponse.data ? metaDataResponse.data : []);
+        setReferences(metaDataResponse.references || []);
 
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
@@ -315,6 +317,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
           <DynamicFormModal
             visible={modalVisible}
             metadata={columnsMetadata}
+            references={references}
             onCancel={() => setModalVisible(false)}
             onSubmit={() => {
               fetchData(page, pageSize, searchText);

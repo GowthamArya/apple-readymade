@@ -404,11 +404,11 @@ export default function CheckoutPage() {
             }
             clearCart();
             setTimeout(() => {
-              window.location.href = "/orders";
+              window.location.href = "/orders/success";
             }, 2000);
           } else {
             message.error("Verification failed.");
-            window.location.href = "/checkout/cancel";
+            window.location.href = "/orders/fail";
           }
         },
         modal: { ondismiss: () => message.info("Payment cancelled") },

@@ -6,7 +6,7 @@ export default function UploadToStorage() {
   const [urls, setUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleUpload = async () => {  
+  const handleUpload = async () => {
     if (!files.length) return;
     setLoading(true);
 
@@ -16,7 +16,7 @@ export default function UploadToStorage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("/api/collections", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
