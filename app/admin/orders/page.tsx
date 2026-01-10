@@ -71,13 +71,14 @@ export default function AdminOrdersPage() {
         }
     };
 
-    const columns = [
+    const columns: any = [
         {
             title: "ID",
             dataIndex: "id",
             key: "id",
             width: 80,
             render: (id: any) => <Text strong>#{id}</Text>,
+            sorter: (a: any, b: any) => a.id - b.id,
         },
         {
             title: "Date",
@@ -85,6 +86,8 @@ export default function AdminOrdersPage() {
             key: "date",
             width: 150,
             render: (date: string) => dayjs(date).format("MMM D, YYYY HH:mm"),
+            sorter: (a: any, b: any) => dayjs(a.created_at).valueOf() - dayjs(b.created_at).valueOf(),
+            defaultSortOrder: "descend",
         },
         {
             title: "Customer",
@@ -102,6 +105,7 @@ export default function AdminOrdersPage() {
             key: "amount",
             width: 120,
             render: (val: number) => <Text strong>₹{val}</Text>,
+            sorter: (a: any, b: any) => a.total_amount - b.total_amount,
         },
         {
             title: "Payment",
@@ -112,6 +116,14 @@ export default function AdminOrdersPage() {
                     {record.razorpay_payment_id ? "Paid" : "Unpaid"}
                 </Tag>
             ),
+            filters: [
+                { text: "Paid", value: "paid" },
+                { text: "Unpaid", value: "unpaid" },
+            ],
+            onFilter: (value: any, record: any) => {
+                const isPaid = !!record.razorpay_payment_id;
+                return value === "paid" ? isPaid : !isPaid;
+            },
         },
         {
             title: "Status",
@@ -134,6 +146,15 @@ export default function AdminOrdersPage() {
                     <Option value="returned">Returned</Option>
                 </Select>
             ),
+            filters: [
+                { text: "Pending", value: "pending" },
+                { text: "Processing", value: "proccessing" },
+                { text: "Shipped", value: "shipped" },
+                { text: "Delivered", value: "delivered" },
+                { text: "Cancelled", value: "cancelled" },
+                { text: "Returned", value: "returned" },
+            ],
+            onFilter: (value: any, record: any) => record.status === value,
         },
         {
             title: "Actions",

@@ -100,7 +100,12 @@ export default function AppHeader() {
             key: "flash-sales",
             icon: <AppstoreOutlined />,
             label: <Link href="/admin/flash-sales">Flash Sales</Link>,
-          }]
+          },
+          {
+            key: "orders",
+            icon: <AppstoreOutlined />,
+            label: <Link href="/admin/orders">Manage Orders</Link>,
+          },]
           : []),
         {
           key: "logout",
@@ -285,6 +290,11 @@ export default function AppHeader() {
                   {
                     key: "/admin/flash-sales",
                     label: <Link href="/admin/flash-sales">Flash Sales</Link>,
+                    icon: <AppstoreOutlined />,
+                  },
+                  {
+                    key: "/admin/orders",
+                    label: <Link href="/admin/orders">Manage Orders</Link>,
                     icon: <AppstoreOutlined />,
                   }]
                   : []),
