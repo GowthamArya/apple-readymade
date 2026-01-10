@@ -111,39 +111,62 @@ export default function OrderDetails({ order }: { order: any }) {
     const trackingHistory = tracking?.shipment_track_activities || [];
     const isDelivered = tracking?.current_status?.toLowerCase() === 'delivered' || order.status === 'delivered';
     const canCancel = ['paid', 'pending'].includes(order.status) && !isDelivered;
-    const canReturn = isDelivered && order.status !== 'return_requested' && order.status !== 'returned';
+
+    const deliveryActivity = tracking?.shipment_track_activities?.find((a: any) => a.activity.toLowerCase() === 'delivered');
+    // If we can't find exact delivery date from tracking, fallback to updated_at if status is delivered, else strict (false) or lenient (true)? 
+    // Let's rely on status. If status is delivered, we assume updated_at is close to delivery time if tracking fails.
+    const deliveryDate = deliveryActivity ? deliveryActivity.date : (order.status === 'delivered' ? order.updated_at : null);
+
+    // Check if within 7 days
+    const isWithin7Days = deliveryDate
+        ? (new Date().getTime() - new Date(deliveryDate).getTime()) / (1000 * 3600 * 24) <= 7
+        : false;
+
+    const canReturn = isDelivered && order.status !== 'return_requested' && order.status !== 'returned' && isWithin7Days;
 
     const error = tracking?.error;
     return (
         <div className="px-4 md:px-8 lg:px-16 py-8">
             <Typography.Title level={2}>Order #{order.id}</Typography.Title>
-            <div className="flex gap-4 mb-6">
-                <Typography.Text>
-                    Placed on {new Date(order.created_at).toLocaleDateString()}
-                </Typography.Text>
-                <Tag color={getStatusColor(order.status)}>
-                    {order.status.toUpperCase().replace('_', ' ')}
-                </Tag>
-                {canCancel && (
-                    <Button
-                        danger
-                        size="small"
-                        icon={<CloseCircleOutlined />}
-                        onClick={handleCancelOrder}
-                        loading={actionLoading}
-                    >
-                        Cancel Order
-                    </Button>
+            <div className="flex flex-col gap-2 mb-6">
+                <div className="flex gap-4 items-center">
+                    <Typography.Text>
+                        Placed on {new Date(order.created_at).toLocaleDateString()}
+                    </Typography.Text>
+                    <Tag color={getStatusColor(order.status)}>
+                        {order.status.toUpperCase().replace('_', ' ')}
+                    </Tag>
+                    {canCancel && (
+                        <Button
+                            danger
+                            size="small"
+                            icon={<CloseCircleOutlined />}
+                            onClick={handleCancelOrder}
+                            loading={actionLoading}
+                        >
+                            Cancel Order
+                        </Button>
+                    )}
+                    {canReturn && (
+                        <Button
+                            size="small"
+                            icon={<ReloadOutlined />}
+                            onClick={handleReturnOrder}
+                            loading={actionLoading}
+                        >
+                            Return Order
+                        </Button>
+                    )}
+                </div>
+                {isDelivered && !canReturn && order.status !== 'returned' && order.status !== 'return_requested' && (
+                    <Typography.Text type="secondary" className="text-xs">
+                        * Return window closed (7 days from delivery).
+                    </Typography.Text>
                 )}
                 {canReturn && (
-                    <Button
-                        size="small"
-                        icon={<ReloadOutlined />}
-                        onClick={handleReturnOrder}
-                        loading={actionLoading}
-                    >
-                        Return Order
-                    </Button>
+                    <Typography.Text type="secondary" className="text-xs">
+                        * Return available within 7 days of delivery. Refund processed as Loyalty Points within 5 working days.
+                    </Typography.Text>
                 )}
             </div>
 

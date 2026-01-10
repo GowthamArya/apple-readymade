@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { ArrowRightOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 
@@ -71,16 +71,14 @@ export default function ProductCard({ product, token, flashSale }: { product: an
           aria-label="Add to wishlist"
           type="text"
           loading={loadingFav}
-          className="bg-white/80 dark:bg-black/20 backdrop-blur-sm border-none shadow-sm hover:scale-110 transition-transform"
+          className="backdrop-blur-xl shadow-lg duration-500 transition-transform"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             handleFavorite(favorites.some((fav) => fav.id === product.id) ? 'remove' : 'add')
           }}
           icon={favorites.some((fav) => fav.id === product.id) ?
-            <MdFavorite className="text-xl text-red-500 animate-in zoom-in" />
-            :
-            <GrFavorite className="text-xl" />
+            <HeartFilled style={{ color: 'red' }} className="text-xl text-red-500! animate-in zoom-in" /> : <HeartOutlined className="text-xl" />
           }
         />
       </div>

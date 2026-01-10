@@ -3,16 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
 import { cancelShiprocketOrder } from "@/lib/shiprocket";
-import Razorpay from "razorpay";
-
-function getRazorpay() {
-    const key_id = process.env.RAZORPAY_KEY_ID;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
-    if (!key_id || !key_secret) {
-        throw new Error("Razorpay env vars missing");
-    }
-    return new Razorpay({ key_id, key_secret });
-}
+import { getRazorpay, processRefund } from "@/lib/razorpay";
 
 export async function POST(req: Request) {
     try {
@@ -50,17 +41,11 @@ export async function POST(req: Request) {
         let isRefunded = false;
         if (order.status === 'paid' && order.razorpay_payment_id) {
             try {
-                const razorpay = getRazorpay();
-                // Refund full amount (in paise)
-                const refundAmount = Math.round(order.total_amount * 100);
-                await razorpay.payments.refund(order.razorpay_payment_id, {
-                    amount: refundAmount,
-                    notes: {
-                        reason: "User cancelled order",
-                        order_id: order.id.toString()
-                    }
+                await processRefund(order.razorpay_payment_id, order.total_amount, {
+                    reason: "User cancelled order",
+                    order_id: order.id.toString()
                 });
-                console.log(`Refunded ${refundAmount} for order ${order.id}`);
+                console.log(`Refunded ${order.total_amount} for order ${order.id}`);
                 isRefunded = true;
             } catch (refundError: any) {
                 console.error("Razorpay Refund Error:", refundError);

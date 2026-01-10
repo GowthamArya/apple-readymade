@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, Radio, Image, Typography, Space, Tag, Button, theme, App } from "antd";
-import { ShoppingCartOutlined, ShareAltOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
+import { ShoppingCartOutlined, ShareAltOutlined, HeartOutlined, HeartFilled, SyncOutlined } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import { useFavorites } from "../context/FavoriteContext";
@@ -295,6 +295,18 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 icon={<ShareAltOutlined />}
                 onClick={handleShare}
               />
+            </div>
+
+            <div className="mt-4 p-4 rounded-lg" style={{ border: `1px solid ${token.colorBorder}` }}>
+              <Space align="start" size={12}>
+                <SyncOutlined style={{ fontSize: 20, color: token.colorPrimary }} />
+                <div className="flex flex-col">
+                  <Typography.Text strong>Easy Return Policy</Typography.Text>
+                  <Typography.Text type="secondary" className="text-sm">
+                    Return applicable within 7 days of delivery. Refund will be processed as Loyalty Points within 5 working days after receiving the return.
+                  </Typography.Text>
+                </div>
+              </Space>
             </div>
           </Space>
         </div>
