@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App, Radio, Spin } from "antd";
+import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App, Radio, Spin, Result } from "antd";
 import { DeleteOutlined, EditOutlined, EnvironmentOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
@@ -45,7 +45,9 @@ export default function CheckoutPage() {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [pincodeLoading, setPincodeLoading] = useState(false);
+
   const [locationLoading, setLocationLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     fetch("/api/user/points")
@@ -119,8 +121,10 @@ export default function CheckoutPage() {
         const { latitude, longitude } = position.coords;
         try {
           // Use OpenStreetMap Nominatim for free reverse geocoding
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`);
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=13&lat=${latitude}&lon=${longitude}&addressdetails=1`);
           const data = await res.json();
+          console.log("Data", { position });
+          console.log("Data", { data });
           if (data.address) {
             const addr = data.address;
             form.setFieldsValue({
@@ -402,10 +406,11 @@ export default function CheckoutPage() {
             } else {
               message.success("Payment successful and order placed!");
             }
-            clearCart();
+            setIsSuccess(true);
             setTimeout(() => {
+              clearCart();
               window.location.href = "/orders/success";
-            }, 2000);
+            }, 1000);
           } else {
             message.error("Verification failed.");
             window.location.href = "/orders/fail";
@@ -426,346 +431,362 @@ export default function CheckoutPage() {
 
   return (
     <div className="px-4 md:px-10 lg:px-16 py-10">
-
-      <Typography.Title level={2} style={{ color: token.colorTextHeading, marginBottom: token.marginSM }}>
-        Checkout
-      </Typography.Title>
-
-      <FlashSaleBanner />
-      {!cart.length ? (
-        <Card>
-          <Space orientation="vertical" size="middle">
-            <Typography.Text>Your cart is empty.</Typography.Text>
-            <Link href="/collections">
-              <Button type="primary">Browse Products</Button>
-            </Link>
-          </Space>
-        </Card>
+      {isSuccess ? (
+        <div className="fixed inset-0 bg-white z-[5000] flex flex-col items-center justify-center">
+          <Result
+            status="success"
+            title="Payment Successful!"
+            subTitle="Please wait while we redirect you to the success page..."
+            icon={<Spin size="large" />}
+          />
+        </div>
       ) : (
-        <Row gutter={[24, 24]}>
-          {/* Left: Contact + Address + Review items */}
-          <Col xs={24} md={16}>
-            <Card
-              title="Contact information"
-              styles={{ header: { borderBottom: `1px solid ${token.colorBorderSecondary}` } }}
-            >
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={(values: any) => {
-                  void payWithRazorpay(values);
-                }}
-              >
-                <Row gutter={16}>
-                  <Col xs={24} md={12}>
-                    <Form.Item
-                      label="Full name"
-                      name="name"
-                      rules={[{ required: true, message: "Please enter full name" }]}
-                    >
-                      <Input placeholder="John Doe" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Form.Item
-                      label="Email"
-                      name="email"
-                      rules={[{ required: true, type: "email", message: "Enter a valid email" }]}
-                    >
-                      <Input placeholder="john@example.com" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} md={12}>
-                    <Form.Item
-                      label="Phone"
-                      name="phone"
-                      normalize={(value) => value.replace(/\D/g, "")}
-                      rules={[
-                        { required: true, message: "Enter your phone number" },
-                        { pattern: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number" },
-                      ]}
-                    >
-                      <Input placeholder="9876543210" maxLength={10} type="tel" />
-                    </Form.Item>
-                  </Col>
-                </Row>
+        <>
 
-                <Divider />
+          <Typography.Title level={2} style={{ color: token.colorTextHeading, marginBottom: token.marginSM }}>
+            Checkout
+          </Typography.Title>
 
-                <Typography.Title level={5} style={{ marginBottom: token.marginSM }}>
-                  Shipping address
-                </Typography.Title>
-
-                {addresses.length > 0 && (
-                  <div className="mb-6">
-                    <Typography.Text type="secondary" className="mb-2 block">Choose from saved addresses:</Typography.Text>
-                    <Radio.Group
-                      value={selectedAddressId}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        setSelectedAddressId(id);
-                        if (id === "new") {
-                          form.resetFields(["address", "pincode", "city", "state"]);
-                          setShippingAmount(0);
-                          setShippingRates(null);
-                        } else {
-                          const addr = addresses.find(a => a.id === id);
-                          fillFormWithAddress(addr);
-                        }
-                      }}
-                      className="w-full flex flex-col "
-                    >
-                      {addresses.map((addr) => (
-                        <div key={addr.id} className="group relative">
-                          <Radio value={addr.id} className="border mb-2! px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
-                            <div className="inline-block ml-2 pr-16">
-                              <Typography.Text strong className="block">{addr.line1}</Typography.Text>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {addr.line2 && `${addr.line2}, `}{addr.street && `${addr.street}, `}{addr.city} - {addr.pincode}
-                                {addr.state && `, ${addr.state}`}
-                              </div>
-                            </div>
-                          </Radio>
-                          <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              type="text"
-                              size="small"
-                              icon={<EditOutlined className="text-blue-500" />}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleEditAddress(addr);
-                              }}
-                            />
-                            <Button
-                              type="text"
-                              size="small"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleDeleteAddress(addr.id);
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                      <Radio value="new" className="border px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
-                        <span className="ml-2 font-medium flex items-center gap-2">
-                          <PlusOutlined className="text-xs" />
-                          {isEditingAddress ? "Editing Address" : "Add New Address"}
-                        </span>
-                      </Radio>
-                    </Radio.Group>
-                  </div>
-                )}
-
-                {selectedAddressId === "new" && (
-                  <div className="bg-gray-50/50 p-4 rounded-lg border border-dashed border-gray-300 mb-6">
-                    <div className="mb-4 flex justify-between items-center">
-                      <Typography.Text strong>{isEditingAddress ? "Edit Details" : "Enter Details"}</Typography.Text>
-                      <Button
-                        size="small"
-                        icon={<EnvironmentOutlined />}
-                        onClick={getCurrentLocation}
-                        loading={locationLoading}
-                      >
-                        Use Current Location
-                      </Button>
-                    </div>
-                    <Row gutter={16}>
-                      <Col xs={24} md={24}>
-                        <Form.Item
-                          label="Address (Flat, House no., Building, Company, Apartment)"
-                          name="address"
-                          rules={[{ required: true, message: "Please enter address" }]}
-                        >
-                          <Input placeholder="Flat 101, Apple Residency" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="Area, Street, Sector, Village" name="line2">
-                          <Input placeholder="Madhapur" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={12}>
-                        <Form.Item label="Landmark (Optional)" name="street">
-                          <Input placeholder="Near Hitech City Metro" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item
-                          label="Pincode"
-                          name="pincode"
-                          normalize={(value) => value.replace(/\D/g, "")}
-                          rules={[
-                            { required: true, message: "Enter pincode" },
-                            { pattern: /^[1-9][0-9]{5}$/, message: "Enter a valid 6-digit pincode" },
-                          ]}
-                        >
-                          <Input
-                            placeholder="508207"
-                            onChange={(e) => {
-                              if (e.target.value.length === 6) {
-                                fetchPincodeDetails(e.target.value);
-                              }
-                            }}
-                            maxLength={6}
-                            disabled={pincodeLoading}
-                            suffix={pincodeLoading ? <Spin size="small" /> : null}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item label="City" name="city" rules={[{ required: true }]}>
-                          <Input placeholder="Hyderabad" />
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} md={8}>
-                        <Form.Item label="State" name="state" rules={[{ required: true }]}>
-                          <Input placeholder="Telangana" />
-                        </Form.Item>
-                      </Col>
-                      {isEditingAddress && (
-                        <Col xs={24}>
-                          <Button
-                            type="link"
-                            className="p-0 h-auto"
-                            onClick={() => {
-                              setIsEditingAddress(false);
-                              setEditingAddressId(null);
-                              form.resetFields(["address", "line2", "street", "pincode", "city", "state"]);
-                            }}
-                          >
-                            Cancel editing and add new instead
-                          </Button>
-                        </Col>
-                      )}
-                    </Row>
-                  </div>
-                )}
-
-                {shippingLoading && (
-                  <div className="my-4 text-center">
-                    <Spin size="small" /> Calculating shipping rates...
-                  </div>
-                )}
-
-                {shippingRates && (
-                  <div className="my-4 p-3 border rounded" style={{ borderColor: token.colorPrimary }}>
-                    <Typography.Text strong className="block mb-1">
-                      Shipping estimated: ₹{shippingAmount}
-                    </Typography.Text>
-                    <Typography.Text type="secondary" className="text-xs">
-                      Delivery expected in {shippingRates[0]?.etd || "3-5 days"} via {shippingRates[0]?.courier_name}
-                    </Typography.Text>
-                  </div>
-                )}
-
-                <Divider />
-
-                <Typography.Title level={5} style={{ marginBottom: token.marginSM }}>
-                  Review items
-                </Typography.Title>
-
-                <Space orientation="vertical" style={{ width: "100%" }} size="middle">
-                  {cart.map((item: any) => (
-                    <Card
-                      key={item.id}
-                      size="small"
-                      styles={{ body: { padding: 12 } }}
-                      style={{ borderColor: token.colorBorderSecondary }}
-                    >
-                      <div className="flex gap-3">
-                        <img
-                          src={item.image_urls?.[0] || "/no-image.png"}
-                          alt={item.product?.name}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <Typography.Text strong>{item.product?.name}</Typography.Text>
-                          <div className="text-sm text-gray-500">
-                            {item.size ? `Size: ${item.size} ` : ""} {item.color ? `• Color: ${item.color}` : ""}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Typography.Text>₹{item.price}</Typography.Text>
-                            <Space.Compact>
-                              <InputNumber
-                                min={1}
-                                value={item.quantity}
-                                onChange={(val) => handleQtyChange(Number(val || 1), item.id)}
-                              />
-                              <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
-                            </Space.Compact>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </Space>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <Link href="/cart?activeTab=cart">
-                    <Button>Back to Cart</Button>
-                  </Link>
-                  <Button type="primary" htmlType="submit" loading={paying}>
-                    Pay ₹{total}
-                  </Button>
-                </div>
-              </Form>
-            </Card>
-          </Col>
-
-          {/* Right: Order summary */}
-          <Col xs={24} md={8}>
-            <Card title="Order summary">
-              <Space orientation="vertical" style={{ width: "100%" }}>
-                <div className="flex justify-between">
-                  <Typography.Text>Subtotal</Typography.Text>
-                  <Typography.Text>₹{subtotal}</Typography.Text>
-                </div>
-
-                <div className="flex justify-between">
-                  <Typography.Text>Shipping</Typography.Text>
-                  <Typography.Text>{shippingAmount > 0 ? `₹${shippingAmount}` : (shippingLoading ? <Spin size="small" /> : 'Calculated at next step')}</Typography.Text>
-                </div>
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Coupon Code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    disabled={!!appliedCoupon}
-                  />
-                  {appliedCoupon ? (
-                    <Button danger onClick={removeCoupon}>Remove</Button>
-                  ) : (
-                    <Button type="primary" onClick={applyCoupon} loading={couponLoading}>Apply</Button>
-                  )}
-                </div>
-                {appliedCoupon && (
-                  <div className="flex justify-between text-green-600">
-                    <Typography.Text type="success">Discount ({appliedCoupon.coupon_code})</Typography.Text>
-                    <Typography.Text type="success">-₹{discountAmount}</Typography.Text>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <Typography.Text strong>Total</Typography.Text>
-                  <Typography.Text strong>₹{total}</Typography.Text>
-                </div>
-                <Button
-                  type="primary"
-                  onClick={() => form.submit()}
-                  loading={paying}
-                  block
-                >
-                  Pay ₹{total}
-                </Button>
+          <FlashSaleBanner />
+          {!cart.length ? (
+            <Card>
+              <Space orientation="vertical" size="middle">
+                <Typography.Text>Your cart is empty.</Typography.Text>
+                <Link href="/collections">
+                  <Button type="primary">Browse Products</Button>
+                </Link>
               </Space>
             </Card>
-          </Col>
-        </Row>
+          ) : (
+            <Row gutter={[24, 24]}>
+              {/* Left: Contact + Address + Review items */}
+              <Col xs={24} md={16}>
+                <Card
+                  title="Contact information"
+                  styles={{ header: { borderBottom: `1px solid ${token.colorBorderSecondary}` } }}
+                >
+                  <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={(values: any) => {
+                      void payWithRazorpay(values);
+                    }}
+                    onFinishFailed={() => {
+                      message.error("Please fill in all required fields.");
+                    }}
+                  >
+                    <Row gutter={16}>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Full name"
+                          name="name"
+                          rules={[{ required: true, message: "Please enter full name" }]}
+                        >
+                          <Input placeholder="John Doe" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Email"
+                          name="email"
+                          rules={[{ required: true, type: "email", message: "Enter a valid email" }]}
+                        >
+                          <Input placeholder="john@example.com" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label="Phone"
+                          name="phone"
+                          normalize={(value) => value.replace(/\D/g, "")}
+                          rules={[
+                            { required: true, message: "Enter your phone number" },
+                            { pattern: /^[6789]\d{9}$/, message: "Enter a valid 10-digit phone number" },
+                          ]}
+                        >
+                          <Input placeholder="9876543210" maxLength={10} type="tel" />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+
+                    <Divider />
+
+                    <Typography.Title level={5} style={{ marginBottom: token.marginSM }}>
+                      Shipping address
+                    </Typography.Title>
+
+                    {addresses.length > 0 && (
+                      <div className="mb-6">
+                        <Typography.Text type="secondary" className="mb-2 block">Choose from saved addresses:</Typography.Text>
+                        <Radio.Group
+                          value={selectedAddressId}
+                          onChange={(e) => {
+                            const id = e.target.value;
+                            setSelectedAddressId(id);
+                            if (id === "new") {
+                              form.resetFields(["address", "pincode", "city", "state"]);
+                              setShippingAmount(0);
+                              setShippingRates(null);
+                            } else {
+                              const addr = addresses.find(a => a.id === id);
+                              fillFormWithAddress(addr);
+                            }
+                          }}
+                          className="w-full flex flex-col "
+                        >
+                          {addresses.map((addr) => (
+                            <div key={addr.id} className="group relative">
+                              <Radio value={addr.id} className="border mb-2! px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
+                                <div className="inline-block ml-2 pr-16">
+                                  <Typography.Text strong className="block">{addr.line1}</Typography.Text>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {addr.line2 && `${addr.line2}, `}{addr.street && `${addr.street}, `}{addr.city} - {addr.pincode}
+                                    {addr.state && `, ${addr.state}`}
+                                  </div>
+                                </div>
+                              </Radio>
+                              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={<EditOutlined className="text-blue-500" />}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleEditAddress(addr);
+                                  }}
+                                />
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleDeleteAddress(addr.id);
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          <Radio value="new" className="border px-3! py-3! rounded w-full hover:border-blue-400 transition-colors">
+                            <span className="ml-2 font-medium flex items-center gap-2">
+                              <PlusOutlined className="text-xs" />
+                              {isEditingAddress ? "Editing Address" : "Add New Address"}
+                            </span>
+                          </Radio>
+                        </Radio.Group>
+                      </div>
+                    )}
+
+                    {selectedAddressId === "new" && (
+                      <div className="bg-gray-50/50 p-4 rounded-lg border border-dashed border-gray-300 mb-6">
+                        <div className="mb-4 flex justify-between items-center">
+                          <Typography.Text strong>{isEditingAddress ? "Edit Details" : "Enter Details"}</Typography.Text>
+                          <Button
+                            size="small"
+                            icon={<EnvironmentOutlined />}
+                            onClick={getCurrentLocation}
+                            loading={locationLoading}
+                          >
+                            Use Current Location
+                          </Button>
+                        </div>
+                        <Row gutter={16}>
+                          <Col xs={24} md={24}>
+                            <Form.Item
+                              label="Address (Flat, House no., Building, Company, Apartment)"
+                              name="address"
+                              rules={[{ required: true, message: "Please enter address" }]}
+                            >
+                              <Input placeholder="Flat 101, Apple Residency" />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} md={12}>
+                            <Form.Item label="Area, Street, Sector, Village" name="line2" rules={[{ required: true, message: "Please enter street" }]}>
+                              <Input placeholder="Madhapur" />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} md={12}>
+                            <Form.Item label="Landmark (Optional)" name="street">
+                              <Input placeholder="Near Hitech City Metro" />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} md={8}>
+                            <Form.Item
+                              label="Pincode"
+                              name="pincode"
+                              normalize={(value) => value.replace(/\D/g, "")}
+                              rules={[
+                                { required: true, message: "Enter pincode" },
+                                { pattern: /^[1-9][0-9]{5}$/, message: "Enter a valid 6-digit pincode" },
+                              ]}
+                            >
+                              <Input
+                                placeholder="508207"
+                                onChange={(e) => {
+                                  if (e.target.value.length === 6) {
+                                    fetchPincodeDetails(e.target.value);
+                                  }
+                                }}
+                                maxLength={6}
+                                disabled={pincodeLoading}
+                                suffix={pincodeLoading ? <Spin size="small" /> : null}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} md={8}>
+                            <Form.Item label="City" name="city" rules={[{ required: true }]}>
+                              <Input placeholder="Hyderabad" />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} md={8}>
+                            <Form.Item label="State" name="state" rules={[{ required: true }]}>
+                              <Input placeholder="Telangana" />
+                            </Form.Item>
+                          </Col>
+                          {isEditingAddress && (
+                            <Col xs={24}>
+                              <Button
+                                type="link"
+                                className="p-0 h-auto"
+                                onClick={() => {
+                                  setIsEditingAddress(false);
+                                  setEditingAddressId(null);
+                                  form.resetFields(["address", "line2", "street", "pincode", "city", "state"]);
+                                }}
+                              >
+                                Cancel editing and add new instead
+                              </Button>
+                            </Col>
+                          )}
+                        </Row>
+                      </div>
+                    )}
+
+                    {shippingLoading && (
+                      <div className="my-4 text-center">
+                        <Spin size="small" /> Calculating shipping rates...
+                      </div>
+                    )}
+
+                    {shippingRates && (
+                      <div className="my-4 p-3 border rounded" style={{ borderColor: token.colorPrimary }}>
+                        <Typography.Text strong className="block mb-1">
+                          Shipping estimated: ₹{shippingAmount}
+                        </Typography.Text>
+                        <Typography.Text type="secondary" className="text-xs">
+                          Delivery expected in {shippingRates[0]?.etd || "3-5 days"} via {shippingRates[0]?.courier_name}
+                        </Typography.Text>
+                      </div>
+                    )}
+
+                    <Divider />
+
+                    <Typography.Title level={5} style={{ marginBottom: token.marginSM }}>
+                      Review items
+                    </Typography.Title>
+
+                    <Space orientation="vertical" style={{ width: "100%" }} size="middle">
+                      {cart.map((item: any) => (
+                        <Card
+                          key={item.id}
+                          size="small"
+                          styles={{ body: { padding: 12 } }}
+                          style={{ borderColor: token.colorBorderSecondary }}
+                        >
+                          <div className="flex gap-3">
+                            <img
+                              src={item.image_urls?.[0] || "/no-image.png"}
+                              alt={item.product?.name}
+                              className="w-20 h-20 object-cover rounded"
+                            />
+                            <div className="flex-1">
+                              <Typography.Text strong>{item.product?.name}</Typography.Text>
+                              <div className="text-sm text-gray-500">
+                                {item.size ? `Size: ${item.size} ` : ""} {item.color ? `• Color: ${item.color}` : ""}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Typography.Text>₹{item.price}</Typography.Text>
+                                <Space.Compact>
+                                  <InputNumber
+                                    min={1}
+                                    value={item.quantity}
+                                    onChange={(val) => handleQtyChange(Number(val || 1), item.id)}
+                                  />
+                                  <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
+                                </Space.Compact>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </Space>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <Link href="/cart?activeTab=cart">
+                        <Button>Back to Cart</Button>
+                      </Link>
+                      <Button type="primary" htmlType="submit" loading={paying}>
+                        Pay ₹{total}
+                      </Button>
+                    </div>
+                  </Form>
+                </Card>
+              </Col>
+
+              {/* Right: Order summary */}
+              <Col xs={24} md={8}>
+                <Card title="Order summary">
+                  <Space orientation="vertical" style={{ width: "100%" }}>
+                    <div className="flex justify-between">
+                      <Typography.Text>Subtotal</Typography.Text>
+                      <Typography.Text>₹{subtotal}</Typography.Text>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <Typography.Text>Shipping</Typography.Text>
+                      <Typography.Text>{shippingAmount > 0 ? `₹${shippingAmount}` : (shippingLoading ? <Spin size="small" /> : 'Calculated at next step')}</Typography.Text>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Coupon Code"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        disabled={!!appliedCoupon}
+                      />
+                      {appliedCoupon ? (
+                        <Button danger onClick={removeCoupon}>Remove</Button>
+                      ) : (
+                        <Button type="primary" onClick={applyCoupon} loading={couponLoading}>Apply</Button>
+                      )}
+                    </div>
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-green-600">
+                        <Typography.Text type="success">Discount ({appliedCoupon.coupon_code})</Typography.Text>
+                        <Typography.Text type="success">-₹{discountAmount}</Typography.Text>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <Typography.Text strong>Total</Typography.Text>
+                      <Typography.Text strong>₹{total}</Typography.Text>
+                    </div>
+                    <Button
+                      type="primary"
+                      onClick={() => form.submit()}
+                      loading={paying}
+                      block
+                    >
+                      Pay ₹{total}
+                    </Button>
+                  </Space>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </>
       )}
     </div>
   );

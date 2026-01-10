@@ -104,10 +104,10 @@ export async function DELETE(req: Request) {
         return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    // Soft delete by setting status_id to 0 (or something else)
+    // Soft delete by setting status_id to null
     const { error } = await supabase
         .from("address")
-        .update({ status_id: 0 })
+        .update({ status_id: 2 })
         .eq("id", id)
         .eq("user_id", session.user.id);
 

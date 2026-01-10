@@ -29,16 +29,16 @@ export async function POST(req: Request) {
 
         // 2. Check if order can be returned
         // Usually only if delivered
-        // if (order.status !== 'delivered') {
-        //   return NextResponse.json({ error: "Only delivered orders can be returned" }, { status: 400 });
-        // }
+        if (order.status !== 'delivered') {
+            return NextResponse.json({ error: "Only delivered orders can be returned" }, { status: 400 });
+        }
 
         // 3. Update Order Status in DB
         const { error: updateError } = await supabase
             .from('orders')
             .update({
                 status: 'return_requested',
-                return_reason: reason // Assuming this column exists or we just want to track it
+                //return_reason: reason // Assuming this column exists or we just want to track it
             })
             .eq('id', orderId);
 

@@ -25,6 +25,7 @@ import subscribeToPush from "@/lib/config/push-subscription";
 import { createClient } from "@/utils/supabase/client";
 import SearchInput from "./SearchInput";
 import { id } from "zod/v4/locales";
+import InstallPrompt from "./InstallPrompt";
 
 function ThemeToggle() {
   const { mode, setMode } = useThemeMode("dark");
@@ -132,8 +133,10 @@ export default function AppHeader() {
         maxWidth: "100% !important",
         background: token.colorBgContainer,
         padding: '0 20px',
+        height: 'auto', // Allow height to grow
       }}
     >
+      <InstallPrompt />
       <Flex align="center" justify="space-between" gap={16} style={{ height: '100%' }}>
         {/* Left: Logo */}
         {!mobileSearchVisible && (

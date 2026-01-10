@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         // Should not be 'shipped', 'delivered', 'cancelled', or 'returned'
         const nonCancellableStatuses = ['shipped', 'delivered', 'cancelled', 'returned', 'return_requested'];
         if (nonCancellableStatuses.includes(order.status)) {
-            return NextResponse.json({ error: `Order cannot be cancelled. Current status: ${order.status}` }, { status: 400 });
+            return NextResponse.json({ error: `Order cannot be cancelled. Current status: ${order.status}. Please contact support - +91 9849521212.` }, { status: 400 });
         }
 
         // 3. Refund via Razorpay if paid

@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Typography, Row, Col, theme } from 'antd';
 import SubscribeForm from './Home/SubscribeForm';
+
 const { useToken } = theme;
 
 const { Title, Text } = Typography;
@@ -33,6 +34,7 @@ export default function Footer() {
   const { token } = useToken();
   return (
     <footer data-scroll className="p-6" style={{ backgroundColor: token.colorBgContainer, borderTop: `1px solid ${token.colorBorder}` }}>
+
       <Row gutter={[32, 32]} justify="center" className="max-w-7xl mx-auto">
         <Col xs={24} md={8}>
           <div className="flex items-center space-x-3 mb-4">

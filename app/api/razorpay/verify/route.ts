@@ -2,6 +2,7 @@
 import crypto from "crypto";
 import { supabase } from "@/lib/supabaseServer";
 import { createShiprocketOrder } from "@/lib/shiprocket";
+import { sendOrderNotificationToAdmin } from "@/lib/emailService";
 
 export const runtime = "nodejs";          // use Node runtime for crypto
 
@@ -131,6 +132,10 @@ export async function POST(req: Request) {
           }).eq('id', orderData.id);
 
           console.log("Shiprocket order created:", shiprocketOrder.order_id);
+
+          // Send Admin Notification
+          await sendOrderNotificationToAdmin(orderData, orderItems);
+
           return Response.json({ verified: true, shiprocket_order_id: shiprocketOrder.order_id }, { status: 200 });
         } catch (srError: any) {
           console.error("Shiprocket integration failed:", srError);

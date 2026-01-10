@@ -7,7 +7,7 @@ import { SessionProvider } from "next-auth/react";
 import { LoadingProvider } from "../context/LoadingContext";
 import Header from "./Header";
 import LoadingLayer from "./LoadingLayer";
-import InstallPrompt from "./InstallPrompt";
+
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
@@ -60,7 +60,7 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
             <LoadingProvider>
               <ErrorLogger />
               <SessionHandler />
-              <InstallPrompt />
+
               <ScrollToTop />
 
               <Header />

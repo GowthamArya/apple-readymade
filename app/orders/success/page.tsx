@@ -1,18 +1,32 @@
 "use client";
 
-import { Button, Result, Typography, theme } from "antd";
+import { Button, Typography } from "antd";
 import Link from "next/link";
 import { CheckCircleFilled } from "@ant-design/icons";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 
 export default function OrderSuccessPage() {
-    const { token } = theme.useToken();
     const { clearCart } = useCart();
+    const router = useRouter();
+    const [count, setCount] = useState(6);
 
     useEffect(() => {
-        // Ensure cart is cleared on success
         clearCart();
+
+        const timer = setInterval(() => {
+            setCount((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    router.push("/orders");
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
     }, []);
 
     return (
@@ -34,6 +48,8 @@ export default function OrderSuccessPage() {
                 </Typography.Title>
                 <Typography.Text className="text-gray-500 text-lg mb-8 block">
                     Your order has been successfully placed. We've sent a confirmation email to you.
+                    <br />
+                    <span className="text-sm text-gray-400">Redirecting to orders in {count}s...</span>
                 </Typography.Text>
 
                 <div className="flex gap-4 justify-center">
