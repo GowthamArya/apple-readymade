@@ -8,9 +8,12 @@ import { LoadingProvider } from "../context/LoadingContext";
 import Header from "./Header";
 import LoadingLayer from "./LoadingLayer";
 
+import OfflineGame from "./OfflineGame";
+
 import { CartProvider } from "../context/CartContext";
 import { FavoritesProvider } from "../context/FavoriteContext";
 import { ThemeContext } from "../context/ThemeContext";
+import { GameProvider } from "../context/GameContext"; // Import GameProvider
 import ErrorLogger from "./ErrorLogger";
 import ScrollToTop from "./ScrollToTop";
 import SessionHandler from "./SessionHandler";
@@ -57,23 +60,25 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
       <ThemeContext initialMode={initialTheme}>
         <CartProvider>
           <FavoritesProvider>
-            <LoadingProvider>
-              <ErrorLogger />
-              <SessionHandler />
+            <GameProvider>
+              <LoadingProvider>
+                <ErrorLogger />
+                <SessionHandler />
 
-              <ScrollToTop />
+                <ScrollToTop />
+                <OfflineGame />
 
-              <Header />
+                <Header />
 
-              <LoadingLayer />
+                <LoadingLayer />
 
-              <ThemedMain>
-                {children}
-              </ThemedMain>
-              <BottomNav />
+                <ThemedMain>
+                  {children}
+                </ThemedMain>
+                <BottomNav />
 
-              <Script id="chatbase-loader" strategy="afterInteractive">
-                {`
+                <Script id="chatbase-loader" strategy="afterInteractive">
+                  {`
                   window.addEventListener("load", function() {
                     try {
                       const script = document.createElement("script");
@@ -86,9 +91,10 @@ export default function ClientLayout({ children, initialTheme }: { children: Rea
                     }
                   });
                 `}
-              </Script>
+                </Script>
 
-            </LoadingProvider>
+              </LoadingProvider>
+            </GameProvider>
           </FavoritesProvider>
         </CartProvider>
       </ThemeContext>

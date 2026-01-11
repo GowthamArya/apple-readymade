@@ -1,12 +1,4 @@
-const withPWAInit = require('next-pwa');
-const isDev = process.env.NODE_ENV === 'development';
 
-const withPWA = withPWAInit({
-  dest: "public",
-  register: false, // Manually register
-  skipWaiting: true,
-  disable: true, // Disable auto-generation to use manual sw.js
-});
 
 const nextConfig = {
   reactStrictMode: true,
@@ -41,5 +33,5 @@ const nextConfig = {
   },
 };
 
-// module.exports = withPWA(nextConfig);
+
 module.exports = nextConfig;

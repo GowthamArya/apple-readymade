@@ -1,9 +1,10 @@
 "use client"
 import { Card, Col, Divider, Image, Row, Tag, Typography, Timeline, Button, Spin, Empty } from "antd";
 import { useEffect, useState } from "react";
-import { TruckOutlined, InfoCircleOutlined, CloseCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import { TruckOutlined, InfoCircleOutlined, CloseCircleOutlined, ReloadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { Modal, message } from "antd";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function OrderDetails({ order }: { order: any }) {
     const [tracking, setTracking] = useState<any>(null);
@@ -127,7 +128,16 @@ export default function OrderDetails({ order }: { order: any }) {
     const error = tracking?.error;
     return (
         <div className="px-4 md:px-8 lg:px-16 py-8">
-            <Typography.Title level={2}>Order #{order.id}</Typography.Title>
+            <div className="flex items-center gap-4 mb-4">
+                <Button
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => router.back()}
+                    shape="circle"
+                    type="text"
+                    size="large"
+                />
+                <Typography.Title level={2} className="m-0!">Order #{order.id}</Typography.Title>
+            </div>
             <div className="flex flex-col gap-2 mb-6">
                 <div className="flex gap-4 items-center">
                     <Typography.Text>
@@ -179,17 +189,22 @@ export default function OrderDetails({ order }: { order: any }) {
 
                             return (
                                 <div key={item.id} className="flex gap-4 mb-4 border-b pb-4 last:border-0 last:pb-0">
-                                    <Image
-                                        src={imageUrl || "/no-image.png"}
-                                        alt={item.product?.name}
-                                        width={80}
-                                        height={80}
-                                        style={{ objectFit: "cover", borderRadius: 8 }}
-                                    />
+                                    <Link href={`/variant/${item.variant_id}`}>
+                                        <Image
+                                            src={imageUrl || "/no-image.png"}
+                                            alt={item.product?.name}
+                                            width={80}
+                                            height={80}
+                                            style={{ objectFit: "cover", borderRadius: 8 }}
+                                            preview={false}
+                                        />
+                                    </Link>
                                     <div className="flex-1">
-                                        <Typography.Text strong className="block text-lg">
-                                            {item.product?.name}
-                                        </Typography.Text>
+                                        <Link href={`/variant/${item.variant_id}`}>
+                                            <Typography.Text strong className="block text-lg hover:text-blue-500 transition-colors">
+                                                {item.product?.name}
+                                            </Typography.Text>
+                                        </Link>
                                         <Typography.Text>
                                             Qty: {item.quantity} × ₹{item.price}
                                         </Typography.Text>

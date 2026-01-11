@@ -116,7 +116,7 @@ export default class GenericRepo<T extends { id?: number | string }> {
       const { column, ascending = true } = requestData.orderBy;
       query = query.order(column, { ascending });
     } else {
-      query = query.order("created_on", { ascending: false });
+      query = query.order("id", { ascending: false });
     }
 
     if (requestData?.search) {

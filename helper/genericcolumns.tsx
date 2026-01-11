@@ -1,8 +1,8 @@
 import { Button, Space, Popconfirm, Carousel, Image } from 'antd';
-import { EditOutlined, DeleteOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
+import { DeleteOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
 
 export function generateMetadataColumns(entityMetadata: any, onEdit: (record: any) => void, onDelete: (record: any) => void, onView?: (record: any) => void) {
-  entityMetadata = [{ value: "id", sortable: true }, ...entityMetadata];
+  entityMetadata = [{ value: "id", sortable: true, displayOrder: 0, width: 70 }, ...entityMetadata];
   entityMetadata.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
 
   const columns = entityMetadata
@@ -12,14 +12,15 @@ export function generateMetadataColumns(entityMetadata: any, onEdit: (record: an
       title: columnMetaData.value.charAt(0).toUpperCase() + columnMetaData.value.slice(1).replace(/_/g, " "),
       dataIndex: columnMetaData.value,
       key: columnMetaData.id,
+      width: columnMetaData.width,
       value: columnMetaData.value,
       sorter: columnMetaData.sortable
         ? (a: any, b: any) => {
-            if (typeof a[columnMetaData.value] === "number" && typeof b[columnMetaData.value] === "number") {
-              return a[columnMetaData.value] - b[columnMetaData.value];
-            }
-            return String(a[columnMetaData.value]).localeCompare(String(b[columnMetaData.value]));
+          if (typeof a[columnMetaData.value] === "number" && typeof b[columnMetaData.value] === "number") {
+            return a[columnMetaData.value] - b[columnMetaData.value];
           }
+          return String(a[columnMetaData.value]).localeCompare(String(b[columnMetaData.value]));
+        }
         : undefined,
       render: (value: any) => {
         if (columnMetaData.value === "image_urls" && Array.isArray(value) && value.length > 0) {

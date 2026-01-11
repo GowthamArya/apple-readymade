@@ -6,7 +6,7 @@ export async function GET(request: Request) {
 
   const searchQuery = searchParams.get('searchQuery') || '';
   const category = searchParams.get('category') || '';
-  const sortBy = searchParams.get('sortBy') || 'created_on';
+  const sortBy = searchParams.get('sortBy') || 'id';
   const sortOrder = searchParams.get('sortOrder') || 'desc';
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('pageSize') || '20');

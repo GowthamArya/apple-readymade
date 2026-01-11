@@ -5,8 +5,9 @@ import {
   FacebookOutlined,
   TwitterOutlined,
 } from '@ant-design/icons';
-import { Typography, Row, Col, theme } from 'antd';
+import { Typography, Row, Col, theme, Button } from 'antd';
 import SubscribeForm from './Home/SubscribeForm';
+import { useGame } from '../context/GameContext';
 
 const { useToken } = theme;
 
@@ -32,6 +33,7 @@ const socialLinks = [
 
 export default function Footer() {
   const { token } = useToken();
+  const { openGame } = useGame();
   return (
     <footer data-scroll className="p-6" style={{ backgroundColor: token.colorBgContainer, borderTop: `1px solid ${token.colorBorder}` }}>
 
@@ -73,6 +75,14 @@ export default function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <a
+                onClick={(e) => { e.preventDefault(); openGame(); }}
+                style={{ color: token.colorTextSecondary, cursor: 'pointer' }}
+              >
+                Play Game
+              </a>
+            </li>
           </ul>
         </Col>
 

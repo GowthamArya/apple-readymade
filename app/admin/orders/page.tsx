@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Table, Button, Tag, Typography, message, Select, Modal, Space, Card, Descriptions } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import dayjs from "dayjs";
 import { EyeOutlined } from "@ant-design/icons";
 
@@ -219,7 +220,11 @@ export default function AdminOrdersPage() {
                                 {viewOrder.items?.map((item: any) => (
                                     <div key={item.id} className="flex justify-between items-center p-3 rounded border">
                                         <div>
-                                            <Text strong>{item.variant?.product?.name}</Text>
+                                            <Link href={`/variant/${item.variant_id}`} target="_blank">
+                                                <Text strong className="hover:text-blue-500 cursor-pointer transition-colors">
+                                                    {item.variant?.product?.name}
+                                                </Text>
+                                            </Link>
                                             <div className="text-gray-500 text-sm">
                                                 Size: {item.variant?.size} | Color: {item.variant?.color}
                                             </div>
