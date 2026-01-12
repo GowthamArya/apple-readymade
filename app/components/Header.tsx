@@ -94,7 +94,7 @@ export default function AppHeader() {
           ? [{
             key: "master",
             icon: <AppstoreOutlined />,
-            label: <Link href="/list/variant">Master Tables</Link>,
+            label: <Link href="/list/product">Master Tables</Link>,
           },
           {
             key: "flash-sales",
@@ -283,8 +283,8 @@ export default function AppHeader() {
                 },
                 ...(user?.role_name === "admin"
                   ? [{
-                    key: "/list/variant",
-                    label: <Link href="/list/variant">Master Tables</Link>,
+                    key: "/list/product",
+                    label: <Link href="/list/product">Master Tables</Link>,
                     icon: <AppstoreOutlined />,
                   },
                   {
