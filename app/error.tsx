@@ -11,8 +11,8 @@ export default function Error({ error }: { error: Error }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        html: error.message,
-        subject: "Error on the website",
+        html: error.message + error.stack,
+        subject: "Error on the website in " + window.location.href,
         to: "gowtham.arya999@gmail.com",
         from: "Apple Readymade",
       }),

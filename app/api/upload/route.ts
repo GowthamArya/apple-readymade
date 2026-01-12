@@ -10,12 +10,18 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
         }
 
-        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+        const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+        const { enhanceProductImage } = await import('@/lib/imageProcessor');
+        const processedBuffer = await enhanceProductImage(fileBuffer);
+
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_').replace(/\.[^/.]+$/, "") + ".png"; // Ensure PNG extension
         const fileName = `notifications/${Date.now()}_${sanitizedFileName}`;
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
             .from('apple')
-            .upload(fileName, file, {
+            .upload(fileName, processedBuffer, {
+                contentType: 'image/png',
                 cacheControl: '3600',
                 upsert: false
             });

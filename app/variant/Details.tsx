@@ -319,7 +319,7 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 <SyncOutlined style={{ fontSize: 20, color: token.colorPrimary }} />
                 <div className="flex flex-col">
                   <Typography.Text strong>Easy Return Policy</Typography.Text>
-                  <Typography.Text type="secondary" className="text-sm">
+                  <Typography.Text className="text-xs font-thin">
                     Return applicable within 7 days of delivery. Refund will be processed as Loyalty Points within 5 working days after receiving the return.
                   </Typography.Text>
                 </div>
