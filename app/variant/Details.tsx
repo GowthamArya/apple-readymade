@@ -39,6 +39,18 @@ export default function VariantDetails({ variants, variant_id, productData, reco
     [variants, selectedId]
   );
 
+  const displayImages = useMemo(() => {
+    if (selected?.image_urls?.length) {
+      return selected.image_urls;
+    }
+    // Fallback to the first variant's images if the selected one has none
+    const defaultVariant = variants?.[0];
+    if (defaultVariant?.image_urls?.length) {
+      return defaultVariant.image_urls;
+    }
+    return [];
+  }, [selected, variants]);
+
   const currentPrice = selected?.price;
 
   const isFavorite = favorites.some(fav => fav.id === selected.id);
@@ -87,19 +99,19 @@ export default function VariantDetails({ variants, variant_id, productData, reco
         {/* Left: Gallery */}
         <div className="w-full">
           <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
-            {selected?.image_urls?.length ? (
+            {displayImages.length ? (
               <Image.PreviewGroup>
                 <Image
-                  src={selected.image_urls[0]}
+                  src={displayImages[0]}
                   alt={`Variant ${selected.id}`}
                   width="100%"
                   className="w-full! h-[50vh]! md:h-[70vh]!"
                   style={{ objectFit: "cover", borderRadius: token.borderRadius }}
                   preview
                 />
-                {selected.image_urls.length > 1 && (
+                {displayImages.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
-                    {selected.image_urls.slice(1).map((src: string, idx: number) => (
+                    {displayImages.slice(1).map((src: string, idx: number) => (
                       <Image
                         key={idx}
                         src={src}
@@ -195,9 +207,14 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Typography.Text type="secondary">No image</Typography.Text>
-                                </div>
+                                <img
+                                  src={displayImages[0]}
+                                  alt={`Variant ${v.id}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                // <div className="w-full h-full flex items-center justify-center">
+                                //   <Typography.Text type="secondary">No image</Typography.Text>
+                                // </div>
                               )}
                             </div>
 
