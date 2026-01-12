@@ -100,17 +100,24 @@ export default function ProductCard({ product, token, flashSale }: { product: an
                 ₹{flashSale ? product.price.toLocaleString() : product.mrp.toLocaleString()}
               </Text>
             )}
+            {(product.stock !== undefined && product.stock <= 0) && (
+              <Text type="danger" className="text-xs font-bold mt-1">
+                Out of Stock
+              </Text>
+            )}
           </div>
 
           <Button
             type={cart.some((item) => item.id === product.id) ? "primary" : "default"}
             shape="circle"
+            disabled={product.stock !== undefined && product.stock <= 0}
             icon={cart.some((item) => item.id === product.id) ? <ArrowRightOutlined /> : <MdOutlineAddShoppingCart className="text-lg" />}
             loading={loadingCart}
             className="shadow-md hover:scale-110 transition-all"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (product.stock !== undefined && product.stock <= 0) return;
               if (cart.some((item) => item.id === product.id)) {
                 router.push("/cart");
               } else {

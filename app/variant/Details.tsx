@@ -273,31 +273,38 @@ export default function VariantDetails({ variants, variant_id, productData, reco
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {cart.some(item => item.id === selected.id) ? (
-                <Button
-                  type="primary"
-                  icon={<ShoppingCartOutlined />}
-                  size="large"
-                  onClick={() => router.push("/cart")}
-                  className="flex-1"
-                >
-                  Go to cart
+              {(selected?.stock !== undefined && selected?.stock <= 0) ? (
+                <Button type="primary" size="large" className="flex-1" danger disabled>
+                  Out of Stock
                 </Button>
-              )
-                :
-                <Button
-                  type="primary"
-                  icon={<ShoppingCartOutlined />}
-                  size="large"
-                  onClick={() => {
-                    addToCart({ ...selected, price: currentPrice, quantity: 1 });
-                    message.success(`${selected.product?.name || 'Product'} added to cart!`);
-                  }}
-                  className="flex-1"
-                >
-                  Add to cart
-                </Button>}
-              <Button size="large" loading={loading} onClick={() => {
+              ) : (
+                cart.some(item => item.id === selected.id) ? (
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    size="large"
+                    onClick={() => router.push("/cart")}
+                    className="flex-1"
+                  >
+                    Go to cart
+                  </Button>
+                )
+                  :
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    size="large"
+                    onClick={() => {
+                      addToCart({ ...selected, price: currentPrice, quantity: 1 });
+                      message.success(`${selected.product?.name || 'Product'} added to cart!`);
+                    }}
+                    className="flex-1"
+                  >
+                    Add to cart
+                  </Button>
+              )}
+
+              <Button size="large" loading={loading} disabled={selected?.stock !== undefined && selected?.stock <= 0} onClick={() => {
                 setLoading(true);
                 addToCart({ ...selected, price: currentPrice, quantity: 1 });
                 router.push("/checkout");

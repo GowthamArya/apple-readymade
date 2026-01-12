@@ -50,6 +50,30 @@ export async function POST(req: Request) {
         console.error("Failed to update order status:", updateError);
         // Even if DB update fails, payment is verified. We might need manual reconciliation.
       } else {
+        // 1b. Deduct Stock
+        const { data: orderItemsStock } = await supabase
+          .from('order_items')
+          .select('variant_id, quantity')
+          .eq('order_id', orderData.id);
+
+        if (orderItemsStock) {
+          for (const item of orderItemsStock) {
+            const { data: currentVariant } = await supabase
+              .from('variant')
+              .select('stock')
+              .eq('id', item.variant_id)
+              .single();
+
+            if (currentVariant) {
+              const newStock = Math.max(0, currentVariant.stock - item.quantity);
+              await supabase
+                .from('variant')
+                .update({ stock: newStock })
+                .eq('id', item.variant_id);
+            }
+          }
+        }
+
         // 2. Deduct Redeemed Points
         if (orderData.points_redeemed > 0) {
           const { error: redeemError } = await supabase

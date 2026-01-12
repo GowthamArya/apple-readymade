@@ -2,7 +2,7 @@ import { Button, Space, Popconfirm, Carousel, Image } from 'antd';
 import { DeleteOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
 
 export function generateMetadataColumns(entityMetadata: any, onEdit: (record: any) => void, onDelete: (record: any) => void, onView?: (record: any) => void) {
-  entityMetadata = [{ value: "id", sortable: true, displayOrder: 0, width: 70 }, ...entityMetadata];
+  entityMetadata = [{ value: "id", sortable: true, displayOrder: 0, column_width: 70 }, ...entityMetadata];
   entityMetadata.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
 
   const columns = entityMetadata
@@ -12,7 +12,7 @@ export function generateMetadataColumns(entityMetadata: any, onEdit: (record: an
       title: columnMetaData.value.charAt(0).toUpperCase() + columnMetaData.value.slice(1).replace(/_/g, " "),
       dataIndex: columnMetaData.value,
       key: columnMetaData.id,
-      width: columnMetaData.width,
+      width: columnMetaData.column_width,
       value: columnMetaData.value,
       sorter: columnMetaData.sortable
         ? (a: any, b: any) => {

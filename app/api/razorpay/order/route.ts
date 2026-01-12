@@ -47,6 +47,33 @@ export async function POST(req: Request) {
     let finalAmount = amount; // paise
     let pointsAmount = 0; // rupees
 
+    // Validate Stock
+    if (items && items.length > 0) {
+      const variantIds = items.map((item: any) => item.id || item.variant?.id);
+      const { data: variants, error: variantsError } = await supabase
+        .from('variant')
+        .select('id, stock, sku')
+        .in('id', variantIds);
+
+      if (variantsError) {
+        console.error("Error fetching variants for stock check:", variantsError);
+        return Response.json({ error: "Failed to verify stock" }, { status: 500 });
+      }
+
+      for (const item of items) {
+        const variantId = item.id || item.variant?.id;
+        const requestedQty = item.quantity || 1;
+        const variant = variants?.find(v => v.id === variantId);
+
+        if (!variant) {
+          return Response.json({ error: `Product variant not found` }, { status: 400 });
+        }
+        if (variant.stock < requestedQty) {
+          return Response.json({ error: `Out of stock: ${variant.sku || 'Item'} (Requested: ${requestedQty}, Available: ${variant.stock})` }, { status: 400 });
+        }
+      }
+    }
+
     // Validate Points
     if (pointsRedeemed > 0) {
       const { data: userPoints, error: pointsError } = await supabase

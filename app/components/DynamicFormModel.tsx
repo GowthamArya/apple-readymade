@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, Form, Input, InputNumber, Button, Checkbox, Upload, UploadFile, message, App } from "antd";
+import { Modal, Form, Input, InputNumber, Button, Checkbox, Upload, UploadFile, message, App, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import DynamicDropdown from "./DynamicDropdown";
 import RelatedEntityList from "./RelatedEntityList";
 
 // ---- Types ----
 interface MetaField {
+  name?: string;
   value: string;
-  type: "number" | "entity" | "boolean" | "string" | "images";
+  type: "number" | "entity" | "boolean" | "string" | "images" | "color";
   required?: boolean;
+  display_order?: number;
 }
 
 interface DynamicFormModalProps {
@@ -43,6 +45,28 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
     return [];
   }, [references]);
   const { message } = App.useApp();
+
+  const [colorOptions, setColorOptions] = useState<{ label: React.ReactNode; value: string }[]>([]);
+
+  useEffect(() => {
+    fetch("https://www.csscolorsapi.com/api/colors")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.colors && Array.isArray(data.colors)) {
+          const opts = data.colors.map((c: any) => ({
+            label: (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 16, height: 16, backgroundColor: `#${c.hex}`, border: "1px solid #ccc" }} />
+                {c.name}
+              </div>
+            ),
+            value: c.name,
+          }));
+          setColorOptions(opts);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch colors:", err));
+  }, []);
 
   // Fetch existing entity when opening in edit mode
   useEffect(() => {
@@ -92,8 +116,8 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
   }, [visible, isEditing, id, entityName, form]);
 
   // Build dynamic form items
-  const formItems = metadata.map((field) => {
-    const label = field.value.charAt(0).toUpperCase() + field.value.slice(1).replace(/_/g, " ");
+  const formItems = metadata.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)).map((field) => {
+    const label = field.name || field.value.charAt(0).toUpperCase() + field.value.slice(1).replace(/_/g, " ");
     const name = field.value;
 
     if (field.type === "number") {
@@ -114,6 +138,14 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
       return (
         <Form.Item key={name} label={label} name={name} valuePropName="checked" rules={[{ required: !!field.required }]}>
           <Checkbox />
+        </Form.Item>
+      );
+    }
+
+    if (field.type === "color") {
+      return (
+        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
+          <Select showSearch options={colorOptions} placeholder="Select a color" />
         </Form.Item>
       );
     }
