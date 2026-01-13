@@ -89,28 +89,7 @@ export async function POST(req: Request) {
           if (redeemError) console.error("Failed to deduct points:", redeemError);
         }
 
-        // 3. Award Loyalty Points (1 Point = 1 INR)
-        // Earn on money spent (Total - Points Discount)
-        const moneySpent = Math.max(0, orderData.total_amount - (orderData.points_amount || 0));
-        const pointsEarned = Math.floor(moneySpent * 0.01);
-
-        if (pointsEarned > 0) {
-          const { error: pointsError } = await supabase
-            .from('loyalty_points')
-            .insert({
-              user_id: orderData.user_id,
-              points: pointsEarned,
-              transaction_type: 'earn',
-              order_id: orderData.id.toString(),
-              amount: moneySpent
-            });
-
-          if (pointsError) {
-            console.error("Failed to award points:", pointsError);
-          }
-        }
-
-        // 4. Create Shiprocket Shipment
+        // 3. Create Shiprocket Shipment
         try {
           const { data: orderItems, error: itemsError } = await supabase
             .from('order_items')
@@ -152,7 +131,7 @@ export async function POST(req: Request) {
           await supabase.from('orders').update({
             shiprocket_order_id: shiprocketOrder.order_id,
             shiprocket_shipment_id: shiprocketOrder.shipment_id,
-            status: 'paid' // Or a specific status like 'ready_to_ship'
+            status: 'paid'
           }).eq('id', orderData.id);
 
           console.log("Shiprocket order created:", shiprocketOrder.order_id);

@@ -51,8 +51,7 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-    const { id } = await req.json();
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    const { id, all } = await req.json();
 
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email;
@@ -61,11 +60,24 @@ export async function DELETE(req: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (all) {
+        const { error } = await supabase
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('user_email', userEmail)
+            .is('is_read', false);
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ success: true });
+    }
+
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
     const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
         .eq('id', id)
-        .or(`user_email.is.null,user_email.eq.${userEmail}`);
+        .eq('user_email', userEmail)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });

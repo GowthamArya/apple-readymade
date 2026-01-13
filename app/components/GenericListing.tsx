@@ -14,7 +14,7 @@ const { Content } = Layout;
 const HEADER_HEIGHT = 50;
 
 
-const GenericListing = ({ entityName, allEntities }: { entityName: string, allEntities: [] }) => {
+const GenericListing = ({ entityName, allEntities }: { entityName: string, allEntities: any[] }) => {
   const { token } = useToken();
   const [form] = Form.useForm();
 
@@ -232,7 +232,6 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
                     <Input placeholder='Specific url to navigate' />
                   </Form.Item>
                   <Form.Item
-                    name="image"
                     label="Image (Optional)"
                   >
                     <Upload

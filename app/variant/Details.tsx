@@ -327,7 +327,7 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 <div className="flex flex-col">
                   <Typography.Text strong>Easy Return Policy</Typography.Text>
                   <Typography.Text className="text-xs font-thin">
-                    Return applicable within 7 days of delivery. Refund will be processed as Loyalty Points within 5 working days after receiving the return.
+                    Return applicable within 7 days of delivery. Refund will be processed as Apples within 5 working days after receiving the return.
                   </Typography.Text>
                 </div>
               </Space>

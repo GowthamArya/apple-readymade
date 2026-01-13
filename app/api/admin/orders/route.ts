@@ -96,14 +96,10 @@ export async function PATCH(req: Request) {
                     .from("loyalty_points")
                     .insert({
                         user_id: order.user_id,
-                        points: Math.round(order.total_amount), // Assuming 1 point = 1 Rupee? Needs verification if points map 1:1. Usually points systems vary.
-                        // If I check `lib/repository.ts` or usage, I might find conversion. 
-                        // But user said "add loyalty points so we can get business".
-                        // Usually 1 point = 1 Rupee in simple systems, or I need to check if there is a conversion rate.
-                        // I will assume 1 Point = 1 Rupee for now based on "refund always added in loyalty point".
+                        points: Math.round(order.total_amount), 
                         transaction_type: "store_credit",
                         order_id: order.id.toString(),
-                        amount: order.total_amount, // Store the monetary value representation
+                        amount: order.total_amount, 
                         description: `Refund for Order #${order.id} (Store Credit)`
                     });
 

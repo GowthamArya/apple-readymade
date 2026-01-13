@@ -364,19 +364,17 @@ export function NotifPopover({ user }: { user: any }) {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_email=eq.${user?.email}&and(isRead=false)`,
+          filter: `user_email=eq.${user?.email}`,
         },
         (payload: any) => {
           const newNotif = payload.new;
-          if (!newNotif.user_email || newNotif.user_email !== user?.email) return;
-
+          console.log(newNotif);
+          if (!newNotif.user_email || newNotif.user_email !== user?.email || newNotif.is_read) return;
           setNotifications((prev) => {
-            // Check if already exists to avoid duplicates
             if (prev.some(n => n.id === newNotif.id)) return prev;
             return [newNotif, ...prev];
           });
 
-          // Show browser notification if possible
           if (Notification.permission === 'granted') {
             new Notification(newNotif.title, {
               body: newNotif.message,
@@ -386,7 +384,7 @@ export function NotifPopover({ user }: { user: any }) {
         }
       )
       .subscribe((status) => {
-        console.log('Supabase Realtime Status:', status);
+        console.log('For User ', user?.email, 'Supabase Realtime Status:', status);
       });
 
     return () => {
@@ -433,6 +431,21 @@ export function NotifPopover({ user }: { user: any }) {
     }
   };
 
+  const handleClearAll = async () => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      });
+      if (res.ok) {
+        setNotifications([]);
+      }
+    } catch (err) {
+      console.error("Error clearing notifications", err);
+    }
+  };
+
   return (
     <Popover
       placement="bottom"
@@ -442,17 +455,29 @@ export function NotifPopover({ user }: { user: any }) {
       title={
         <Flex justify="space-between" align="center">
           <Text strong>Notifications</Text>
-          {isSupported && (
-            <Button
-              type="link"
-              size="small"
-              onClick={handleToggle}
-              danger={isSubscribed}
-              style={{ padding: 0 }}
-            >
-              {isSubscribed ? "Disable" : "Enable"}
-            </Button>
-          )}
+          <Flex gap={12}>
+            {notifications.length > 0 && (
+              <Button
+                type="link"
+                size="small"
+                onClick={handleClearAll}
+                style={{ padding: 0 }}
+              >
+                Clear all
+              </Button>
+            )}
+            {isSupported && (
+              <Button
+                type="link"
+                size="small"
+                onClick={handleToggle}
+                danger={isSubscribed}
+                style={{ padding: 0 }}
+              >
+                {isSubscribed ? "Disable" : "Enable"}
+              </Button>
+            )}
+          </Flex>
         </Flex>
       }
       content={
@@ -508,10 +533,10 @@ export function NotifPopover({ user }: { user: any }) {
         </div>
       }
     >
-      <Badge count={notifications.length} dot={notifications.length > 0} offset={[-2, 2]}>
+      <Badge count={notifications.length} size="small" offset={[-1, 1]}>
         <BellFilled
           style={{
-            fontSize: 18,
+            fontSize: 22,
             cursor: "pointer",
             color: token.colorTextHeading
           }}

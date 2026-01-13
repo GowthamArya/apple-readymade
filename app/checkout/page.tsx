@@ -747,7 +747,7 @@ export default function CheckoutPage() {
 
                     <div className="flex justify-between">
                       <Typography.Text>Shipping</Typography.Text>
-                      <Typography.Text>{shippingAmount > 0 ? `₹${shippingAmount}` : (shippingLoading ? <Spin size="small" /> : 'Calculated at next step')}</Typography.Text>
+                      <Typography.Text>{shippingAmount > 0 ? `₹${shippingAmount}` : (shippingLoading ? <Spin size="small" /> : 'Calculated after pincode is validated')}</Typography.Text>
                     </div>
 
                     <div className="flex gap-2">

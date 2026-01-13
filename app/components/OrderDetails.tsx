@@ -175,9 +175,16 @@ export default function OrderDetails({ order }: { order: any }) {
                 )}
                 {canReturn && (
                     <Typography.Text type="secondary" className="text-xs">
-                        * Return available within 7 days of delivery. Refund processed as Loyalty Points within 5 working days.
+                        * Return available within 7 days of delivery. Refund processed as Apples within 5 working days.
                     </Typography.Text>
                 )}
+                {order.status == 'refunded' && (<>
+                    <Typography.Text type="secondary" className="text-xs">
+                        * Refund available within 5 working days of delivery.
+                        Check Current Balance {order.refund_amount} at <Link href="/account">Account</Link>
+                    </Typography.Text>
+                    <Link href="/refund-policy">Check Refund Policy </Link>
+                </>)}
             </div>
 
             <Row gutter={[24, 24]}>
