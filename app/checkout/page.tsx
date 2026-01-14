@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App, Radio, Spin, Result } from "antd";
-import { DeleteOutlined, EditOutlined, EnvironmentOutlined, PlusOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Typography, InputNumber, Button, Divider, Form, Input, Space, theme, App, Radio, Spin, Result, Checkbox, Tag } from "antd";
+import { DeleteOutlined, EditOutlined, EnvironmentOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import { useCart } from "../context/CartContext";
 import Link from "next/link";
 import FlashSaleBanner from "../components/FlashSaleBanner";
@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | "new">("new");
   const [addressesLoading, setAddressesLoading] = useState(false);
@@ -56,6 +57,14 @@ export default function CheckoutPage() {
         if (data.points) setPoints(data.points);
       })
       .catch((err) => console.error("Failed to fetch points", err));
+
+    // Fetch active coupons
+    fetch("/api/flash-sales")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.sales) setAvailableCoupons(data.sales);
+      })
+      .catch((err) => console.error("Failed to fetch coupons", err));
 
     // Fetch saved addresses
     setAddressesLoading(true);
@@ -213,13 +222,16 @@ export default function CheckoutPage() {
   // Points logic: 1 Point = 1 INR
   const pointsValue = redeemPoints ? Math.min(points, subtotal + shipping - discountAmount) : 0;
 
-  const total = Math.max(0, subtotal + shipping - discountAmount - pointsValue);
+  const total = Math.round(Math.max(0, subtotal + shipping - discountAmount - pointsValue));
 
-  const applyCoupon = async () => {
-    if (!couponCode) return;
+  const applyCoupon = async (codeOverride?: string) => {
+    const code = typeof codeOverride === 'string' ? codeOverride : couponCode;
+    if (!code) return;
     setCouponLoading(true);
+    if (codeOverride) setCouponCode(codeOverride);
+
     try {
-      const res = await fetch(`/api/flash-sales?code=${couponCode}`);
+      const res = await fetch(`/api/flash-sales?code=${code}`);
       const data = await res.json();
       if (data.sale) {
         setAppliedCoupon(data.sale);
@@ -244,8 +256,15 @@ export default function CheckoutPage() {
   const handleQtyChange = (value: number, id: number) => {
     const item = cart.find((x: any) => x.id === id);
     if (!item) return;
+
+    if (item.stock !== undefined && value > item.stock && value > item.quantity) {
+      message.warning(`Only ${item.stock} units available!`);
+      return;
+    }
+
+    const delta = value - item.quantity;
     if (value <= 0) removeFromCart(id);
-    else addToCart({ ...item, quantity: value - item.quantity });
+    else addToCart(item, delta);
   };
 
   const payWithRazorpay = async (values: any) => {
@@ -341,6 +360,11 @@ export default function CheckoutPage() {
           }),
         });
         const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Order placement failed");
+        }
+
         if (data.dbOrderId) {
           message.success("Order placed successfully!");
           clearCart();
@@ -364,18 +388,32 @@ export default function CheckoutPage() {
           items: cart,
           address_id: finalAddressId === "new" ? null : finalAddressId,
           shippingAddress: finalAddressObj,
-          pointsRedeemed: pointsValue
+          pointsRedeemed: pointsValue,
+          couponCode: appliedCoupon ? appliedCoupon.coupon_code : null, // Send coupon code to server
         }),
       });
       if (res.status === 401) {
         signOut({ callbackUrl: "/auth" });
       }
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create order");
+      }
+
+      // Handle 0-amount orders (fully paid by points/coupons server-side)
+      if (data.amountDue === 0 && data.dbOrderId) {
+        message.success("Order placed successfully!");
+        clearCart();
+        window.location.href = "/orders/success";
+        return;
+      }
+
       if (!data.orderId) throw new Error(data.error ?? "Failed to create order");
 
       const options = {
         key: "rzp_test_RawNjBLLBDM7q9",
-        amount: amountPaise,
+        amount: data.amountDue, // Use server-calculated amount
         currency: "INR",
         name: "Apple Menswear",
         description: "Order payment",
@@ -707,16 +745,32 @@ export default function CheckoutPage() {
                               <div className="text-sm text-gray-500">
                                 {item.size ? `Size: ${item.size} ` : ""} {item.color ? `• Color: ${item.color}` : ""}
                               </div>
+                              {item.stock !== undefined && item.stock <= 5 && (
+                                <div className="text-xs text-red-500 font-bold mt-1">
+                                  {item.stock <= 0 ? "Out of Stock" : `Only ${item.stock} left!`}
+                                </div>
+                              )}
                               <div className="flex items-center gap-2 mt-1">
                                 <Typography.Text>₹{item.price}</Typography.Text>
-                                <Space.Compact>
-                                  <InputNumber
-                                    min={1}
-                                    value={item.quantity}
-                                    onChange={(val) => handleQtyChange(Number(val || 1), item.id)}
+                                <div className="flex items-center border rounded-md">
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<MinusOutlined className="text-xs" />}
+                                    onClick={() => handleQtyChange(item.quantity - 1, item.id)}
+                                    className="px-2"
                                   />
-                                  <Button danger onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
-                                </Space.Compact>
+                                  <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<PlusOutlined className="text-xs" />}
+                                    onClick={() => handleQtyChange(item.quantity + 1, item.id)}
+                                    className="px-2"
+                                    disabled={item.stock !== undefined && item.quantity >= item.stock}
+                                  />
+                                </div>
+                                <Button danger type="text" onClick={() => removeFromCart(item.id)} icon={<DeleteOutlined />} />
                               </div>
                             </div>
                           </div>
@@ -760,7 +814,7 @@ export default function CheckoutPage() {
                       {appliedCoupon ? (
                         <Button danger onClick={removeCoupon}>Remove</Button>
                       ) : (
-                        <Button type="primary" onClick={applyCoupon} loading={couponLoading}>Apply</Button>
+                        <Button type="primary" onClick={() => applyCoupon()} loading={couponLoading}>Apply</Button>
                       )}
                     </div>
                     {appliedCoupon && (
@@ -769,7 +823,54 @@ export default function CheckoutPage() {
                         <Typography.Text type="success">-₹{discountAmount}</Typography.Text>
                       </div>
                     )}
-                    <div className="flex justify-between">
+
+                    {/* Available Coupons List */}
+                    {availableCoupons.length > 0 && !appliedCoupon && (
+                      <div className="bg-blue-50 p-2 rounded border border-blue-100">
+                        <Typography.Text type="secondary" className="text-xs block mb-2">Available Offers:</Typography.Text>
+                        <div className="flex flex-wrap gap-2">
+                          {availableCoupons.map(coupon => (
+                            <Tag
+                              key={coupon.id}
+                              color="blue"
+                              className="cursor-pointer m-0 hover:scale-105 transition-transform"
+                              onClick={() => applyCoupon(coupon.coupon_code)}
+                            >
+                              {coupon.coupon_code} ({coupon.discount_percentage}% OFF)
+                            </Tag>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <Divider style={{ margin: '12px 0' }} />
+
+                    {/* Loyalty Points (Apples) Redemption */}
+                    {points > 0 && (
+                      <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                        <Checkbox
+                          checked={redeemPoints}
+                          onChange={(e) => setRedeemPoints(e.target.checked)}
+                          className="w-full"
+                        >
+                          <span className="font-medium text-yellow-800">Use Apples (Balance: {points})</span>
+                        </Checkbox>
+                        {redeemPoints && (
+                          <div className="text-xs text-yellow-700 mt-1 pl-6">
+                            Saving ₹{pointsValue} on this order
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {redeemPoints && pointsValue > 0 && (
+                      <div className="flex justify-between text-yellow-600">
+                        <Typography.Text className="text-yellow-600">Apples Redeemed</Typography.Text>
+                        <Typography.Text className="text-yellow-600">-₹{pointsValue}</Typography.Text>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between pt-2">
                       <Typography.Text strong>Total</Typography.Text>
                       <Typography.Text strong>₹{total}</Typography.Text>
                     </div>

@@ -88,11 +88,11 @@ export default function ProductCard({ product, token, flashSale }: { product: an
       </div>
 
       <div className="px-1">
-        <h2 className="mt-4 font-bold text-sm md:text-base leading-tight truncate group-hover:text-blue-600 transition-colors" style={{ color: token.colorText }}>
+        <h2 className="font-bold text-sm md:text-base leading-tight truncate transition-colors" style={{ color: token.colorText }}>
           {product.product.name}
         </h2>
 
-        <div className="flex items-center mt-3 justify-between">
+        <div className="flex items-center mt-1 justify-between">
           <div className="flex flex-col">
             <Text strong className="text-sm md:text-lg">₹{discountedPrice.toLocaleString()}</Text>
             {((product.mrp && product.mrp > discountedPrice) || (flashSale && product.price > discountedPrice)) && (

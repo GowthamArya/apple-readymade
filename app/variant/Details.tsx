@@ -269,6 +269,11 @@ export default function VariantDetails({ variants, variant_id, productData, reco
                 <Typography.Text type="secondary">
                   SKU: {selected?.sku ?? "—"}
                 </Typography.Text>
+                {selected?.stock !== undefined && selected?.stock > 0 && selected?.stock <= 5 && (
+                  <Typography.Text type="danger" className="text-red-500 font-bold">
+                    Only {selected.stock} left in stock!
+                  </Typography.Text>
+                )}
               </Space>
             </div>
 
