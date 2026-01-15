@@ -69,16 +69,24 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
       return response.json();
     })();
   }
-  async function fetchData(currentPage = page, currentPageSize = pageSize, searchText = '') {
+
+  async function fetchData(currentPage = page, currentPageSize = pageSize, searchText = '', columns: any[] = columnsMetadata) {
     setLoading(true);
+
+    const validColumns = columns.map((c: any) => c.value); 
+
+    const searchConfig = searchText ? {
+      query: searchText,
+      columns: validColumns
+    } : undefined;
+
     const params = new URLSearchParams({
       pagination: JSON.stringify({ page: currentPage, limit: currentPageSize }),
-      ...(searchText && { search: JSON.stringify({ query: searchText }) }),
+      ...(searchConfig && { search: JSON.stringify(searchConfig) }),
     });
     const response = await fetch(`/api/generic/${entityName}?${params.toString()}`);
     const json = await response.json();
     setEntities(json.data || []);
-    console.table(json.data || []);
     setTotal(json.total || 0);
     setLoading(false);
   }
@@ -95,14 +103,15 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
       try {
         const metaData = await fetch(`/api/metadata/${entityName}`);
         const metaDataResponse = await metaData.json();
-        fetchData()
-        setColumnsMetadata(metaDataResponse.data ? metaDataResponse.data : []);
+        const cols = metaDataResponse.data ? metaDataResponse.data : [];
+        setColumnsMetadata(cols);
         setReferences(metaDataResponse.references || []);
+
+        fetchData(1, 10, '', cols);
 
       } catch (err) {
         console.error('Failed to fetch entity data:', err);
-      } finally {
-        setLoading(false);
+        setLoading(false); // ensure loading stops on error
       }
     }
     loadData();

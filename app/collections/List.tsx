@@ -15,7 +15,7 @@ export default function ProductList({ products, token, flashSales = [] }: { prod
   }, [flashSales]);
 
   return (
-    <div className="pb-20 md:px-20 grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 grid-flow-row gap-3 p-3" style={{ backgroundColor: token.colorBgContainer }}>
+    <div className="grid lg:grid-cols-4 xl:grid-cols-5 md:grid-cols-3 grid-cols-2 grid-flow-row gap-4 py-4" style={{ backgroundColor: 'transparent' }}>
       {products.map((p) => (
         <ProductCard
           key={p.id + p.price}

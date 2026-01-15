@@ -3,7 +3,7 @@ import { supabase } from './supabaseServer';
 
 
 export async function uploadVariantFileToStorage(file: File) {
-  const fileName = `${Date.now()}_${file.name}`; 
+  const fileName = `${Date.now()}_${file.name}`;
   const filePath = `products/${fileName}`;
 
   const { data, error } = await supabase.storage
@@ -41,16 +41,16 @@ function createIncludesQuery(includeRelations: string[]): string {
 
 
 
-export function fetchWithRelations(seletedTable: string, includeRelations: string[] = []) {
+export function fetchWithRelations(seletedTable: string, includeRelations: string[] = [], options?: { head?: boolean; count?: 'exact' | 'planned' | 'estimated' }) {
   var queryString = "*";
-  if(!seletedTable){
+  if (!seletedTable) {
     throw new Error("Table name is required");
   }
   if (includeRelations.length > 0) {
     queryString = createIncludesQuery(includeRelations);
   }
   //console.log("Query String: ", queryString);
-  return supabase.from(seletedTable).select(queryString);
+  return supabase.from(seletedTable).select(queryString, options);
 };
 
 export default supabase;

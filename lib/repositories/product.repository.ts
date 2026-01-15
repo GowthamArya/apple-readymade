@@ -34,6 +34,11 @@ export class ProductRepository extends BaseRepository<Product> {
         page?: number;
         pageSize?: number;
         variantIds?: number[];
+        minPrice?: number;
+        maxPrice?: number;
+        colors?: string[];
+        sizes?: string[];
+        inStock?: boolean;
     }) {
         const {
             searchQuery,
@@ -42,10 +47,15 @@ export class ProductRepository extends BaseRepository<Product> {
             sortOrder = 'desc',
             page = 1,
             pageSize = 20,
-            variantIds
+            variantIds,
+            minPrice,
+            maxPrice,
+            colors,
+            sizes,
+            inStock
         } = params;
 
-        let query = fetchWithRelations("variant", ["product.category"])
+        let query = fetchWithRelations("variant", ["product.category"], { count: 'exact' })
             .eq("is_default", true);
 
         if (variantIds && variantIds.length > 0) {
@@ -56,6 +66,25 @@ export class ProductRepository extends BaseRepository<Product> {
 
         if (category) {
             query = query.ilike("product.category.name", `%${category}%`);
+        }
+
+        if (minPrice !== undefined) {
+            query = query.gte('price', minPrice);
+        }
+        if (maxPrice !== undefined) {
+            query = query.lte('price', maxPrice);
+        }
+
+        if (colors && colors.length > 0) {
+            query = query.in('color', colors);
+        }
+
+        if (sizes && sizes.length > 0) {
+            query = query.in('size', sizes);
+        }
+
+        if (inStock) {
+            query = query.gt('stock', 0);
         }
 
         // Sorting
@@ -96,5 +125,34 @@ export class ProductRepository extends BaseRepository<Product> {
 
         if (error) throw error;
         return data || [];
+    }
+
+    async getFilterFacets() {
+        // Fetch specific columns to build facets
+        // Note: distinct() is not directly exposed by the used supabase helper wrapper context here easily, 
+        // asking for all variants might be heavy but for now it's the safest way to get all options without raw SQL.
+        // Optimally we would use an RPC call for this.
+        const { data: colorsData } = await supabase.from('variant').select('color');
+        const { data: sizesData } = await supabase.from('variant').select('size');
+        const { data: priceData } = await supabase.from('variant').select('price');
+
+        const uniqueColors = Array.from(new Set(colorsData?.map(c => c.color).filter(Boolean)));
+        const uniqueSizes = Array.from(new Set(sizesData?.map(s => s.size).filter(Boolean)));
+
+        let minPrice = 0;
+        let maxPrice = 10000;
+
+        if (priceData && priceData.length > 0) {
+            const prices = priceData.map(p => p.price);
+            minPrice = Math.min(...prices);
+            maxPrice = Math.max(...prices);
+        }
+
+        return {
+            colors: uniqueColors,
+            sizes: uniqueSizes,
+            minPrice,
+            maxPrice
+        };
     }
 }
