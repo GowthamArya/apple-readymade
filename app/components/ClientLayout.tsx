@@ -35,7 +35,7 @@ function ThemedMain({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
       style={{
         backgroundColor: token.colorBgLayout,
-        minHeight: "92dvh"
+        minHeight: "92dvh",
       }}
     >
       {children}

@@ -34,9 +34,9 @@ export default function AbandonedCartEmail({
                     <Container style={styles.card}>
                         {/* Logo */}
                         <Img
-                            src="https://apple-readymade.vercel.app/logo.png"
-                            width="60"
-                            height="60"
+                            src="https://rkwxsjrwvooyalymhedv.supabase.co/storage/v1/object/public/apple/logo.png"
+                            width="80"
+                            height="80"
                             alt="Apple Menswear"
                             style={styles.logo}
                         />

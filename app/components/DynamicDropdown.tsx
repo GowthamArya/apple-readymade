@@ -32,7 +32,7 @@ export default function DynamicDropdown({
         const response = await fetch(`${apiUrl}?${params.toString()}`);
         const json = await response.json();
         const mapped: OptionType[] = json.data.map((item: any) => ({
-          label: item.name || item.label,
+          label: `${item.name} (Id: ${item.id})`,
           value: item.id,
         }));
 
@@ -76,16 +76,17 @@ export default function DynamicDropdown({
   return (
     <Form.Item name={name} label={label} rules={[{ required: true }]}>
       <Select
-        showSearch
-        filterOption={false}
-        notFoundContent={loading ? <Spin size="small" /> : null}
-        onSearch={value => {
-          setSearch(value);
-          debouncedFetch(value);
+        showSearch={{
+          onSearch: (value) => {
+            setSearch(value);
+            debouncedFetch(value);
+          },
+          filterOption: false,
         }}
+        notFoundContent={loading ? <Spin size="small" /> : null}
         onPopupScroll={handlePopupScroll}
         options={options}
-        placeholder={`Select ${label}`}
+        placeholder={label || "Select"}
         allowClear
       />
     </Form.Item>

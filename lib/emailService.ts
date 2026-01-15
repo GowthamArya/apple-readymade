@@ -103,3 +103,105 @@ export async function sendOrderNotificationToAdmin(order: any, items: any[]) {
         return { success: false, error };
     }
 }
+
+import OrderConfirmationEmail from "@/emails/OrderConfirmationEmail";
+import OrderStatusUpdateEmail from "@/emails/OrderStatusUpdateEmail";
+
+export async function sendOrderConfirmationEmail(order: any, items: any[]) {
+    try {
+        if (!order.shipping_address?.email) return;
+
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_APP_PASSWORD,
+            },
+        });
+
+        const formattedItems = items.map((item: any) => ({
+            name: item.variant?.product?.name || "Product",
+            quantity: item.quantity,
+            price: item.price,
+            variant: `${item.variant?.size || ''} / ${item.variant?.color || ''}`
+        }));
+
+        const addressString = `${order.shipping_address.name}, ${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} - ${order.shipping_address.pincode}`;
+
+        const emailHtml = await render(
+            OrderConfirmationEmail({
+                orderId: order.id.toString(),
+                customerName: order.shipping_address.name,
+                items: formattedItems,
+                totalAmount: order.total_amount,
+                shippingAddress: addressString,
+                orderDate: new Date(order.created_at).toLocaleDateString(),
+            })
+        );
+
+        await transporter.sendMail({
+            from: `"Apple Menswear" <${process.env.GMAIL_USER}>`,
+            to: order.shipping_address.email,
+            subject: `Order Confirmation #${order.id}`,
+            html: emailHtml,
+        });
+
+        console.log("Order confirmation email sent to:", order.shipping_address.email);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to send order confirmation:", error);
+        return { success: false, error };
+    }
+}
+
+export async function sendOrderStatusUpdateEmail(
+    order: any,
+    status: string,
+    message?: string,
+    trackingUrl?: string
+) {
+    try {
+        // User email priority: Shipping Address Email > User Table Email (fetch if needed, but usually in order)
+        // Order table usually has shipping_address JSONB which contains email.
+        const userEmail = order.shipping_address?.email;
+
+        if (!userEmail) {
+            console.log("No email found for order update:", order.id);
+            return;
+        }
+
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_APP_PASSWORD,
+            },
+        });
+
+        const actionUrl = `${process.env.NEXTAUTH_URL}/orders/${order.id}`;
+
+        const emailHtml = await render(
+            OrderStatusUpdateEmail({
+                orderId: order.id.toString(),
+                customerName: order.shipping_address.name || "Customer",
+                status,
+                message,
+                trackingUrl,
+                actionUrl
+            })
+        );
+
+        await transporter.sendMail({
+            from: `"Apple Menswear" <${process.env.GMAIL_USER}>`,
+            to: userEmail,
+            subject: `Order Update #${order.id}: ${status.toUpperCase()}`,
+            html: emailHtml,
+        });
+
+        console.log(`Order update email (${status}) sent to:`, userEmail);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to send order update email:", error);
+        return { success: false, error };
+    }
+}

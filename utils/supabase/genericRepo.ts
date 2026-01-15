@@ -158,7 +158,7 @@ export default class GenericRepo<T extends { id?: number | string }> {
 
   static async fetchMetaData<T>(tableName: string): Promise<T[]> {
     const { data, error } = await supabase.from("vwtablecolumnsmetadata")
-      .select("*").eq("EntityName", tableName);
+      .select("*").eq("entityname", tableName);
     if (error) throw error;
     return data ?? [];
   }

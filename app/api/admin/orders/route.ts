@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { processRefund } from "@/lib/razorpay";
 import { cancelShiprocketOrder } from "@/lib/shiprocket";
+import { sendOrderStatusUpdateEmail } from "@/lib/emailService";
 
 export const dynamic = 'force-dynamic';
 
@@ -96,10 +97,10 @@ export async function PATCH(req: Request) {
                     .from("loyalty_points")
                     .insert({
                         user_id: order.user_id,
-                        points: Math.round(order.total_amount), 
+                        points: Math.round(order.total_amount),
                         transaction_type: "store_credit",
                         order_id: order.id.toString(),
-                        amount: order.total_amount, 
+                        amount: order.total_amount,
                         description: `Refund for Order #${order.id} (Store Credit)`
                     });
 
@@ -132,6 +133,9 @@ export async function PATCH(req: Request) {
             .single();
 
         if (error) throw error;
+
+        // Send Status Update Email
+        await sendOrderStatusUpdateEmail(data, newStatus);
 
         return Response.json({ order: data });
     } catch (error: any) {

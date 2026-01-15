@@ -154,7 +154,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
       </Sider>
 
       <Layout
-        className={`p-5!  min-h-[95vh]!`}
+        className={`p-5! pb-15! min-h-[95vh]!`}
         style={{
           background: token.colorBgContainer,
         }}
@@ -256,12 +256,6 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
                       </div>
                     </Upload>
                   </Form.Item>
-                  {/* Hidden input to ensure the value is submitted if needed, though Form.Item handles it if we used getValueFromEvent. 
-                      Here we manually set the value on the Form.Item above, but Upload doesn't display the string value. 
-                      So we might need a hidden input or just rely on the internal form state which we set manually.
-                      Actually, Form.Item with name="image" will try to control Upload. 
-                      Let's decouple them.
-                  */}
                   <Form.Item name="image" hidden>
                     <Input />
                   </Form.Item>
@@ -329,7 +323,7 @@ const GenericListing = ({ entityName, allEntities }: { entityName: string, allEn
                 fetchData(newPage, newSize, searchText);
               }
             }}
-            scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 200}px)`, x: true }}
+            scroll={{ y: `calc(100vh - ${HEADER_HEIGHT + 150}px)`, x: true }}
           />
           <DynamicFormModal
             visible={modalVisible}

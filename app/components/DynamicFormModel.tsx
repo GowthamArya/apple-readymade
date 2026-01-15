@@ -4,13 +4,19 @@ import { PlusOutlined } from "@ant-design/icons";
 import DynamicDropdown from "./DynamicDropdown";
 import RelatedEntityList from "./RelatedEntityList";
 
-// ---- Types ----
 interface MetaField {
   name?: string;
   value: string;
-  type: "number" | "entity" | "boolean" | "string" | "images" | "color";
+  type: "number" | "entity" | "boolean" | "string" | "images" | "color" | "size";
   required?: boolean;
   display_order?: number;
+  entityname?: string;
+  id?: number;
+  created_on?: string;
+  entity_id?: number;
+  filterable?: boolean;
+  sortable?: boolean;
+  column_width?: string;
 }
 
 interface DynamicFormModalProps {
@@ -146,6 +152,47 @@ export default function DynamicFormModal({ visible, metadata, onCancel, onSubmit
       return (
         <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
           <Select showSearch options={colorOptions} placeholder="Select a color" />
+        </Form.Item>
+      );
+    }
+
+    if(field.value === "type"){
+      const typeOptions = [
+        { label: "Number", value: "number" },
+        { label: "Entity", value: "entity" },
+        { label: "Boolean", value: "boolean" },
+        { label: "String", value: "string" },
+        { label: "Images", value: "images" },
+        { label: "Color", value: "color" },
+        { label: "Size", value: "size" },
+      ];
+      return (
+        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
+          <Select showSearch options={typeOptions} placeholder="Select a Data Type" />
+        </Form.Item>
+      );
+    }
+
+    if (field.type === "size") {
+      const sizeOptions = [
+        { label: "XS", value: "XS" },
+        { label: "S", value: "S" },
+        { label: "M", value: "M" },
+        { label: "L", value: "L" },
+        { label: "XL", value: "XL" },
+        { label: "XXL", value: "XXL" },
+        { label: "28", value: "28" },
+        { label: "30", value: "30" },
+        { label: "32", value: "32" },
+        { label: "34", value: "34" },
+        { label: "36", value: "36" },
+        { label: "38", value: "38" },
+        { label: "40", value: "40" },
+        { label: "42", value: "42" },
+      ];
+      return (
+        <Form.Item key={name} label={label} name={name} rules={[{ required: !!field.required }]}>
+          <Select showSearch options={sizeOptions} placeholder="Select a size" />
         </Form.Item>
       );
     }

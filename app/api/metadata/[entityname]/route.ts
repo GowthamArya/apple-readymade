@@ -24,11 +24,11 @@ export async function GET(
 ) {
   try {
     const { entityname } = await params;
-    const allEntities = await GenericRepo.fetchMetaData(entityname);
+    const metaData = await GenericRepo.fetchMetaData(entityname);
     const entityConfig = await GenericRepo.fetchEntityConfig(entityname);
 
     return NextResponse.json({
-      data: allEntities,
+      data: metaData,
       references: entityConfig?.references || []
     });
   } catch (err: any) {

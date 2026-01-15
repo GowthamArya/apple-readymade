@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
     const { data: variants, error: variantsError } = await supabase
       .from('variant')
-      .select('id, stock, sku, price, product(id)')
+      .select('id, stock, sku, price, weight, length, breadth, height, product(id)')
       .in('id', variantIds);
 
     if (variantsError) {
@@ -80,15 +80,41 @@ export async function POST(req: Request) {
     // 2. Calculate Shipping
     let shippingCost = 0;
     if (shippingAddress?.pincode) {
-      const totalWeight = items.reduce((acc: number, item: any) => acc + ((item.quantity || 1) * 0.5), 0);
+      let totalWeight = 0;
+      let totalHeight = 0;
+      let maxLength = 0;
+      let maxBreadth = 0;
+
+      // Calculate totals
+      for (const item of items) {
+        const v = variantMap.get(item.id || item.variant?.id);
+        const qty = item.quantity || 1;
+
+        // Defaults if columns are null (older data)
+        const w = Number(v?.weight) || 0.5;
+        const l = Number(v?.length) || 10;
+        const b = Number(v?.breadth) || 10;
+        const h = Number(v?.height) || 5;
+
+        totalWeight += (w * qty);
+        totalHeight += (h * qty); // Simple stacking logic
+        if (l > maxLength) maxLength = l;
+        if (b > maxBreadth) maxBreadth = b;
+      }
+
       try {
         const pickup_pincode = process.env.SHIPROCKET_PICKUP_PINCODE || "508207";
         const { getShiprocketRates } = await import("@/lib/shiprocket");
+
         const ratesData = await getShiprocketRates({
           pickup_pincode,
           delivery_pincode: shippingAddress.pincode,
           weight: totalWeight,
-          cod: 0
+          cod: 0,
+          length: maxLength,
+          breadth: maxBreadth,
+          height: totalHeight,
+          declared_value: calculatedSubtotal
         });
 
         if (ratesData?.data?.available_courier_companies?.length) {

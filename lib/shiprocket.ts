@@ -122,6 +122,10 @@ export async function getShiprocketRates(params: {
     delivery_pincode: string;
     weight: number;
     cod: 0 | 1;
+    length?: number;
+    breadth?: number;
+    height?: number;
+    declared_value?: number;
 }) {
     const token = await getShiprocketToken();
 
@@ -131,6 +135,11 @@ export async function getShiprocketRates(params: {
         url.searchParams.append("delivery_postcode", params.delivery_pincode);
         url.searchParams.append("weight", params.weight.toString());
         url.searchParams.append("cod", params.cod.toString());
+
+        if (params.length) url.searchParams.append("length", params.length.toString());
+        if (params.breadth) url.searchParams.append("breadth", params.breadth.toString());
+        if (params.height) url.searchParams.append("height", params.height.toString());
+        if (params.declared_value) url.searchParams.append("declared_value", params.declared_value.toString());
 
         const response = await fetch(url.toString(), {
             method: "GET",

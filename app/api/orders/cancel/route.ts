@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
 import { cancelShiprocketOrder } from "@/lib/shiprocket";
 import { getRazorpay, processRefund } from "@/lib/razorpay";
+import { sendOrderStatusUpdateEmail } from "@/lib/emailService";
 
 export async function POST(req: Request) {
     try {
@@ -87,6 +88,9 @@ export async function POST(req: Request) {
                     amount: order.points_amount
                 });
         }
+
+        // 7. Send Cancellation Email
+        await sendOrderStatusUpdateEmail(order, isRefunded ? 'refunded' : 'cancelled');
 
         return NextResponse.json({ success: true, message: "Order cancelled successfully" });
     } catch (error: any) {

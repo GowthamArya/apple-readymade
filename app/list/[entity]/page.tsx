@@ -10,10 +10,6 @@ export default async function Listing({ params }: { params: Promise<{ entity: st
   if (user?.role_name?.toLowerCase() !== 'admin') {
     forbidden();
   }
-  /* 
-   * Fetching directly from the database to avoid SocketErrors when fetching from the same server during SSR.
-   * This retrieves the list of entities (tables) for the sidebar menu.
-   */
   const { entity } = await params;
   const entityName = entity;
 
