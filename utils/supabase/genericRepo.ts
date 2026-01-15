@@ -92,12 +92,12 @@ export default class GenericRepo<T extends { id?: number | string }> {
 
   static async fetchAll(tableName: string, id?: any, requestData?: {
     filters?: Record<string, any>;
-    search?: { column: string; query: string };
+    search?: { column: string; query: string; columns?: string[] };
     pagination?: { page: number; limit: number };
     orderBy?: { column: string; ascending?: boolean };
   }) {
     let query = supabase.from(tableName).select("*", { count: "exact" });
-
+    console.log({ requestData });
     if (id) {
       query = query.eq("id", id);
     }
@@ -120,9 +120,14 @@ export default class GenericRepo<T extends { id?: number | string }> {
     }
 
     if (requestData?.search) {
-      const { column, query: searchValue } = requestData.search;
+      const { column, query: searchValue, columns } = requestData.search as any;
       if (searchValue) {
-        query = query.ilike(column, `%${searchValue}%`);
+        if (columns && Array.isArray(columns) && columns.length > 0) {
+          const orQuery = columns.map((col: string) => `${col}::text.ilike.%${searchValue}%`).join(',');
+          query = query.or(orQuery);
+        } else if (column) {
+          query = query.ilike(`${column}::text`, `%${searchValue}%`);
+        }
       }
     }
 

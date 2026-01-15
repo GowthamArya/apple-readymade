@@ -1,31 +1,17 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProductList from "./List";
-import { Button, Input, Select, Radio, Popover, theme, Tag, Space } from 'antd';
-import { useRouter } from "next/navigation";
-import { TbFilterSearch } from "react-icons/tb";
-import { BiSort } from "react-icons/bi";
-import { CgClose } from "react-icons/cg";
-import { SearchOutlined } from "@ant-design/icons";
-
-const { useToken } = theme;
-
-const sortOptions = [
-  { value: 'created_on', label: 'Most Recent' },
-  { value: 'price', label: 'Price' },
-  { value: 'mrp', label: 'MRP - Original Price' },
-];
+import { Button, Drawer, theme, FloatButton } from 'antd';
+import { useProductFilters } from "@/hooks/useProductFilters";
+import FilterSidebar from "./FilterSidebar";
+import SortBar from "./SortBar";
+import { FilterOutlined } from "@ant-design/icons";
 
 interface FilterProps {
   initialProducts: any[];
   totalCount: number;
   categories: any[];
   flashSales?: any[];
-  searchQuery?: string;
-  category?: string;
-  sortBy?: string;
-  sortOrder?: string;
-  page?: number;
 }
 
 export default function Filters({
@@ -33,71 +19,50 @@ export default function Filters({
   totalCount,
   categories = [],
   flashSales = [],
-  searchQuery = "",
-  category = "",
-  sortBy = "created_on",
-  sortOrder = "desc",
-  page = 1
 }: FilterProps) {
-  const router = useRouter();
+  const { filters, updateFilters, resetFilters } = useProductFilters();
   const [products, setProducts] = useState(initialProducts);
-  const [currentPopup, setCurrentPopup] = useState("");
-
-  const [localSearch, setLocalSearch] = useState(searchQuery);
-  const [localCategory, setLocalCategory] = useState(category);
-
   const [hasMore, setHasMore] = useState(initialProducts.length < totalCount);
-  const [currentPage, setCurrentPage] = useState(page);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const { token } = useToken();
+  const { token } = theme.useToken();
 
+  // Reset products when the URL-driven initial search occurs (prop update)
   useEffect(() => {
     setProducts(initialProducts);
     setHasMore(initialProducts.length < totalCount);
-    setCurrentPage(1);
-    setLocalSearch(searchQuery);
-    setLocalCategory(category);
-    setLoading(false);
-  }, [searchQuery, category, sortBy, sortOrder, initialProducts, totalCount]);
-
-  const updateFilters = (newParams: any) => {
-    setLoading(true);
-    const params = new URLSearchParams({
-      searchQuery: searchQuery,
-      category: category,
-      sortBy: sortBy,
-      sortOrder: sortOrder,
-      page: '1',
-      ...newParams
-    });
-
-    router.push(`/collections?${params.toString()}`);
-  };
+  }, [initialProducts, totalCount]);
 
   const loadMore = async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
 
-    const nextPage = currentPage + 1;
+    const nextPage = Math.ceil(products.length / 20) + 1;
+
+    // Construct query params from current filters
     const query = new URLSearchParams({
-      searchQuery,
-      category,
-      sortBy,
-      sortOrder,
       page: String(nextPage),
       pageSize: '20'
-    }).toString();
+    });
+
+    if (filters.searchQuery) query.set('searchQuery', filters.searchQuery);
+    if (filters.category) query.set('category', filters.category);
+    query.set('sortBy', filters.sortBy);
+    query.set('sortOrder', filters.sortOrder);
+    if (filters.minPrice !== undefined) query.set('minPrice', String(filters.minPrice));
+    if (filters.maxPrice !== undefined) query.set('maxPrice', String(filters.maxPrice));
+    if (filters.colors.length > 0) query.set('colors', filters.colors.join(','));
+    if (filters.sizes.length > 0) query.set('sizes', filters.sizes.join(','));
+    if (filters.inStock) query.set('inStock', 'true');
 
     try {
-      const res = await fetch(`/api/collections?${query}`);
+      const res = await fetch(`/api/collections?${query.toString()}`);
       const data = await res.json();
 
       if (data && Array.isArray(data.data)) {
         setProducts(prev => [...prev, ...data.data]);
-        setCurrentPage(nextPage);
         setHasMore(products.length + data.data.length < data.totalCount);
       } else {
         setHasMore(false);
@@ -121,234 +86,91 @@ export default function Filters({
   }, [loadingMore, hasMore]);
 
 
-  // Show popover for filter/sort only
-  const showPopup = (key: string) => {
-    setCurrentPopup(currentPopup === key ? "" : key);
-  };
-
-  const handleReset = () => {
-    setLoading(true);
-    setLocalSearch("");
-    setLocalCategory("");
-    router.push('/collections');
-    setCurrentPopup("");
-  };
-
-  const handleSearchApply = () => {
-    updateFilters({ searchQuery: localSearch, category: localCategory });
-    setCurrentPopup("");
-  };
-
-  const clearFilter = (key: string) => {
-    if (key === 'search') updateFilters({ searchQuery: '' });
-    if (key === 'category') updateFilters({ category: '' });
-  };
-
   return (
-    <div className="relative min-h-screen! pb-20 md:pb-0" style={{ backgroundColor: token.colorBgContainer }}>
-      <div className="sticky top-0 z-40 w-full shadow-sm py-3 px-4 flex flex-col gap-3" style={{ background: token.colorBgContainer }}>
-        <div className="flex md:flex-row md:flex-row-reverse flex-col justify-center md:justify-between items-center gap-2">
-          <div className="flex gap-2">
-            <Popover
-              content={
-                <PopUp
-                  currentPopupType="filter"
-                  onClose={() => setCurrentPopup("")}
-                  search={localSearch}
-                  setSearch={setLocalSearch}
-                  category={localCategory}
-                  setCategory={setLocalCategory}
-                  categories={categories}
-                  handleReset={handleReset}
-                  onApply={handleSearchApply}
-                />
-              }
-              title={null}
-              trigger="click"
-              open={currentPopup === 'filter'}
-              placement="bottom"
-            >
-              <Button
-                size="middle"
-                icon={<TbFilterSearch className="text-lg" />}
-                onClick={() => showPopup('filter')}
-                type={searchQuery || category ? "primary" : "default"}
-              >
-                Filter
-              </Button>
-            </Popover>
+    <div className="min-h-screen" style={{ backgroundColor: token.colorBgLayout }}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
 
-            <Popover
-              content={
-                <PopUp
-                  size="middle"
-                  currentPopupType="sort"
-                  onClose={() => setCurrentPopup("")}
-                  sortBy={sortBy}
-                  setSortBy={(val: string) => {
-                    updateFilters({ sortBy: val });
-                    setCurrentPopup("");
-                  }}
-                  sortOrder={sortOrder}
-                  setSortOrder={(val: string) => {
-                    updateFilters({ sortOrder: val });
-                    setCurrentPopup("");
-                  }}
-                />
-              }
-              title={null}
-              open={currentPopup === 'sort'}
-              placement="bottom"
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24 p-6 rounded-xl shadow-sm border" style={{ backgroundColor: token.colorBgContainer, borderColor: token.colorBorderSecondary }}>
+              <FilterSidebar
+                filters={filters}
+                updateFilters={updateFilters}
+                resetFilters={resetFilters}
+                categories={categories}
+              />
+            </div>
+          </aside>
+
+          {/* Mobile Filter Button */}
+          <div className="lg:hidden mb-4 flex justify-between items-center p-4 rounded-lg shadow-sm" style={{ backgroundColor: token.colorBgContainer }}>
+            <span className="font-semibold" style={{ color: token.colorText }}>Filters</span>
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setMobileFilterOpen(true)}
+              type="primary"
             >
-              <Button
-                size="middle"
-                icon={<BiSort className="text-lg" />}
-                onClick={() => showPopup('sort')}>
-                Sort
-              </Button>
-            </Popover>
+              Filters
+            </Button>
           </div>
-          {/* Applied Filters Chips */}
-          {(searchQuery || category) && (
-            <div className="flex flex-wrap gap-2">
-              {searchQuery && (
-                <Tag closable onClose={() => clearFilter('search')} color="blue" className="flex items-center text-sm py-1 px-2">
-                  Search: {searchQuery}
-                </Tag>
-              )}
-              {category && (
-                <Tag closable onClose={() => clearFilter('category')} color="green" className="flex items-center text-sm py-1 px-2">
-                  Category: {category}
-                </Tag>
-              )}
-              {(searchQuery || category) && (
-                <Button type="link" size="small" onClick={handleReset} className="p-0 h-auto text-xs">Clear All</Button>
+
+          {/* Mobile Filter Drawer */}
+          <Drawer
+            title="Filters"
+            placement="right"
+            onClose={() => setMobileFilterOpen(false)}
+            open={mobileFilterOpen}
+            width={320}
+            styles={{ body: { padding: 0 } }}
+          >
+            <div className="p-6">
+              <FilterSidebar
+                filters={filters}
+                updateFilters={updateFilters}
+                resetFilters={resetFilters}
+                categories={categories}
+              />
+            </div>
+          </Drawer>
+
+          {/* Main Content */}
+          <main className="flex-1">
+            <SortBar
+              totalCount={totalCount}
+              currentCount={products.length}
+              filters={filters}
+              updateFilters={updateFilters}
+            />
+
+            <div className="bg-transparent">
+              {products.length > 0 ? (
+                <ProductList products={products} token={token} flashSales={flashSales} />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 rounded-xl shadow-sm" style={{ backgroundColor: token.colorBgContainer }}>
+                  <img
+                    src="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                    alt="No products"
+                    className="h-32 mb-4"
+                  />
+                  <p className="text-lg" style={{ color: token.colorTextSecondary }}>No products found matching your criteria</p>
+                  <Button type="primary" className="mt-4" onClick={resetFilters}>Clear Filters</Button>
+                </div>
               )}
             </div>
-          )}
+
+            {/* Infinite Scroll Loader */}
+            <div ref={lastProductElementRef} className="h-20 flex justify-center items-center w-full py-4 mt-8">
+              {loadingMore && <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: token.colorPrimary }}></div>}
+              {!loadingMore && hasMore && <div className="text-sm" style={{ color: token.colorTextSecondary }}>Scroll for more...</div>}
+              {!hasMore && products.length > 0 && <span className="text-sm" style={{ color: token.colorTextDisabled }}>You've reached the end</span>}
+            </div>
+          </main>
         </div>
       </div>
 
-      {loading ? (
-        <div className="h-64 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
-        </div>
-      ) : (
-        <ProductList products={products} token={token} flashSales={flashSales} />
-      )}
-      <div ref={lastProductElementRef} className="h-10 flex justify-center items-center w-full py-4">
-        {loadingMore && <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>}
-        {!hasMore && products.length <= 0 && <span className="text-gray-400 text-sm">No more products</span>}
-      </div>
+      {/* Floating Action Button for Mobile Filter (Optional, keeping it clean for now) */}
+      <FloatButton.BackTop />
     </div>
   );
-}
-
-function PopUp({
-  currentPopupType,
-  onClose,
-  search,
-  setSearch,
-  category,
-  setCategory,
-  categories = [],
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
-  handleReset,
-  onApply
-}: any) {
-  if (!currentPopupType) return <></>;
-
-  if (currentPopupType === "filter") {
-    return (
-      <div className="w-72 sm:w-[300px] max-w-[90vw]">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold text-base">Filters</h3>
-          <Button
-            type="text"
-            size="small"
-            icon={<CgClose />}
-            aria-label="Close filter popup"
-            onClick={onClose}
-          />
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">Search</label>
-            <Space.Compact style={{ width: '100%' }}>
-              <Input
-                placeholder="Search product..."
-                onChange={(e) => setSearch(e.target.value)}
-                value={search}
-                allowClear
-                onPressEnter={onApply}
-              />
-              <Button type="primary" icon={<SearchOutlined />} onClick={onApply} />
-            </Space.Compact>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">Category</label>
-            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-              {categories.map((cat: any) => (
-                <Tag.CheckableTag
-                  key={cat.id}
-                  checked={category === cat.name}
-                  onChange={(checked) => setCategory(checked ? cat.name : "")}
-                  className="border border-gray-200 m-0"
-                >
-                  {cat.name}
-                </Tag.CheckableTag>
-              ))}
-              {categories.length === 0 && <span className="text-gray-400 text-sm">No categories found</span>}
-            </div>
-          </div>
-
-          <div className="flex justify-between pt-2 border-t mt-2">
-            <Button type="default" onClick={handleReset}>Reset</Button>
-            <Button type="primary" onClick={onApply}>Apply</Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentPopupType === "sort") {
-    return (
-      <div className="w-64 sm:w-[280px] max-w-[90vw]">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-semibold text-base">Sort By</h3>
-          <Button
-            type="text"
-            size="small"
-            icon={<CgClose />}
-            aria-label="Close sort popup"
-            onClick={onClose}
-          />
-        </div>
-        <Select
-          value={sortBy}
-          onChange={(value) => setSortBy(value)}
-          options={sortOptions}
-          style={{ width: '100%', marginBottom: 8 }}
-          placeholder="Select sorting option"
-          size="middle"
-        />
-        <div className="my-2 flex justify-between items-center">
-          <Radio.Group
-            onChange={(e) => setSortOrder(e.target.value)}
-            value={sortOrder}
-            optionType="default"
-            buttonStyle="solid"
-          >
-            <Radio.Button value="asc">Ascending</Radio.Button>
-            <Radio.Button value="desc">Descending</Radio.Button>
-          </Radio.Group>
-        </div>
-      </div>
-    );
-  }
-  return <></>;
 }

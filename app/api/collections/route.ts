@@ -11,6 +11,17 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('pageSize') || '20');
 
+  const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
+  const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
+
+  const colorsParam = searchParams.get('colors');
+  const colors = colorsParam ? colorsParam.split(',') : undefined;
+
+  const sizesParam = searchParams.get('sizes');
+  const sizes = sizesParam ? sizesParam.split(',') : undefined;
+
+  const inStock = searchParams.get('inStock') === 'true';
+
   try {
     const result = await productService.getProducts({
       searchQuery,
@@ -18,7 +29,12 @@ export async function GET(request: Request) {
       sortBy,
       sortOrder,
       page,
-      pageSize
+      pageSize,
+      minPrice,
+      maxPrice,
+      colors,
+      sizes,
+      inStock
     });
 
     return NextResponse.json(result);

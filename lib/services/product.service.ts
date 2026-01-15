@@ -44,6 +44,11 @@ export class ProductService {
         sortOrder?: string;
         page?: number;
         pageSize?: number;
+        minPrice?: number;
+        maxPrice?: number;
+        colors?: string[];
+        sizes?: string[];
+        inStock?: boolean;
     }) {
         const cacheKey = `product:${JSON.stringify(params)}`;
         const cached = await this.getFromCache<any>(cacheKey);
@@ -92,6 +97,16 @@ export class ProductService {
             console.error("Error in getSimilarVariants", error);
             return [];
         }
+    }
+
+    async getFilterFacets() {
+        const cacheKey = "filter:facets";
+        const cached = await this.getFromCache<any>(cacheKey);
+        if (cached) return cached;
+
+        const facets = await this.repo.getFilterFacets();
+        await this.setCache(cacheKey, facets, 3600); // Cache for 1 hour
+        return facets;
     }
 }
 
