@@ -8,6 +8,7 @@ const { Title, Text } = Typography;
 export default function AccessDenied() {
   const { token } = theme.useToken();
 
+
   return (
     <div
       className="flex flex-col items-center justify-center px-4"
